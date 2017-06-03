@@ -22,6 +22,9 @@ from tkinter import *
 
 #==================================(CLASSES)=============================
 
+
+#==============Master Classes==============
+
 class mainFrame(Frame):
 	"""
 	The Main Frame class is a modified tkinter Frame
@@ -41,3 +44,39 @@ class mainLabel(Label):
 	"""
 	def __init__(self,parent,**kwargs):
 		Label.__init__(self,parent,kwargs)
+
+class mainScreen(mainFrame):
+	"""
+	The mainScreen class is a class
+	for each screen of a program. It takes
+	care of loading screens and hiding others
+	and can execute commands when loaded etc
+	"""
+	screens=[]
+	lastScreen=None
+	def __init__(self,parent,screenName,statusVar,**kwargs):
+		mainFrame.__init__(self,parent)
+		self.screenName=screenName
+		self.statusVar=statusVar
+
+		#Add screen to list of screens
+		mainScreen.screens.append(self)
+
+	def show(self):
+		"""
+		The show method that will display
+		the screen on the screen and update
+		the statusVar to the name of the screen
+		"""
+		if self != mainScreen.lastScreen:
+			for screen in mainScreen.screens:
+				screen.pack_forget()
+			self.pack(expand=True,fill=BOTH)
+
+			#Update statusVar
+			self.statusVar.set(self.screenName)
+			#Update last screen
+			mainScreen.lastScreen=self
+
+
+

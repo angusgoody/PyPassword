@@ -17,6 +17,15 @@ window=Tk()
 window.title("PyPassword 2")
 window.geometry("400x300")
 
+#---Main Menu---
+mainMenu=Menu(window)
+
+fileMenu=Menu(mainMenu)
+editMenu=Menu(mainMenu)
+viewMenu=Menu(mainMenu)
+
+#---Lock Screen Menu---
+lockScreenMenu=Menu(window)
 #===============================(VARIABLES/ARRAYS)===============================
 
 #===============================(END)===============================
