@@ -39,5 +39,53 @@ def cipher(plainText, key):
 def decrypt(data,key):
 	return key.decrypt(data).rstrip()
 
+def openPickle(fileName):
+	"""
+	This function opens a pickle file
+	and returns the content
+	"""
+	content=pickle.load( open( fileName, "rb" ) )
+	return content
 #==================================(Classes)=============================
+
+class dataPod:
+	"""
+	The data pod class is a pod
+	that stores all the information
+	about a account
+	"""
+	def __init__(self):
+		pass
+class masterPod:
+	"""
+	The master pod is a class
+	for the pod that contains
+	all the passwords for a user
+	"""
+	def __init__(self,fileName):
+		self.location=fileName
+
+	def unlock(self,attempt):
+		"""
+		The unlock method will attempt
+		to decrypt the master pod file
+		"""
+		#Get file contents
+		try:
+			content=openPickle(self.location)
+		except:
+			print("Could not find specified path")
+		else:
+			#Create encryption key
+			key=AES.new(pad(attempt))
+			#Attempt unlock
+			info=decrypt(content,key)
+
+			#Check if decryption was successful
+
+	def addPod(self):
+		pass
+
+
+
 
