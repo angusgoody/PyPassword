@@ -44,8 +44,20 @@ def openPickle(fileName):
 	This function opens a pickle file
 	and returns the content
 	"""
-	content=pickle.load( open( fileName, "rb" ) )
-	return content
+	try:
+		content=pickle.load( open( fileName, "rb" ) )
+	except:
+		return None
+	else:
+		return content
+
+def savePickle(content,fileName):
+	"""
+	This function will dump
+	a pickle file
+	"""
+	pickle.dump(content, open( fileName, "wb" ) )
+	print("Save complete at",fileName)
 #==================================(Classes)=============================
 
 class dataPod:
@@ -54,8 +66,17 @@ class dataPod:
 	that stores all the information
 	about a account
 	"""
-	def __init__(self):
-		pass
+	def __init__(self,podTitle,master):
+		self.master=master
+		self.podName=podTitle
+		self.podVault={}
+
+	def addData(self,name,info):
+		self.podVault[name]=info
+
+	def getInfo(self):
+		return {self.podName:self.podVault}
+
 class masterPod:
 	"""
 	The master pod is a class
@@ -64,6 +85,11 @@ class masterPod:
 	"""
 	def __init__(self,fileName):
 		self.location=fileName
+		self.podDict={}
+		self.masterKey=None
+
+	def addKey(self,masterKey):
+		self.masterKey=masterKey
 
 	def unlock(self,attempt):
 		"""
@@ -71,21 +97,52 @@ class masterPod:
 		to decrypt the master pod file
 		"""
 		#Get file contents
-		try:
-			content=openPickle(self.location)
-		except:
-			print("Could not find specified path")
-		else:
+		content=openPickle(self.location)
+		if content != None:
 			#Create encryption key
 			key=AES.new(pad(attempt))
 			#Attempt unlock
 			info=decrypt(content,key)
 
 			#Check if decryption was successful
+			info=eval(info)
+			try:
+				info=eval(info)
+			except:
+				print("Password incorrect")
+			else:
+				print("Password correct")
+		else:
+			print("Error opening file")
 
-	def addPod(self):
-		pass
+
+	def addPod(self,podName):
+		"""
+		This method will create a new data pod
+		that contains account information
+		"""
+		podInstance=dataPod(podName,self)
+		self.podDict[podName]=podInstance
+		return podInstance
+
+	def save(self):
+		"""
+		This is where the master pod
+		is exported and saved to a file
+		"""
+		#Encrypt file here
+		encryptionKey=AES.new(pad(self.masterKey))
+		#Save file
+		savePickle(cipher(str(self.podDict),encryptionKey),self.location)
 
 
 
+
+
+angus=masterPod("angus.p")
+angus.unlock("harry")
+#angus.addKey("harry")
+#account=angus.addPod("Amazon")
+#account.addData("Password","angus123")
+#angus.save()
 
