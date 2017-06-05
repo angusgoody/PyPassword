@@ -58,9 +58,13 @@ class mainScreen(mainFrame):
 		mainFrame.__init__(self,parent)
 		self.screenName=screenName
 		self.statusVar=statusVar
+		self.parent=parent
 
 		#Add screen to list of screens
 		mainScreen.screens.append(self)
+
+		#Get menu to use with screen
+		self.mainMenu=kwargs.get("menu")
 
 	def show(self):
 		"""
@@ -77,6 +81,9 @@ class mainScreen(mainFrame):
 			self.statusVar.set(self.screenName)
 			#Update last screen
 			mainScreen.lastScreen=self
+			#Update menu
+			if self.mainMenu != None:
+				self.parent.config(menu=self.mainMenu)
 
 
 
