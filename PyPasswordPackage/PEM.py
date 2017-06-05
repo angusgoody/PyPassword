@@ -74,6 +74,9 @@ class dataPod:
 	def addData(self,name,info):
 		self.podVault[name]=info
 
+	def getVault(self):
+		return self.podVault
+
 	def getInfo(self):
 		return {self.podName:self.podVault}
 
@@ -105,16 +108,16 @@ class masterPod:
 			info=decrypt(content,key)
 
 			#Check if decryption was successful
-			info=eval(info)
+			#info=eval(info)
 			try:
 				info=eval(info)
 			except:
 				print("Password incorrect")
 			else:
 				print("Password correct")
+				print(info)
 		else:
 			print("Error opening file")
-
 
 	def addPod(self,podName):
 		"""
@@ -130,19 +133,30 @@ class masterPod:
 		This is where the master pod
 		is exported and saved to a file
 		"""
+		exportDict={}
+		#Gather info here
+		for pod in self.podDict:
+			info=self.podDict[pod].getVault()
+			exportDict[pod]=info
+
 		#Encrypt file here
 		encryptionKey=AES.new(pad(self.masterKey))
 		#Save file
-		savePickle(cipher(str(self.podDict),encryptionKey),self.location)
+		savePickle(cipher(str(exportDict),encryptionKey),self.location)
 
 
 
 
 
 angus=masterPod("angus.p")
-angus.unlock("harry")
-#angus.addKey("harry")
-#account=angus.addPod("Amazon")
-#account.addData("Password","angus123")
-#angus.save()
+angus.unlock("turtle123")
+"""
+angus.addKey("turtle123")
+amazon=angus.addPod("Amazon")
+amazon.addData("Password","angus123")
+google=angus.addPod("Google")
+google.addData("Email","angus.goody@outlook.com")
+google.addData("Password","topSecret")
+angus.save()
 
+"""
