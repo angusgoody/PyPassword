@@ -148,8 +148,9 @@ class masterPod:
 
 
 #==================Testing area=================
-angus=masterPod("angus.p")
+angus=masterPod("angus.mp")
 angus.unlock("turtle123")
+
 """
 angus.addKey("turtle123")
 amazon=angus.addPod("Amazon")
@@ -158,5 +159,4 @@ google=angus.addPod("Google")
 google.addData("Email","angus.goody@outlook.com")
 google.addData("Password","topSecret")
 angus.save()
-
 """
