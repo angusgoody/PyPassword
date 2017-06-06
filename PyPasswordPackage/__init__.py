@@ -45,24 +45,30 @@ statusLabel.pack(expand=True)
 openScreen=mainScreen(window,"PyPassword",statusVar)
 openScreen.show()
 
-openDisplay=displayView(openScreen)
-openDisplay.pack(expand=True,fill=BOTH)
+#--Top--
+openTopFrame=mainFrame(openScreen)
+openTopFrame.pack(side=TOP,fill=X)
 
-#Existing files
-openExistingFrame=mainFrame(openDisplay)
-openExistingButton=mainButton(openExistingFrame,text="Open Master Pod",width=15)
-openExistingButton.pack(expand=True)
+mainLabel(openTopFrame,text="Select Pod Or Create New One").pack(expand=True)
 
-#Create new files
-openNewFrame=mainFrame(openDisplay)
-openNewButton=mainButton(openNewFrame,text="Create New Master Pod",width=15)
-openNewButton.pack(expand=True)
+#--Main--
+openMainFrame=mainFrame(openScreen)
+openMainFrame.pack(expand=True,fill=BOTH)
 
-#Add Views
-openDisplay.addSection(openExistingFrame)
-openDisplay.addSection(openNewFrame)
-openDisplay.showSections()
+openMainListbox=advancedListbox(openMainFrame)
+openMainListbox.pack(expand=True,fill=BOTH)
 
+#--Bottom--
+openBottomFrame=mainFrame(openScreen)
+openBottomFrame.pack(fill=X,side=BOTTOM)
+
+openBottomButtonFrame=mainFrame(openBottomFrame)
+openBottomButtonFrame.pack(expand=True)
+
+openCreateFileButton=mainButton(openBottomButtonFrame,text="Create Pod")
+openCreateFileButton.pack(side=LEFT)
+openSelectFileButton=mainButton(openBottomButtonFrame,text="Open Selected")
+openSelectFileButton.pack(side=RIGHT)
 #============Choose File screen===========
 chooseFileScreen=mainScreen(window,"Choose file",statusVar,menu=lockScreenMenu)
 #===============================(END)===============================

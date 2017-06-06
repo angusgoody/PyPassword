@@ -17,13 +17,24 @@ main __init__ file.
 
 #==================================(IMPORTS)=============================
 from tkinter import *
-
+from tkinter import ttk
 #==================================(FUNCTIONS)=============================
 
 #==================================(CLASSES)=============================
 
 
 #==============Master Classes==============
+
+class advancedListbox(Listbox):
+	"""
+	The advanced Listbox is based on
+	the listbox class and adds more functionality
+	and makes it easier to track elements
+	"""
+	def __init__(self,parent):
+		Listbox.__init__(self,parent)
+
+
 
 class mainButton(Button):
 	"""
