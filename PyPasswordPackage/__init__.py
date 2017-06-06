@@ -97,7 +97,12 @@ def loadFilesInDirectory():
 			if name.endswith(".mp"):
 				filesFound.append(name)
 
-	print(filesFound)
+	#Create Master Pods and display them
+	for item in filesFound:
+		pod=masterPod(item)
+		openMainListbox.addItem(item,pod)
+	
+
 
 
 #===============================(INITIALISER)===============================

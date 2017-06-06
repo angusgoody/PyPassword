@@ -34,6 +34,8 @@ class advancedListbox(Listbox):
 	def __init__(self,parent):
 		Listbox.__init__(self,parent)
 
+		self.listData={}
+
 		#Add a scrollbar
 		self.scrollbar=Scrollbar(self)
 		self.scrollbar.pack(side=RIGHT,fill=Y)
@@ -41,6 +43,14 @@ class advancedListbox(Listbox):
 		self.scrollbar.config(command=self.yview)
 		self.config(yscrollcommand=self.scrollbar.set)
 
+	def addItem(self,textToDisplay,objectInstance):
+		"""
+		The add function allows an object
+		to be added to the listbox and display plain
+		text
+		"""
+		self.listData[textToDisplay]=objectInstance
+		self.insert(END,textToDisplay)
 
 
 class mainButton(Button):
