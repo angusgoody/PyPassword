@@ -44,7 +44,8 @@ currentDirectory=os.getcwd()
 #===============================(USER INTERFACE)===============================
 
 #-----Open Screen----
-openScreen=mainScreen(window,"PyPassword",statusVar)
+# region open screen
+openScreen=mainScreen(window,"PyPassword",statusVar,menu=lockScreenMenu)
 openScreen.show()
 
 #--Top--
@@ -72,10 +73,36 @@ openCreateFileButton.pack(side=LEFT,padx=5)
 openSelectFileButton=mainButton(openBottomButtonFrame,text="Open Selected",width=12)
 openSelectFileButton.pack(side=RIGHT,padx=5)
 
-#============Choose File screen===========
-chooseFileScreen=mainScreen(window,"Choose file",statusVar,menu=lockScreenMenu)
+#endregion
 
-#===============================(Test Area)===============================
+#===============================(FUNCTIONS)===============================
+
+#=========Utility Functions=========
+
+def insertEntry(entry,message):
+	entry.delete(0,END)
+	entry.insert(END,message)
+
+#=========Program Functions=========
+
+def loadFilesInDirectory():
+	"""
+	This function will scan the current directory
+	of the python program to locate any pod files
+	"""
+	filesFound=[]
+	#Traverse current folder
+	for root, dirs, files in os.walk(currentDirectory, topdown=False):
+		for name in files:
+			if name.endswith(".mp"):
+				filesFound.append(name)
+
+	print(filesFound)
+
+
+#===============================(INITIALISER)===============================
+loadFilesInDirectory()
+#===============================(TESTING AREA)===============================
 
 #===============================(END)===============================
 window.mainloop()
