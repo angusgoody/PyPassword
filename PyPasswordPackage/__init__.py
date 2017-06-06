@@ -11,6 +11,7 @@
 from tkinter import *
 from tkinter import messagebox
 import random
+import os
 
 from PyUi import *
 from PEM import *
@@ -38,6 +39,7 @@ statusLabel=mainLabel(statusBar,textvariable=statusVar)
 statusLabel.pack(expand=True)
 
 #===============================(VARIABLES/ARRAYS)===============================
+currentDirectory=os.getcwd()
 
 #===============================(USER INTERFACE)===============================
 
@@ -69,7 +71,11 @@ openCreateFileButton=mainButton(openBottomButtonFrame,text="Create Pod",width=12
 openCreateFileButton.pack(side=LEFT,padx=5)
 openSelectFileButton=mainButton(openBottomButtonFrame,text="Open Selected",width=12)
 openSelectFileButton.pack(side=RIGHT,padx=5)
+
 #============Choose File screen===========
 chooseFileScreen=mainScreen(window,"Choose file",statusVar,menu=lockScreenMenu)
+
+#===============================(Test Area)===============================
+
 #===============================(END)===============================
 window.mainloop()
