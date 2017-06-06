@@ -32,6 +32,10 @@ lockScreenMenu=Menu(window)
 
 #--Status bar--
 statusVar=StringVar()
+statusBar=mainFrame(window)
+statusBar.pack(fill=X,side=BOTTOM)
+statusLabel=mainLabel(statusBar,textvariable=statusVar)
+statusLabel.pack(expand=True)
 
 #===============================(VARIABLES/ARRAYS)===============================
 
@@ -44,13 +48,22 @@ openScreen.show()
 openDisplay=displayView(openScreen)
 openDisplay.pack(expand=True,fill=BOTH)
 
-#Add display view sections
-
+#Existing files
 openExistingFrame=mainFrame(openDisplay)
+openExistingButton=mainButton(openExistingFrame,text="Open Master Pod",width=15)
+openExistingButton.pack(expand=True)
 
+#Create new files
+openNewFrame=mainFrame(openDisplay)
+openNewButton=mainButton(openNewFrame,text="Create New Master Pod",width=15)
+openNewButton.pack(expand=True)
+
+#Add Views
+openDisplay.addSection(openExistingFrame)
+openDisplay.addSection(openNewFrame)
+openDisplay.showSections()
 
 #============Choose File screen===========
 chooseFileScreen=mainScreen(window,"Choose file",statusVar,menu=lockScreenMenu)
-chooseFileScreen.show()
 #===============================(END)===============================
 window.mainloop()

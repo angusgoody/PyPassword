@@ -25,6 +25,16 @@ from tkinter import *
 
 #==============Master Classes==============
 
+class mainButton(Button):
+	"""
+	The main button class is mainly
+	used to track all the buttons
+	on the screen but can be used
+	to modify styles of the button
+	"""
+	def __init__(self,parent,*args,**kwargs):
+		Button.__init__(self,parent,kwargs)
+
 class mainFrame(Frame):
 	"""
 	The Main Frame class is a modified tkinter Frame
