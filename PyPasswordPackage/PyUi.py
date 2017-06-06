@@ -34,6 +34,13 @@ class advancedListbox(Listbox):
 	def __init__(self,parent):
 		Listbox.__init__(self,parent)
 
+		#Add a scrollbar
+		self.scrollbar=Scrollbar(self)
+		self.scrollbar.pack(side=RIGHT,fill=Y)
+
+		self.scrollbar.config(command=self.yview)
+		self.config(yscrollcommand=self.scrollbar.set)
+
 
 
 class mainButton(Button):
