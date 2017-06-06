@@ -100,8 +100,9 @@ def loadFilesInDirectory():
 	#Create Master Pods and display them
 	for item in filesFound:
 		pod=masterPod(item)
-		openMainListbox.addItem(item,pod)
-	
+		#Adds to listbox and removes extension
+		openMainListbox.addItem(os.path.splitext(item)[0],pod)
+
 
 
 

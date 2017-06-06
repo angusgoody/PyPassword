@@ -133,18 +133,26 @@ class masterPod:
 		This is where the master pod
 		is exported and saved to a file
 		"""
-		exportDict={}
-		#Gather info here
-		for pod in self.podDict:
-			info=self.podDict[pod].getVault()
-			exportDict[pod]=info
+		if self.masterKey != None:
+			exportDict={}
+			#Gather info here
+			for pod in self.podDict:
+				info=self.podDict[pod].getVault()
+				exportDict[pod]=info
 
-		#Encrypt file here
-		encryptionKey=AES.new(pad(self.masterKey))
-		#Save file
-		savePickle(cipher(str(exportDict),encryptionKey),self.location)
+			#Encrypt file here
+			encryptionKey=AES.new(pad(self.masterKey))
+			#Save file
+			savePickle(cipher(str(exportDict),encryptionKey),self.location)
+		else:
+			print("Unable to save file (No master key)")
 
 
 
 
 #==================Testing area=================
+"""
+newPod=masterPod("bob.mp")
+newPod.addKey("secret")
+newPod.save()
+"""
