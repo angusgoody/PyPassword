@@ -49,7 +49,7 @@ openScreen.show()
 openTopFrame=mainFrame(openScreen)
 openTopFrame.pack(side=TOP,fill=X)
 
-mainLabel(openTopFrame,text="Select Pod Or Create New One").pack(expand=True)
+mainLabel(openTopFrame,text="Select Pod Or Create New One",font="Helvetica 17").pack(expand=True)
 
 #--Main--
 openMainFrame=mainFrame(openScreen)
@@ -65,10 +65,10 @@ openBottomFrame.pack(fill=X,side=BOTTOM)
 openBottomButtonFrame=mainFrame(openBottomFrame)
 openBottomButtonFrame.pack(expand=True)
 
-openCreateFileButton=mainButton(openBottomButtonFrame,text="Create Pod")
-openCreateFileButton.pack(side=LEFT)
-openSelectFileButton=mainButton(openBottomButtonFrame,text="Open Selected")
-openSelectFileButton.pack(side=RIGHT)
+openCreateFileButton=mainButton(openBottomButtonFrame,text="Create Pod",width=12)
+openCreateFileButton.pack(side=LEFT,padx=5)
+openSelectFileButton=mainButton(openBottomButtonFrame,text="Open Selected",width=12)
+openSelectFileButton.pack(side=RIGHT,padx=5)
 #============Choose File screen===========
 chooseFileScreen=mainScreen(window,"Choose file",statusVar,menu=lockScreenMenu)
 #===============================(END)===============================
