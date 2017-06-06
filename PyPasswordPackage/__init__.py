@@ -32,9 +32,22 @@ lockScreenMenu=Menu(window)
 
 #--Status bar--
 statusVar=StringVar()
+
 #===============================(VARIABLES/ARRAYS)===============================
 
 #===============================(USER INTERFACE)===============================
+
+#-----Open Screen----
+openScreen=mainScreen(window,"PyPassword",statusVar)
+openScreen.show()
+
+openDisplay=displayView(openScreen)
+openDisplay.pack(expand=True,fill=BOTH)
+
+#Add display view sections
+
+openExistingFrame=mainFrame(openDisplay)
+
 
 #============Choose File screen===========
 chooseFileScreen=mainScreen(window,"Choose file",statusVar,menu=lockScreenMenu)

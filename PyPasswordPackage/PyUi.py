@@ -85,5 +85,25 @@ class mainScreen(mainFrame):
 			if self.mainMenu != None:
 				self.parent.config(menu=self.mainMenu)
 
+class displayView(mainFrame):
+	"""
+	This display View class is a class
+	that allows multiple frames
+	to be shown together in a nice
+	format. It evenly spreads each frame
+	out and takes care of colouring etc
+	"""
+
+	def __init__(self,parent):
+		mainFrame.__init__(self,parent)
+		self.sections=[]
+
+	def addSection(self,frameToShow):
+		self.sections.append(frameToShow)
+
+	def showSections(self):
+		for item in self.sections:
+			item.pack(expand=True,fill=BOTH)
+
 
 
