@@ -55,6 +55,25 @@ class advancedListbox(Listbox):
 		self.listData[textToDisplay]=objectInstance
 		self.insert(END,textToDisplay)
 
+	def getSelected(self):
+		"""
+		This method will attempt to return
+		the selected object
+		"""
+		index=0
+		try:
+			index =self.curselection()
+		except:
+			print("Method called on static listbox")
+		else:
+			try:
+				value=self.get(index)
+			except:
+				print("Index error")
+			else:
+				for item in self.listData:
+					if item == value:
+						return self.listData[item]
 
 class mainButton(Button):
 	"""

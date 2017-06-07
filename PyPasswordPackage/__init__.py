@@ -103,6 +103,17 @@ def loadFilesInDirectory():
 		#Adds to listbox and removes extension
 		openMainListbox.addItem(os.path.splitext(item)[0],pod)
 
+def openSelected():
+	"""
+	This function is for when the user
+	attempts to open a master pod file
+	"""
+	current=openMainListbox.getSelected()
+	if current != None:
+		#Attempt to open the master pod
+		pass
+
+
 
 
 
