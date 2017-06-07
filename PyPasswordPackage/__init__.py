@@ -217,6 +217,13 @@ openMasterCancelButton.config(command=lambda: openScreen.show())
 openMainListbox.bind("<Double-Button-1>",lambda event: openSelected())
 #=====MASTER SCREEN=====
 openMasterEntry.bind("<Return>", lambda event: unlockMasterPod())
+
+#===============================(MENU CASCADES)===============================
+mainMenu.add_cascade(label="File",menu=fileMenu)
+mainMenu.add_cascade(label="Edit",menu=editMenu)
+mainMenu.add_cascade(label="View",menu=viewMenu)
+
+
 #===============================(INITIALISER)===============================
 loadFilesInDirectory()
 #===============================(TESTING AREA)===============================
