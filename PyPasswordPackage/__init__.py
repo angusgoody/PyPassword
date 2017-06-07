@@ -82,32 +82,31 @@ openMasterDisplay=displayView(openMasterScreen)
 openMasterDisplay.pack(expand=True,fill=BOTH)
 
 #--Top Section--
-openMasterTopFrame=mainFrame(openMasterDisplay)
-openMasterSub=mainFrame(openMasterTopFrame)
-openMasterSub.pack(expand=True)
+openMasterTopFrame=centerFrame(openMasterDisplay)
+openMasterSub=openMasterTopFrame.miniFrame
 
 titleLabel(openMasterSub,text="File: ").pack(side=LEFT)
 openMasterTopVar=StringVar()
 openMasterTopVar.set("None")
 titleLabel(openMasterSub,textvariable=openMasterTopVar).pack(side=RIGHT)
+
 #--Main Section--
-openMasterMainFrame=mainFrame(openMasterDisplay)
-openMasterSub=mainFrame(openMasterMainFrame)
-openMasterSub.pack(expand=True)
+openMasterMainFrame=centerFrame(openMasterDisplay)
+openMasterSub=openMasterMainFrame.miniFrame
 
 mainLabel(openMasterSub,text="Enter password").pack()
 openMasterEntry=Entry(openMasterSub,show="•",justify=CENTER)
 openMasterEntry.pack()
 
 #--Bottom Section--
-openMasterBottomFrame=mainFrame(openMasterDisplay)
-openMasterBottomSub=mainFrame(openMasterBottomFrame)
-openMasterBottomSub.pack(expand=True)
+openMasterBottomFrame=centerFrame(openMasterDisplay)
+openMasterBottomSub=openMasterBottomFrame.miniFrame
 
 openMasterUnlockButton=Button(openMasterBottomSub,text="Unlock",width=12)
 openMasterUnlockButton.pack(pady=5)
 openMasterCancelButton=Button(openMasterBottomSub,text="Cancel",width=12)
 openMasterCancelButton.pack()
+
 #--Add Views--
 openMasterDisplay.addSection(openMasterTopFrame)
 openMasterDisplay.addSection(openMasterMainFrame)
@@ -118,6 +117,7 @@ openMasterDisplay.showSections()
 #endregion
 
 #----Home screen-----
+#region home screen
 homeScreen=mainScreen(window,"Home",statusVar,menu=mainMenu)
 
 #Main view
@@ -127,6 +127,14 @@ homeMainFrame.pack(expand=True,fill=BOTH)
 homePodListbox=advancedListbox(homeMainFrame)
 homePodListbox.pack(expand=True,fill=BOTH)
 
+#Bottom View
+homeBottomFrame=centerFrame(homeScreen)
+homeBottomFrame.pack(side=BOTTOM,fill=X)
+homeBottomSub=homeBottomFrame.miniFrame
+
+homeOpenPodButton=Button(homeBottomSub,text="Open",width=9)
+homeOpenPodButton.pack()
+#endregion
 #===============================(FUNCTIONS)===============================
 
 #=========Utility Functions=========
@@ -142,6 +150,15 @@ def askMessage(pre,message):
 		print(message)
 
 #=========Program Functions=========
+
+def lockdown():
+	"""
+	The lockdown function is used
+	to lock the master pod and return
+	to the open file screen
+	"""
+	homePodListbox.fullClear()
+	openMasterScreen.show()
 
 def addPodsToListbox(listbox,pods):
 	listbox.fullClear()
@@ -218,6 +235,8 @@ openMasterCancelButton.config(command=lambda: openScreen.show())
 #===============================(BINDINGS)===============================
 #=====OPEN SCREEN=====
 openMainListbox.bind("<Double-Button-1>",lambda event: openSelected())
+openMainListbox.bind("<Return>",lambda event: openSelected())
+
 #=====MASTER SCREEN=====
 openMasterEntry.bind("<Return>", lambda event: unlockMasterPod())
 
@@ -227,7 +246,7 @@ mainMenu.add_cascade(label="Edit",menu=editMenu)
 mainMenu.add_cascade(label="View",menu=viewMenu)
 
 #==File==
-fileMenu.add_command(label="Lockdown",command=lambda: openMasterScreen.show())
+fileMenu.add_command(label="Lockdown",command=lockdown)
 #===============================(INITIALISER)===============================
 loadFilesInDirectory()
 #===============================(TESTING AREA)===============================

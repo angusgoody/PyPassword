@@ -199,6 +199,12 @@ class topStrip(mainFrame):
 		self.labelView=titleLabel(self,textvariable=self.textVar)
 		self.labelView.pack(expand=True)
 
+class centerFrame(mainFrame):
+	def __init__(self,parent):
+		mainFrame.__init__(self,parent)
+
+		self.miniFrame=mainFrame(self)
+		self.miniFrame.pack(expand=True)
 
 
 
