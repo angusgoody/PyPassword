@@ -75,17 +75,49 @@ openSelectFileButton.pack(side=RIGHT,padx=5)
 
 #endregion
 
-#----Master Password Screen-----
-masterScreen=mainScreen(window,"Master Password",statusVar)
+#----Open Master Password Screen-----
+#region master screen
+openMasterScreen=mainScreen(window, "Master Password", statusVar)
 
-masterTopVar=StringVar()
-masterTopVar.set("No file loaded")
-masterTopFrame=topStrip(masterScreen,masterTopVar)
-masterTopFrame.pack(side=TOP,fill=X)
+openMasterDisplay=displayView(openMasterScreen)
+openMasterDisplay.pack(expand=True,fill=BOTH)
 
-masterMain=mainFrame(masterScreen)
-masterMain.pack(expand=True)
+#--Top Section--
+openMasterTopFrame=mainFrame(openMasterDisplay)
+openMasterSub=mainFrame(openMasterTopFrame)
+openMasterSub.pack(expand=True)
 
+mainLabel(openMasterSub,text="File: ",font="Helvetica 17").pack(side=LEFT)
+openMasterTopVar=StringVar()
+openMasterTopVar.set("None")
+mainLabel(openMasterSub,textvariable=openMasterTopVar,font="Helvetica 17").pack(side=RIGHT)
+
+#--Main Section--
+openMasterMainFrame=mainFrame(openMasterDisplay)
+openMasterSub=mainFrame(openMasterMainFrame)
+openMasterSub.pack(expand=True)
+
+mainLabel(openMasterSub,text="Enter password").pack()
+openMasterEntry=Entry(openMasterSub,show="•")
+openMasterEntry.pack()
+
+#--Bottom Section--
+openMasterBottomFrame=mainFrame(openMasterDisplay)
+openMasterBottomSub=mainFrame(openMasterBottomFrame)
+openMasterBottomSub.pack(expand=True)
+
+openMasterUnlockButton=Button(openMasterBottomSub,text="Unlock",width=12)
+openMasterUnlockButton.pack(pady=5)
+openMasterCancelButton=Button(openMasterBottomSub,text="Cancel",width=12)
+openMasterCancelButton.pack()
+#--Add Views--
+openMasterDisplay.addSection(openMasterTopFrame)
+openMasterDisplay.addSection(openMasterMainFrame)
+openMasterDisplay.addSection(openMasterBottomFrame)
+
+openMasterDisplay.showSections()
+
+#endregion
 #===============================(FUNCTIONS)===============================
 
 #=========Utility Functions=========
@@ -125,10 +157,11 @@ def openSelected():
 	attempts to open a master pod file
 	"""
 	current=openMainListbox.getSelected()
-	print(current)
 	if current != None:
-		#Attempt to open the master pod
-		pass
+		#Load screen to enter master password
+		openMasterScreen.show()
+		openMasterTopVar.set(current.getRootName())
+
 	else:
 		askMessage("Select","No Pod Selected")
 

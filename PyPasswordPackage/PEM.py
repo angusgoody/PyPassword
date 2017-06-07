@@ -16,7 +16,7 @@ to save it from being in the main __init__ file
 #==================================(IMPORTS)=============================
 from Crypto.Cipher import AES
 import pickle
-
+import os
 #==================================(FUNCTIONS)=============================
 
 def pad(text):
@@ -87,6 +87,7 @@ class masterPod:
 	all the passwords for a user
 	"""
 	def __init__(self,fileName):
+		self.fileName=fileName
 		self.location=fileName
 		self.podDict={}
 		self.masterKey=None
@@ -147,7 +148,8 @@ class masterPod:
 		else:
 			print("Unable to save file (No master key)")
 
-
+	def getRootName(self):
+		return os.path.splitext(self.fileName)[0]
 
 
 #==================Testing area=================
