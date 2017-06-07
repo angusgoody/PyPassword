@@ -68,7 +68,7 @@ class advancedListbox(Listbox):
 			try:
 				value=self.get(index)
 			except:
-				print("Index error")
+				pass
 			else:
 				for item in self.listData:
 					if item == value:

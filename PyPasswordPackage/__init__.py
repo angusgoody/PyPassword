@@ -59,7 +59,7 @@ openTopFrame.pack(side=TOP,fill=X)
 openMainFrame=mainFrame(openScreen)
 openMainFrame.pack(expand=True,fill=BOTH)
 
-openMainListbox=advancedListbox(openMainFrame,font="courier 17")
+openMainListbox=advancedListbox(openMainFrame,font="courier 19")
 openMainListbox.pack(expand=True,fill=BOTH)
 
 #--Bottom--
@@ -69,7 +69,7 @@ openBottomFrame.pack(fill=X,side=BOTTOM)
 openBottomButtonFrame=mainFrame(openBottomFrame)
 openBottomButtonFrame.pack(expand=True)
 
-openCreateFileButton=mainButton(openBottomButtonFrame,text="Create Pod",width=12)
+openCreateFileButton=mainButton(openBottomButtonFrame,text="Create Master Pod",width=12)
 openCreateFileButton.pack(side=LEFT,padx=5)
 openSelectFileButton=mainButton(openBottomButtonFrame,text="Open Selected",width=12)
 openSelectFileButton.pack(side=RIGHT,padx=5)
@@ -137,6 +137,9 @@ homeBottomSub=homeBottomFrame.miniFrame
 
 homeOpenPodButton=Button(homeBottomSub,text="Open Pod",width=9)
 homeOpenPodButton.pack()
+
+homeNewPodButton=Button(homeBottomSub,text="New Pod",width=9)
+homeNewPodButton.pack(pady=5)
 #endregion
 #===============================(FUNCTIONS)===============================
 
@@ -173,6 +176,7 @@ def goHome():
 		openScreen.show()
 	else:
 		homeScreen.show()
+
 def addPodsToListbox(listbox,pods):
 	listbox.fullClear()
 	for pod in pods:
