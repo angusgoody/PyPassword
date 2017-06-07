@@ -49,10 +49,10 @@ openScreen=mainScreen(window,"PyPassword",statusVar,menu=lockScreenMenu)
 openScreen.show()
 
 #--Top--
-openTopFrame=mainFrame(openScreen)
+openTopVar=StringVar()
+openTopVar.set("Select Pod Or Create New One")
+openTopFrame=topStrip(openScreen,openTopVar)
 openTopFrame.pack(side=TOP,fill=X)
-
-mainLabel(openTopFrame,text="Select Pod Or Create New One",font="Helvetica 17").pack(expand=True)
 
 #--Main--
 openMainFrame=mainFrame(openScreen)
@@ -75,6 +75,17 @@ openSelectFileButton.pack(side=RIGHT,padx=5)
 
 #endregion
 
+#----Master Password Screen-----
+masterScreen=mainScreen(window,"Master Password",statusVar)
+
+masterTopVar=StringVar()
+masterTopVar.set("No file loaded")
+masterTopFrame=topStrip(masterScreen,masterTopVar)
+masterTopFrame.pack(side=TOP,fill=X)
+
+masterMain=mainFrame(masterScreen)
+masterMain.pack(expand=True)
+
 #===============================(FUNCTIONS)===============================
 
 #=========Utility Functions=========
@@ -83,6 +94,11 @@ def insertEntry(entry,message):
 	entry.delete(0,END)
 	entry.insert(END,message)
 
+def askMessage(pre,message):
+	try:
+		messagebox.showinfo(pre,message)
+	except:
+		print(message)
 #=========Program Functions=========
 
 def loadFilesInDirectory():
@@ -109,13 +125,22 @@ def openSelected():
 	attempts to open a master pod file
 	"""
 	current=openMainListbox.getSelected()
+	print(current)
 	if current != None:
 		#Attempt to open the master pod
 		pass
+	else:
+		askMessage("Select","No Pod Selected")
 
 
 
 
+#===============================(BUTTONS)===============================
+
+#=====OPEN SCREEN=====
+openSelectFileButton.config(command=openSelected)
+#===============================(BINDINGS)===============================
+openMainListbox.bind("<Double-Button-1>",lambda event: openSelected())
 
 #===============================(INITIALISER)===============================
 loadFilesInDirectory()

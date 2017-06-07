@@ -165,5 +165,21 @@ class displayView(mainFrame):
 		for item in self.sections:
 			item.pack(expand=True,fill=BOTH)
 
+class topStrip(mainFrame):
+	"""
+	The stopStrip class is a class
+	that is used to go at the top of
+	a screen to display information
+	"""
+	def __init__(self,parent,textVar):
+		mainFrame.__init__(self,parent)
+		self.textVar=textVar
+
+		#Label
+		self.labelView=mainLabel(self,textvariable=self.textVar,font="Helvetica 17")
+		self.labelView.pack(expand=True)
+
+
+
 
 
