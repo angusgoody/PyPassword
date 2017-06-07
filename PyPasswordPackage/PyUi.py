@@ -105,6 +105,16 @@ class mainLabel(Label):
 	def __init__(self,parent,**kwargs):
 		Label.__init__(self,parent,kwargs)
 
+class titleLabel(mainLabel):
+	"""
+	The title label is a class
+	for displaying labels that
+	are important
+	"""
+	def __init__(self,parent,**kwargs):
+		mainLabel.__init__(self,parent,**kwargs)
+		self.config(font="Helvetica 17")
+
 class mainScreen(mainFrame):
 	"""
 	The mainScreen class is a class
@@ -176,7 +186,7 @@ class topStrip(mainFrame):
 		self.textVar=textVar
 
 		#Label
-		self.labelView=mainLabel(self,textvariable=self.textVar,font="Helvetica 17")
+		self.labelView=titleLabel(self,textvariable=self.textVar)
 		self.labelView.pack(expand=True)
 
 

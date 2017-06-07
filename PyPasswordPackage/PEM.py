@@ -86,6 +86,7 @@ class masterPod:
 	for the pod that contains
 	all the passwords for a user
 	"""
+	currentLoadedPod=None
 	def __init__(self,fileName):
 		self.fileName=fileName
 		self.location=fileName
@@ -113,12 +114,11 @@ class masterPod:
 			try:
 				info=eval(info)
 			except:
-				print("Password incorrect")
+				return False
 			else:
-				print("Password correct")
-				print(info)
+				return info
 		else:
-			print("Error opening file")
+			return False
 
 	def addPod(self,podName):
 		"""

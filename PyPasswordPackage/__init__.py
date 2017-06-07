@@ -40,7 +40,6 @@ statusLabel.pack(expand=True)
 
 #===============================(VARIABLES/ARRAYS)===============================
 currentDirectory=os.getcwd()
-
 #===============================(USER INTERFACE)===============================
 
 #-----Open Screen----
@@ -87,18 +86,17 @@ openMasterTopFrame=mainFrame(openMasterDisplay)
 openMasterSub=mainFrame(openMasterTopFrame)
 openMasterSub.pack(expand=True)
 
-mainLabel(openMasterSub,text="File: ",font="Helvetica 17").pack(side=LEFT)
+titleLabel(openMasterSub,text="File: ").pack(side=LEFT)
 openMasterTopVar=StringVar()
 openMasterTopVar.set("None")
-mainLabel(openMasterSub,textvariable=openMasterTopVar,font="Helvetica 17").pack(side=RIGHT)
-
+titleLabel(openMasterSub,textvariable=openMasterTopVar).pack(side=RIGHT)
 #--Main Section--
 openMasterMainFrame=mainFrame(openMasterDisplay)
 openMasterSub=mainFrame(openMasterMainFrame)
 openMasterSub.pack(expand=True)
 
 mainLabel(openMasterSub,text="Enter password").pack()
-openMasterEntry=Entry(openMasterSub,show="•")
+openMasterEntry=Entry(openMasterSub,show="•",justify=CENTER)
 openMasterEntry.pack()
 
 #--Bottom Section--
@@ -118,6 +116,7 @@ openMasterDisplay.addSection(openMasterBottomFrame)
 openMasterDisplay.showSections()
 
 #endregion
+
 #===============================(FUNCTIONS)===============================
 
 #=========Utility Functions=========
@@ -131,6 +130,7 @@ def askMessage(pre,message):
 		messagebox.showinfo(pre,message)
 	except:
 		print(message)
+
 #=========Program Functions=========
 
 def loadFilesInDirectory():
@@ -161,10 +161,22 @@ def openSelected():
 		#Load screen to enter master password
 		openMasterScreen.show()
 		openMasterTopVar.set(current.getRootName())
+		#Load master pod
+		masterPod.currentLoadedPod=current
 
 	else:
 		askMessage("Select","No Pod Selected")
 
+def attemptUnlockMasterPod():
+
+	currentMasterPod=masterPod.currentLoadedPod
+	attempt=openMasterEntry.get()
+	#Attempt to unlock
+	response=currentMasterPod.unlock(attempt)
+	if response != None and response != False:
+		print("Unlock success")
+	else:
+		askMessage("Incorrect","Password Incorrect")
 
 
 
@@ -172,9 +184,14 @@ def openSelected():
 
 #=====OPEN SCREEN=====
 openSelectFileButton.config(command=openSelected)
-#===============================(BINDINGS)===============================
-openMainListbox.bind("<Double-Button-1>",lambda event: openSelected())
+#=====MASTER SCREEN=====
+openMasterUnlockButton.config(command=attemptUnlockMasterPod)
 
+#===============================(BINDINGS)===============================
+#=====OPEN SCREEN=====
+openMainListbox.bind("<Double-Button-1>",lambda event: openSelected())
+#=====MASTER SCREEN=====
+openMasterEntry.bind("<Return>",lambda event: attemptUnlockMasterPod())
 #===============================(INITIALISER)===============================
 loadFilesInDirectory()
 #===============================(TESTING AREA)===============================
