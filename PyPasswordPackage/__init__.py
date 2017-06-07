@@ -40,11 +40,13 @@ statusLabel.pack(expand=True)
 
 #===============================(VARIABLES/ARRAYS)===============================
 currentDirectory=os.getcwd()
+lockedScreens=[]
 #===============================(USER INTERFACE)===============================
 
 #-----Open Screen----
 # region open screen
 openScreen=mainScreen(window,"PyPassword",statusVar,menu=lockScreenMenu)
+lockedScreens.append(openScreen)
 openScreen.show()
 
 #--Top--
@@ -57,7 +59,7 @@ openTopFrame.pack(side=TOP,fill=X)
 openMainFrame=mainFrame(openScreen)
 openMainFrame.pack(expand=True,fill=BOTH)
 
-openMainListbox=advancedListbox(openMainFrame)
+openMainListbox=advancedListbox(openMainFrame,font="courier 17")
 openMainListbox.pack(expand=True,fill=BOTH)
 
 #--Bottom--
@@ -77,6 +79,7 @@ openSelectFileButton.pack(side=RIGHT,padx=5)
 #----Open Master Password Screen-----
 #region master screen
 openMasterScreen=mainScreen(window, "Master Password", statusVar,menu=lockScreenMenu)
+lockedScreens.append(openMasterScreen)
 
 openMasterDisplay=displayView(openMasterScreen)
 openMasterDisplay.pack(expand=True,fill=BOTH)
@@ -124,7 +127,7 @@ homeScreen=mainScreen(window,"Home",statusVar,menu=mainMenu)
 homeMainFrame=mainFrame(homeScreen)
 homeMainFrame.pack(expand=True,fill=BOTH)
 
-homePodListbox=advancedListbox(homeMainFrame)
+homePodListbox=advancedListbox(homeMainFrame,font="Arial 18")
 homePodListbox.pack(expand=True,fill=BOTH)
 
 #Bottom View
@@ -160,6 +163,16 @@ def lockdown():
 	homePodListbox.fullClear()
 	openMasterScreen.show()
 
+def goHome():
+	"""
+	The go home function returns to the home
+	screen depending on what screen is loaded
+	"""
+	currentScreen=mainScreen.currenScreen
+	if currentScreen in lockedScreens:
+		openScreen.show()
+	else:
+		homeScreen.show()
 def addPodsToListbox(listbox,pods):
 	listbox.fullClear()
 	for pod in pods:
@@ -237,6 +250,8 @@ openSelectFileButton.config(command=openSelected)
 openMasterUnlockButton.config(command=unlockMasterPod)
 openMasterCancelButton.config(command=lambda: openScreen.show())
 #===============================(BINDINGS)===============================
+#=====STATUS BAR=====
+statusBar.addBinding("<Double-Button-1>",lambda event: goHome())
 #=====OPEN SCREEN=====
 openMainListbox.bind("<Double-Button-1>",lambda event: openSelected())
 openMainListbox.bind("<Return>",lambda event: openSelected())

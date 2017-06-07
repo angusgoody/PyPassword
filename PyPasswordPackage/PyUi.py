@@ -31,8 +31,8 @@ class advancedListbox(Listbox):
 	the listbox class and adds more functionality
 	and makes it easier to track elements
 	"""
-	def __init__(self,parent):
-		Listbox.__init__(self,parent)
+	def __init__(self,parent,**kwargs):
+		Listbox.__init__(self,parent,**kwargs)
 
 		#Track data in listbox
 		self.listData={}
@@ -44,8 +44,6 @@ class advancedListbox(Listbox):
 		self.scrollbar.config(command=self.yview)
 		self.config(yscrollcommand=self.scrollbar.set)
 
-		#Config font
-		self.config(font="courier 17")
 
 	def addItem(self,textToDisplay,objectInstance):
 		"""
@@ -104,6 +102,12 @@ class mainFrame(Frame):
 	def __init__(self,parent,**kwargs):
 		Frame.__init__(self,parent,kwargs)
 
+	def addBinding(self,bindButton,bindFunction):
+		"""
+		This method will allow the widget
+		to be binded with a better binding function
+		"""
+		self.bind(bindButton,bindFunction)
 class mainLabel(Label):
 	"""
 	The mainLabel class is similar to the mainFrame
@@ -134,6 +138,7 @@ class mainScreen(mainFrame):
 	"""
 	screens=[]
 	lastScreen=None
+	currenScreen=None
 	def __init__(self,parent,screenName,statusVar,**kwargs):
 		mainFrame.__init__(self,parent)
 		self.screenName=screenName
@@ -161,6 +166,7 @@ class mainScreen(mainFrame):
 			self.statusVar.set(self.screenName)
 			#Update last screen
 			mainScreen.lastScreen=self
+			mainScreen.currenScreen=self
 			#Update menu
 			if self.mainMenu != None:
 				self.parent.config(menu=self.mainMenu)
