@@ -46,6 +46,7 @@ class advancedListbox(Listbox):
 
 		#Config font
 		self.config(font="courier 17")
+
 	def addItem(self,textToDisplay,objectInstance):
 		"""
 		The add function allows an object
@@ -74,6 +75,15 @@ class advancedListbox(Listbox):
 				for item in self.listData:
 					if item == value:
 						return self.listData[item]
+
+	def fullClear(self):
+		"""
+		The clear method will delete
+		everything in the listbox and remove
+		from dictionary as well
+		"""
+		self.delete(0,END)
+		self.listData.clear()
 
 class mainButton(Button):
 	"""

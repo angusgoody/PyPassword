@@ -76,7 +76,7 @@ openSelectFileButton.pack(side=RIGHT,padx=5)
 
 #----Open Master Password Screen-----
 #region master screen
-openMasterScreen=mainScreen(window, "Master Password", statusVar)
+openMasterScreen=mainScreen(window, "Master Password", statusVar,menu=lockScreenMenu)
 
 openMasterDisplay=displayView(openMasterScreen)
 openMasterDisplay.pack(expand=True,fill=BOTH)
@@ -117,6 +117,16 @@ openMasterDisplay.showSections()
 
 #endregion
 
+#----Home screen-----
+homeScreen=mainScreen(window,"Home",statusVar,menu=mainMenu)
+
+#Main view
+homeMainFrame=mainFrame(homeScreen)
+homeMainFrame.pack(expand=True,fill=BOTH)
+
+homePodListbox=advancedListbox(homeMainFrame)
+homePodListbox.pack(expand=True,fill=BOTH)
+
 #===============================(FUNCTIONS)===============================
 
 #=========Utility Functions=========
@@ -132,6 +142,11 @@ def askMessage(pre,message):
 		print(message)
 
 #=========Program Functions=========
+
+def addPodsToListbox(listbox,pods):
+	listbox.fullClear()
+	for pod in pods:
+		listbox.addItem(pod,pods[pod])
 
 def loadFilesInDirectory():
 	"""
@@ -167,7 +182,7 @@ def openSelected():
 	else:
 		askMessage("Select","No Pod Selected")
 
-def attemptUnlockMasterPod():
+def unlockMasterPod():
 
 	currentMasterPod=masterPod.currentLoadedPod
 	attempt=openMasterEntry.get()
@@ -175,6 +190,16 @@ def attemptUnlockMasterPod():
 	response=currentMasterPod.unlock(attempt)
 	if response != None and response != False:
 		print("Unlock success")
+		#Track the pods found
+		podDict={}
+		for item in response:
+			#Create pod instance
+			pod=dataPod(item,response[item])
+			podDict[item]=pod
+		#Load screen
+		homeScreen.show()
+		#Show Pods
+		addPodsToListbox(homePodListbox,podDict)
 	else:
 		askMessage("Incorrect","Password Incorrect")
 
@@ -185,13 +210,13 @@ def attemptUnlockMasterPod():
 #=====OPEN SCREEN=====
 openSelectFileButton.config(command=openSelected)
 #=====MASTER SCREEN=====
-openMasterUnlockButton.config(command=attemptUnlockMasterPod)
-
+openMasterUnlockButton.config(command=unlockMasterPod)
+openMasterCancelButton.config(command=lambda: openScreen.show())
 #===============================(BINDINGS)===============================
 #=====OPEN SCREEN=====
 openMainListbox.bind("<Double-Button-1>",lambda event: openSelected())
 #=====MASTER SCREEN=====
-openMasterEntry.bind("<Return>",lambda event: attemptUnlockMasterPod())
+openMasterEntry.bind("<Return>", lambda event: unlockMasterPod())
 #===============================(INITIALISER)===============================
 loadFilesInDirectory()
 #===============================(TESTING AREA)===============================
