@@ -203,6 +203,9 @@ def unlockMasterPod():
 	else:
 		askMessage("Incorrect","Password Incorrect")
 
+	#Clear entry
+	insertEntry(openMasterEntry,"")
+
 
 
 #===============================(BUTTONS)===============================
@@ -223,7 +226,8 @@ mainMenu.add_cascade(label="File",menu=fileMenu)
 mainMenu.add_cascade(label="Edit",menu=editMenu)
 mainMenu.add_cascade(label="View",menu=viewMenu)
 
-
+#==File==
+fileMenu.add_command(label="Lockdown",command=lambda: openMasterScreen.show())
 #===============================(INITIALISER)===============================
 loadFilesInDirectory()
 #===============================(TESTING AREA)===============================
