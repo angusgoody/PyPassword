@@ -132,7 +132,7 @@ homeBottomFrame=centerFrame(homeScreen)
 homeBottomFrame.pack(side=BOTTOM,fill=X)
 homeBottomSub=homeBottomFrame.miniFrame
 
-homeOpenPodButton=Button(homeBottomSub,text="Open",width=9)
+homeOpenPodButton=Button(homeBottomSub,text="Open Pod",width=9)
 homeOpenPodButton.pack()
 #endregion
 #===============================(FUNCTIONS)===============================
@@ -201,24 +201,28 @@ def openSelected():
 
 def unlockMasterPod():
 
-	currentMasterPod=masterPod.currentLoadedPod
 	attempt=openMasterEntry.get()
-	#Attempt to unlock
-	response=currentMasterPod.unlock(attempt)
-	if response != None and response != False:
-		print("Unlock success")
-		#Track the pods found
-		podDict={}
-		for item in response:
-			#Create pod instance
-			pod=dataPod(item,response[item])
-			podDict[item]=pod
-		#Load screen
-		homeScreen.show()
-		#Show Pods
-		addPodsToListbox(homePodListbox,podDict)
+	if len(attempt.split()) > 0:
+		currentMasterPod=masterPod.currentLoadedPod
+
+		#Attempt to unlock
+		response=currentMasterPod.unlock(attempt)
+		if response != None and response != False:
+			print("Unlock success")
+			#Track the pods found
+			podDict={}
+			for item in response:
+				#Create pod instance
+				pod=dataPod(item,response[item])
+				podDict[item]=pod
+			#Load screen
+			homeScreen.show()
+			#Show Pods
+			addPodsToListbox(homePodListbox,podDict)
+		else:
+			askMessage("Incorrect","Password Incorrect")
 	else:
-		askMessage("Incorrect","Password Incorrect")
+		askMessage("Blank","Please Enter Something")
 
 	#Clear entry
 	insertEntry(openMasterEntry,"")
