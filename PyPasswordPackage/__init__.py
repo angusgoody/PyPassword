@@ -161,6 +161,14 @@ viewPodNotebook.pack(expand=True,fill=BOTH)
 #Basic info
 viewPodBasicSection=displayView(viewPodNotebook)
 
+viewAccountTitleSection=hiddenDataSection(viewPodBasicSection,"Title")
+viewAccountUsernameSection=hiddenDataSection(viewPodBasicSection,"Username")
+viewAccountPasswordSection=hiddenDataSection(viewPodBasicSection,"Password")
+
+viewPodBasicSection.addSection(viewAccountTitleSection)
+viewPodBasicSection.addSection(viewAccountUsernameSection)
+viewPodBasicSection.addSection(viewAccountPasswordSection)
+viewPodBasicSection.showSections()
 #Advanced info
 viewPodAdvancedSection=displayView(viewPodNotebook)
 

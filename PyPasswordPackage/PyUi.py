@@ -108,6 +108,7 @@ class mainFrame(Frame):
 		to be binded with a better binding function
 		"""
 		self.bind(bindButton,bindFunction)
+
 class mainLabel(Label):
 	"""
 	The mainLabel class is similar to the mainFrame
@@ -213,6 +214,31 @@ class centerFrame(mainFrame):
 		self.miniFrame=mainFrame(self)
 		self.miniFrame.pack(expand=True)
 
+class hiddenDataSection(mainFrame):
+	"""
+	This class is used to display sensitive
+	information such as password or username
+	"""
+	def __init__(self,parent,title):
+		mainFrame.__init__(self,parent)
+		self.title=title
+		self.data=StringVar()
+		self.centerFrame=mainFrame(self)
+		self.centerFrame.pack(expand=True)
+
+		self.titleLabel=mainLabel(self.centerFrame,text=self.title+":",width=10)
+		self.titleLabel.grid(row=0,column=0)
+
+		self.dataEntry=Entry(self.centerFrame)
+		self.dataEntry.grid(row=0,column=1)
+
+		self.hideButton=Button(self.centerFrame,text="Hide")
+		self.hideButton.grid(row=0,column=2)
+
+
+	def addData(self,dataToAdd):
+		self.dataEntry.delete(0,END)
+		self.dataEntry.insert(END,dataToAdd)
 
 
 
