@@ -138,7 +138,8 @@ class mainScreen(mainFrame):
 	"""
 	screens=[]
 	lastScreen=None
-	currenScreen=None
+	currentScreen=None
+
 	def __init__(self,parent,screenName,statusVar,**kwargs):
 		mainFrame.__init__(self,parent)
 		self.screenName=screenName

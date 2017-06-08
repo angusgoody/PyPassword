@@ -141,6 +141,22 @@ homeOpenPodButton.pack()
 homeNewPodButton=Button(homeBottomSub,text="New Pod",width=9)
 homeNewPodButton.pack(pady=5)
 #endregion
+
+#---View Pod Screen---
+viewPodScreen=mainScreen(window,"Pod Info",statusVar)
+
+#Top Bar
+viewPodTopFrame=centerFrame(viewPodScreen)
+viewPodTopFrame.pack(side=TOP,fill=X)
+viewPodTopSub=viewPodTopFrame.miniFrame
+viewPodTopNameVar=StringVar()
+titleLabel(viewPodTopSub,textvariable=viewPodTopNameVar).pack()
+
+#Main Notebook
+viewPodNotebookFrame=mainFrame(viewPodScreen)
+viewPodNotebookFrame.pack(expand=True,fill=BOTH)
+viewPodNotebook=ttk.Notebook(viewPodNotebookFrame)
+viewPodNotebook.pack(expand=True,fill=BOTH)
 #===============================(FUNCTIONS)===============================
 
 #=========Utility Functions=========
@@ -171,7 +187,7 @@ def goHome():
 	The go home function returns to the home
 	screen depending on what screen is loaded
 	"""
-	currentScreen=mainScreen.currenScreen
+	currentScreen=mainScreen.currentScreen
 	if currentScreen in lockedScreens:
 		openScreen.show()
 	else:
@@ -200,7 +216,7 @@ def loadFilesInDirectory():
 		#Adds to listbox and removes extension
 		openMainListbox.addItem(os.path.splitext(item)[0],pod)
 
-def openSelected():
+def openMasterPod():
 	"""
 	This function is for when the user
 	attempts to open a master pod file
@@ -244,24 +260,36 @@ def unlockMasterPod():
 	#Clear entry
 	insertEntry(openMasterEntry,"")
 
-
+def openDataPod():
+	"""
+	This function opens
+	a normal data pod
+	"""
+	selectedPod=homePodListbox.getSelected()
+	if selectedPod != None and selectedPod != False:
+		#Show screen
+		viewPodScreen.show()
+		#Set label
+		viewPodTopNameVar.set(selectedPod.podName)
 
 #===============================(BUTTONS)===============================
 
 #=====OPEN SCREEN=====
-openSelectFileButton.config(command=openSelected)
+openSelectFileButton.config(command=openMasterPod)
 #=====MASTER SCREEN=====
 openMasterUnlockButton.config(command=unlockMasterPod)
 openMasterCancelButton.config(command=lambda: openScreen.show())
 #===============================(BINDINGS)===============================
+
 #=====STATUS BAR=====
 statusBar.addBinding("<Double-Button-1>",lambda event: goHome())
 #=====OPEN SCREEN=====
-openMainListbox.bind("<Double-Button-1>",lambda event: openSelected())
-openMainListbox.bind("<Return>",lambda event: openSelected())
-
+openMainListbox.bind("<Double-Button-1>", lambda event: openMasterPod())
+openMainListbox.bind("<Return>", lambda event: openMasterPod())
 #=====MASTER SCREEN=====
 openMasterEntry.bind("<Return>", lambda event: unlockMasterPod())
+#=====VIEW POD SCREEN=====
+homePodListbox.bind("<Double-Button-1>", lambda event: openDataPod())
 
 #===============================(MENU CASCADES)===============================
 mainMenu.add_cascade(label="File",menu=fileMenu)
