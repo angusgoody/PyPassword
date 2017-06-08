@@ -157,6 +157,17 @@ viewPodNotebookFrame=mainFrame(viewPodScreen)
 viewPodNotebookFrame.pack(expand=True,fill=BOTH)
 viewPodNotebook=ttk.Notebook(viewPodNotebookFrame)
 viewPodNotebook.pack(expand=True,fill=BOTH)
+
+#Basic info
+viewPodBasicSection=displayView(viewPodNotebook)
+
+#Advanced info
+viewPodAdvancedSection=displayView(viewPodNotebook)
+
+#Add pages
+viewPodNotebook.add(viewPodBasicSection,text="Basic")
+viewPodNotebook.add(viewPodAdvancedSection,text="Advanced")
+
 #===============================(FUNCTIONS)===============================
 
 #=========Utility Functions=========
