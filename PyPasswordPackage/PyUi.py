@@ -232,13 +232,29 @@ class hiddenDataSection(mainFrame):
 		self.dataEntry=Entry(self.centerFrame)
 		self.dataEntry.grid(row=0,column=1)
 
-		self.hideButton=Button(self.centerFrame,text="Hide")
-		self.hideButton.grid(row=0,column=2)
+		self.hideButton=Button(self.centerFrame,text="Hide",command=self.toggleHide,width=6)
+		self.hideButton.grid(row=0,column=2,padx=5)
 
+		self.hiddenVar=False
 
 	def addData(self,dataToAdd):
 		self.dataEntry.delete(0,END)
 		self.dataEntry.insert(END,dataToAdd)
+
+	def toggleHide(self):
+		"""
+		This method is used to toggle
+		whether the data in the entry
+		is hidden or revealed
+		"""
+		if self.hiddenVar == False:
+			self.dataEntry.config(show="•")
+			self.hideButton.config(text="Show")
+			self.hiddenVar=True
+		else:
+			self.dataEntry.config(show="")
+			self.hideButton.config(text="Hide")
+			self.hiddenVar=False
 
 
 

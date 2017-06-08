@@ -169,6 +169,7 @@ viewPodBasicSection.addSection(viewAccountTitleSection)
 viewPodBasicSection.addSection(viewAccountUsernameSection)
 viewPodBasicSection.addSection(viewAccountPasswordSection)
 viewPodBasicSection.showSections()
+
 #Advanced info
 viewPodAdvancedSection=displayView(viewPodNotebook)
 
