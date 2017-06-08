@@ -162,7 +162,9 @@ viewPodNotebook.pack(expand=True,fill=BOTH)
 viewPodBasicSection=displayView(viewPodNotebook)
 
 viewAccountTitleSection=hiddenDataSection(viewPodBasicSection,"Title")
+viewAccountTitleSection.addData("Amazon")
 viewAccountUsernameSection=hiddenDataSection(viewPodBasicSection,"Username")
+viewAccountUsernameSection.addData("angus.goody")
 viewAccountPasswordSection=hiddenDataSection(viewPodBasicSection,"Password")
 
 viewPodBasicSection.addSection(viewAccountTitleSection)

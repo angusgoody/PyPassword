@@ -20,6 +20,16 @@ from tkinter import *
 from tkinter import ttk
 #==================================(FUNCTIONS)=============================
 
+def insertEntry(entry,message):
+	entry.delete(0,END)
+	entry.insert(END,message)
+
+def insertDisabledEntry(entry,message):
+	entry.config(state=NORMAL)
+	insertEntry(entry,message)
+	entry.config(state=DISABLED)
+
+
 #==================================(CLASSES)=============================
 
 
@@ -238,8 +248,8 @@ class hiddenDataSection(mainFrame):
 		self.hiddenVar=False
 
 	def addData(self,dataToAdd):
-		self.dataEntry.delete(0,END)
-		self.dataEntry.insert(END,dataToAdd)
+		self.dataEntry.config(state=NORMAL)
+		insertEntry(self.dataEntry,dataToAdd)
 
 	def toggleHide(self):
 		"""
@@ -249,12 +259,13 @@ class hiddenDataSection(mainFrame):
 		"""
 		if self.hiddenVar == False:
 			self.dataEntry.config(show="•")
+			self.dataEntry.config(state=DISABLED)
 			self.hideButton.config(text="Show")
 			self.hiddenVar=True
 		else:
 			self.dataEntry.config(show="")
+			self.dataEntry.config(state=NORMAL)
 			self.hideButton.config(text="Hide")
 			self.hiddenVar=False
-
 
 
