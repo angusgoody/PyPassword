@@ -154,12 +154,16 @@ class masterPod:
 
 #==================Testing area=================
 """
-newPod=masterPod("Mario.mp")
-newPod.addKey("mario")
-nin=newPod.addPod("Nintendo")
-nin.addData("Title","Nintendo")
-nin.addData("Username","mario.italia")
-nin.addData("Password","frog")
+newPod=masterPod("Luigi.mp")
+newPod.addKey("luigi")
+gog=newPod.addPod("Google")
+gog.addData("Username","angus.goody")
+gog.addData("Password","frog")
+
+git=newPod.addPod("Github")
+git.addData("Username","bob.marley")
+git.addData("Password","sheep56")
+
 newPod.save()
 """
 
