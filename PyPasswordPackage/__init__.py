@@ -315,6 +315,8 @@ openSelectFileButton.config(command=openMasterPod)
 #=====MASTER SCREEN=====
 openMasterUnlockButton.config(command=unlockMasterPod)
 openMasterCancelButton.config(command=lambda: openScreen.show())
+#=====HOME SCREEN=====
+homeOpenPodButton.config(command=openDataPod)
 #===============================(BINDINGS)===============================
 
 #=====STATUS BAR=====
@@ -324,7 +326,7 @@ openMainListbox.bind("<Double-Button-1>", lambda event: openMasterPod())
 openMainListbox.bind("<Return>", lambda event: openMasterPod())
 #=====MASTER SCREEN=====
 openMasterEntry.bind("<Return>", lambda event: unlockMasterPod())
-#=====VIEW POD SCREEN=====
+#=====HOME SCREEN=====
 homePodListbox.bind("<Double-Button-1>", lambda event: openDataPod())
 
 #===============================(MENU CASCADES)===============================
@@ -333,7 +335,7 @@ mainMenu.add_cascade(label="Edit",menu=editMenu)
 mainMenu.add_cascade(label="View",menu=viewMenu)
 
 #==File==
-fileMenu.add_command(label="Lockdown",command=lockdown)
+fileMenu.add_command(label="Lock Master Pod",command=lockdown)
 #===============================(INITIALISER)===============================
 loadFilesInDirectory()
 #===============================(TESTING AREA)===============================
