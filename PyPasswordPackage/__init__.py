@@ -159,17 +159,15 @@ viewPodNotebook=ttk.Notebook(viewPodNotebookFrame)
 viewPodNotebook.pack(expand=True,fill=BOTH)
 
 #Basic info
-viewPodBasicSection=displayView(viewPodNotebook)
+viewPodBasicSection=passwordDisplayView(viewPodNotebook)
 
 viewAccountTitleSection=hiddenDataSection(viewPodBasicSection,"Title")
-viewAccountTitleSection.addData("Amazon")
 viewAccountUsernameSection=hiddenDataSection(viewPodBasicSection,"Username")
-viewAccountUsernameSection.addData("angus.goody")
 viewAccountPasswordSection=hiddenDataSection(viewPodBasicSection,"Password")
 
-viewPodBasicSection.addSection(viewAccountTitleSection)
-viewPodBasicSection.addSection(viewAccountUsernameSection)
-viewPodBasicSection.addSection(viewAccountPasswordSection)
+viewPodBasicSection.addPasswordSection(viewAccountTitleSection)
+viewPodBasicSection.addPasswordSection(viewAccountUsernameSection)
+viewPodBasicSection.addPasswordSection(viewAccountPasswordSection)
 viewPodBasicSection.showSections()
 
 #Advanced info
@@ -268,8 +266,14 @@ def unlockMasterPod():
 			podDict={}
 			for item in response:
 				#Create pod instance
-				pod=dataPod(item,response[item])
+				pod=dataPod(item,currentMasterPod)
 				podDict[item]=pod
+
+				#Add the pod data
+				podData=response[item]
+				print(podData)
+				for item in podData:
+					pod.addData(item,podData[item])
 			#Load screen
 			homeScreen.show()
 			#Show Pods
@@ -293,6 +297,18 @@ def openDataPod():
 		viewPodScreen.show()
 		#Set label
 		viewPodTopNameVar.set(selectedPod.podName)
+		#Add data to screen
+		addPodDataToScreen(selectedPod,viewPodBasicSection)
+
+def addPodDataToScreen(podInstance,displayViewInstance):
+	if type(displayViewInstance) == passwordDisplayView:
+		podVault=podInstance.getVault()
+		for item in podVault:
+			if item in displayViewInstance.sectionDict:
+				entryToAdd=displayViewInstance.sectionDict[item]
+				insertEntry(entryToAdd,podVault[item])
+
+
 
 #===============================(BUTTONS)===============================
 

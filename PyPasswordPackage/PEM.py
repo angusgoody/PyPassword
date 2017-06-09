@@ -154,8 +154,12 @@ class masterPod:
 
 #==================Testing area=================
 """
-newPod=masterPod("bob.mp")
-newPod.addKey("secret")
+newPod=masterPod("Mario.mp")
+newPod.addKey("mario")
+nin=newPod.addPod("Nintendo")
+nin.addData("Title","Nintendo")
+nin.addData("Username","mario.italia")
+nin.addData("Password","frog")
 newPod.save()
 """
 

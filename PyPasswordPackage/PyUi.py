@@ -203,6 +203,17 @@ class displayView(mainFrame):
 		for item in self.sections:
 			item.pack(expand=True,fill=BOTH)
 
+class passwordDisplayView(displayView):
+	"""
+	This class is a modified display view
+	that holds passwords and usernames etc
+	"""
+	def __init__(self,parent):
+		displayView.__init__(self,parent)
+		self.sectionDict={}
+	def addPasswordSection(self,hiddenDataSection):
+		self.addSection(hiddenDataSection)
+		self.sectionDict[hiddenDataSection.title]=hiddenDataSection.dataEntry
 class topStrip(mainFrame):
 	"""
 	The stopStrip class is a class
