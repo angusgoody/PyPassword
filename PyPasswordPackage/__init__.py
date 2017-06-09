@@ -303,6 +303,11 @@ def openDataPod():
 def addPodDataToScreen(podInstance,displayViewInstance):
 	if type(displayViewInstance) == passwordDisplayView:
 		podVault=podInstance.getVault()
+		podTitle=podInstance.podName
+		if "Title" not in podVault:
+			insertEntry(displayViewInstance.sectionDict["Title"],podTitle)
+		else:
+			print("Its fine")
 		for item in podVault:
 			if item in displayViewInstance.sectionDict:
 				entryToAdd=displayViewInstance.sectionDict[item]

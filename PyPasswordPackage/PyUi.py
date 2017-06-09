@@ -214,6 +214,7 @@ class passwordDisplayView(displayView):
 	def addPasswordSection(self,hiddenDataSection):
 		self.addSection(hiddenDataSection)
 		self.sectionDict[hiddenDataSection.title]=hiddenDataSection.dataEntry
+
 class topStrip(mainFrame):
 	"""
 	The stopStrip class is a class
