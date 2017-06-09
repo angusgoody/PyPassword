@@ -211,6 +211,7 @@ class passwordDisplayView(displayView):
 	def __init__(self,parent):
 		displayView.__init__(self,parent)
 		self.sectionDict={}
+
 	def addPasswordSection(self,hiddenDataSection):
 		self.addSection(hiddenDataSection)
 		self.sectionDict[hiddenDataSection.title]=hiddenDataSection.dataEntry

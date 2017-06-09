@@ -41,6 +41,7 @@ statusLabel.pack(expand=True)
 #===============================(VARIABLES/ARRAYS)===============================
 currentDirectory=os.getcwd()
 lockedScreens=[]
+currentBasicDisplayView=None
 #===============================(USER INTERFACE)===============================
 
 #-----Open Screen----
@@ -122,7 +123,12 @@ openMasterDisplay.showSections()
 #----Home screen-----
 #region home screen
 homeScreen=mainScreen(window,"Home",statusVar,menu=mainMenu)
-
+#Top view
+homeTopFrame=centerFrame(homeScreen)
+homeTopFrame.pack(side=TOP,fill=BOTH)
+homeTopLabelVar=StringVar()
+homeTopLabel=titleLabel(homeTopFrame,textvariable=homeTopLabelVar)
+homeTopLabel.pack(expand=True)
 #Main view
 homeMainFrame=mainFrame(homeScreen)
 homeMainFrame.pack(expand=True,fill=BOTH)
@@ -143,6 +149,7 @@ homeNewPodButton.pack(pady=5)
 #endregion
 
 #---View Pod Screen---
+#region viewPod screen
 viewPodScreen=mainScreen(window,"Pod Info",statusVar)
 
 #Top Bar
@@ -161,22 +168,13 @@ viewPodNotebook.pack(expand=True,fill=BOTH)
 #Basic info
 viewPodBasicSection=passwordDisplayView(viewPodNotebook)
 
-viewAccountTitleSection=hiddenDataSection(viewPodBasicSection,"Title")
-viewAccountUsernameSection=hiddenDataSection(viewPodBasicSection,"Username")
-viewAccountPasswordSection=hiddenDataSection(viewPodBasicSection,"Password")
-
-viewPodBasicSection.addPasswordSection(viewAccountTitleSection)
-viewPodBasicSection.addPasswordSection(viewAccountUsernameSection)
-viewPodBasicSection.addPasswordSection(viewAccountPasswordSection)
-viewPodBasicSection.showSections()
-
 #Advanced info
 viewPodAdvancedSection=displayView(viewPodNotebook)
 
 #Add pages
 viewPodNotebook.add(viewPodBasicSection,text="Basic")
 viewPodNotebook.add(viewPodAdvancedSection,text="Advanced")
-
+#endregion
 #===============================(FUNCTIONS)===============================
 
 #=========Utility Functions=========
@@ -278,6 +276,8 @@ def unlockMasterPod():
 			homeScreen.show()
 			#Show Pods
 			addPodsToListbox(homePodListbox,podDict)
+			#Update top label
+			homeTopLabelVar.set(currentMasterPod.getRootName())
 		else:
 			askMessage("Incorrect","Password Incorrect")
 	else:
@@ -304,14 +304,7 @@ def addPodDataToScreen(podInstance,displayViewInstance):
 	if type(displayViewInstance) == passwordDisplayView:
 		podVault=podInstance.getVault()
 		podTitle=podInstance.podName
-		if "Title" not in podVault:
-			insertEntry(displayViewInstance.sectionDict["Title"],podTitle)
-		else:
-			print("Its fine")
-		for item in podVault:
-			if item in displayViewInstance.sectionDict:
-				entryToAdd=displayViewInstance.sectionDict[item]
-				insertEntry(entryToAdd,podVault[item])
+
 
 
 
