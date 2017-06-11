@@ -18,7 +18,86 @@ main __init__ file.
 #==================================(IMPORTS)=============================
 from tkinter import *
 from tkinter import ttk
+import random
+import datetime
+
 #==================================(FUNCTIONS)=============================
+
+#==============HEX FUNCTIONS================
+
+def convertHex(value,intoDecOrHex):
+	"""
+	Convert a decimal to hex or hex to decimal
+	"""
+	if intoDecOrHex == "Decimal":
+		return int("0x" + str(value), 16)
+	else:
+		hexValue = "#"
+		hexValue = hexValue + str((format(value, '02x')).upper())
+		return hexValue
+
+def getHexSections(hexValue):
+	"""
+	This will split a 6 digit hex number into pairs and store them
+	in an array
+	"""
+	if len(hexValue) <= 7 and "#" in hexValue:
+		#Removes the #
+		colourData = hexValue.replace("#", "")
+		# Split HEX number into pairs
+		colourSections = [colourData[i:i + 2] for i in range(0, len(colourData), 2)]
+		return colourSections
+
+def getDecimalHexSections(hexValue):
+	hexSections=getHexSections(hexValue)
+	decimalArray=[]
+	for item in hexSections:
+		decimalValue=convertHex(item,"Decimal")
+		decimalArray.append(decimalValue)
+	return decimalArray
+
+def getColourForBackground(hexValue):
+	"""
+	This function will return white or black as a text colour
+	depending on what the background colour passed to it is. For
+	example if a dark background is passed then white will be returned because
+	white shows up on dark best.
+	"""
+	chosenColour="Black"
+	whiteCounter = 0
+
+	#Checks the hex number is standard
+	if len(hexValue) <= 7 and "#" in hexValue:
+
+		colourSections=getHexSections(hexValue)
+		for x in colourSections:
+			#Convert to decimal
+			y=convertHex(x,"Decimal")
+			#If its less than half way between 0 and FF which is 255
+			if y < 128:
+				whiteCounter += 1
+		if whiteCounter > 1:
+			#White is returned
+			chosenColour = "#ffffff"
+		else:
+			#Black is returned
+			chosenColour = "#000000"
+	return chosenColour
+
+def generateHexColour():
+	"""
+	This function will generate a random HEX colour
+
+	"""
+	baseNumber=random.randint(1,16777216)
+	hexValue=convertHex(baseNumber,"Hex")
+	hexLeng=len(hexValue)
+	while hexLeng != 7:
+		hexValue=hexValue+"0"
+		hexLeng=len(hexValue)
+	return hexValue
+
+#==============OTHER FUNCTIONS================
 
 def insertEntry(entry,message):
 	entry.delete(0,END)
@@ -29,8 +108,67 @@ def insertDisabledEntry(entry,message):
 	insertEntry(entry,message)
 	entry.config(state=DISABLED)
 
+def recursiveChangeColour(parent,colour,fgColour):
+	"""
+	This function will recursivly search all children
+	of an element and change their colour
+	"""
+	widgetArray =["Entry", "Button", "Text", "Listbox", "OptionMenu", "Menu"]
+	parentClass=parent.winfo_class()
+	if parentClass == "Frame":
+		parent.config(bg=colour)
+		children=parent.winfo_children()
+		for item in children:
+			recursiveChangeColour(item,colour,fgColour)
+	else:
+		try:
+			#Certain widgets need diffrent attention
+			if parent.winfo_class() in widgetArray:
+					parent.config(highlightbackground=colour)
+			else:
+				parent.config(bg=colour)
+
+			#Update labels so they show up on certain colours
+			if parent.winfo_class() == "Label":
+					parent.changeColour(getColourForBackground(colour))
+
+		except:
+			pass
 
 #==================================(CLASSES)=============================
+
+class logClass():
+	"""
+	The log class will store a log
+	for everything
+	"""
+	def __init__(self):
+
+		self.dataDict={}
+
+	def report(self,message,variable,*extra,**kwargs):
+
+		#Gether message
+		message=message+" "
+		message+=variable
+		if len(extra) > 0:
+			for item in extra:
+				message+=" "
+				message+=item
+		#Gather Tag
+		tag="Default"
+		if "tag" in kwargs:
+			tag=kwargs["tag"]
+
+		#Get time
+		currentTime=datetime.datetime.now().time()
+
+		#Create dictionary and add data
+		if tag not in self.dataDict:
+			self.dataDict[tag]=[]
+		self.dataDict[tag].append({"Time":currentTime,"Tag":tag,"Message":message})
+
+
 
 
 #==============Master Classes==============
@@ -110,7 +248,10 @@ class mainFrame(Frame):
 	example changing colour and bindings etc.
 	"""
 	def __init__(self,parent,**kwargs):
-		Frame.__init__(self,parent,kwargs)
+		Frame.__init__(self,parent)
+		if "colour" in kwargs:
+			self.colour(kwargs["colour"])
+		self.colourVar=None
 
 	def addBinding(self,bindButton,bindFunction):
 		"""
@@ -118,6 +259,19 @@ class mainFrame(Frame):
 		to be binded with a better binding function
 		"""
 		self.bind(bindButton,bindFunction)
+
+	def colour(self,chosenColour):
+		"""
+		The colour method will update
+		the colour of the frame
+		and all its children
+		"""
+		#Get FG colour for selected colour
+		fgColour=getColourForBackground(chosenColour)
+		self.colourVar=chosenColour
+
+		#Recursivley search through all children and change colour
+		recursiveChangeColour(self,chosenColour,fgColour)
 
 class mainLabel(Label):
 	"""
@@ -129,6 +283,9 @@ class mainLabel(Label):
 	"""
 	def __init__(self,parent,**kwargs):
 		Label.__init__(self,parent,kwargs)
+
+	def changeColour(self,colour):
+		self.config(fg=colour)
 
 class titleLabel(mainLabel):
 	"""
@@ -231,8 +388,8 @@ class topStrip(mainFrame):
 		self.labelView.pack(expand=True)
 
 class centerFrame(mainFrame):
-	def __init__(self,parent):
-		mainFrame.__init__(self,parent)
+	def __init__(self,parent,**kwargs):
+		mainFrame.__init__(self,parent,**kwargs)
 
 		self.miniFrame=mainFrame(self)
 		self.miniFrame.pack(expand=True)

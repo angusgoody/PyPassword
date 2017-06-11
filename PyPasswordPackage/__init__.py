@@ -60,7 +60,7 @@ openTopFrame.pack(side=TOP,fill=X)
 openMainFrame=mainFrame(openScreen)
 openMainFrame.pack(expand=True,fill=BOTH)
 
-openMainListbox=advancedListbox(openMainFrame,font="courier 19")
+openMainListbox=advancedListbox(openMainFrame,font="serif 19")
 openMainListbox.pack(expand=True,fill=BOTH)
 
 #--Bottom--
@@ -118,6 +118,11 @@ openMasterDisplay.addSection(openMasterBottomFrame)
 
 openMasterDisplay.showSections()
 
+
+#Colour Section
+openMasterMainFrame.colour("#1877E0")
+openMasterTopFrame.colour("#1360B4")
+openMasterBottomFrame.colour("#1A86FB")
 #endregion
 
 #----Home screen-----
