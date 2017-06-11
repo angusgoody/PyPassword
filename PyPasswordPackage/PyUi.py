@@ -178,7 +178,7 @@ class mainScreen(mainFrame):
 			self.statusVar.set(self.screenName)
 			#Update last screen
 			mainScreen.lastScreen=self
-			mainScreen.currenScreen=self
+			mainScreen.currentScreen=self
 			#Update menu
 			if self.mainMenu != None:
 				self.parent.config(menu=self.mainMenu)

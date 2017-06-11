@@ -206,6 +206,7 @@ def goHome():
 	screen depending on what screen is loaded
 	"""
 	currentScreen=mainScreen.currentScreen
+	print(currentScreen)
 	if currentScreen in lockedScreens:
 		openScreen.show()
 	else:
@@ -277,7 +278,7 @@ def unlockMasterPod():
 			#Show Pods
 			addPodsToListbox(homePodListbox,podDict)
 			#Update top label
-			homeTopLabelVar.set(currentMasterPod.getRootName())
+			homeTopLabelVar.set(currentMasterPod.getRootName()+" accounts")
 		else:
 			askMessage("Incorrect","Password Incorrect")
 	else:
