@@ -163,14 +163,14 @@ homeScreen.colour("#9C2553")
 #region viewPod screen
 viewPodScreen=mainScreen(window,"Pod Info",statusVar)
 
-#Top Bar
+#--Top Bar--
 viewPodTopFrame=centerFrame(viewPodScreen)
 viewPodTopFrame.pack(side=TOP,fill=X)
 viewPodTopSub=viewPodTopFrame.miniFrame
 viewPodTopNameVar=StringVar()
 titleLabel(viewPodTopSub,textvariable=viewPodTopNameVar).pack()
 
-#Main Notebook
+#--Main Notebook--
 viewPodNotebookFrame=mainFrame(viewPodScreen)
 viewPodNotebookFrame.pack(expand=True,fill=BOTH)
 viewPodNotebook=ttk.Notebook(viewPodNotebookFrame)
@@ -185,6 +185,16 @@ viewPodAdvancedSection=displayView(viewPodNotebook)
 #Add pages
 viewPodNotebook.add(viewPodBasicSection,text="Basic")
 viewPodNotebook.add(viewPodAdvancedSection,text="Advanced")
+
+#--Bottom section--
+viewPodBottomFrame=centerFrame(viewPodScreen)
+viewPodBottomFrame.pack(side=BOTTOM,fill=X)
+viewPodBottomSub=viewPodBottomFrame.miniFrame
+
+viewPodDeleteButton=Button(viewPodBottomSub,text="Delete",width=9)
+viewPodDeleteButton.pack()
+#Colour Section
+viewPodScreen.colour("#4B5E9C")
 #endregion
 #===============================(FUNCTIONS)===============================
 
