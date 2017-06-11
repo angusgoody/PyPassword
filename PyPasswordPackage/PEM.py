@@ -114,7 +114,6 @@ class masterPod:
 			info=decrypt(content,key)
 
 			#Check if decryption was successful
-			#info=eval(info)
 			try:
 				info=eval(info)
 			except:

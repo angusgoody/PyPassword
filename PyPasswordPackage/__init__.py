@@ -75,6 +75,9 @@ openCreateFileButton.pack(side=LEFT,padx=5)
 openSelectFileButton=mainButton(openBottomButtonFrame,text="Open Selected",width=12)
 openSelectFileButton.pack(side=RIGHT,padx=5)
 
+#Colour Section
+openScreen.colour("#4A4D9C")
+
 #endregion
 
 #----Open Master Password Screen-----
@@ -151,6 +154,9 @@ homeOpenPodButton.pack()
 
 homeNewPodButton=Button(homeBottomSub,text="New Pod",width=9)
 homeNewPodButton.pack(pady=5)
+
+#Colour Section
+homeScreen.colour("#9C2553")
 #endregion
 
 #---View Pod Screen---
@@ -211,7 +217,6 @@ def goHome():
 	screen depending on what screen is loaded
 	"""
 	currentScreen=mainScreen.currentScreen
-	print(currentScreen)
 	if currentScreen in lockedScreens:
 		openScreen.show()
 	else:
