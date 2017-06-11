@@ -21,6 +21,61 @@ from tkinter import ttk
 import random
 import datetime
 
+#==============LOG CLASS==============
+
+class logClass():
+	"""
+	The log class will store a log
+	for everything and record
+	errors etc
+	"""
+	allLogs={}
+	def __init__(self,logName):
+		self.logName=logName
+		#Where the data is stored
+		self.dataDict={}
+		self.systemDict={}
+		#Add the log to log dict
+		logClass.allLogs[self.logName]=self
+
+	def report(self,message,variable,*extra,**kwargs):
+
+		"""
+		The report method is the main
+		method that is called to report
+		something to the log and the current
+		time is recorded and tags can be used
+		to group errors
+		"""
+		#Gether message
+		message=message+" "
+		message+=variable
+		if len(extra) > 0:
+			for item in extra:
+				message+=" "
+				message+=item
+		#Gather Tag
+		tag="Default"
+		if "tag" in kwargs:
+			tag=kwargs["tag"]
+
+		#Get time
+		currentTime=datetime.datetime.now().time()
+
+		defaultDict=self.dataDict
+		#Check if system or not
+		if "system" in kwargs:
+			if kwargs["system"]:
+				defaultDict=self.systemDict
+
+		#Create dictionary and add data
+		if tag not in defaultDict:
+			defaultDict[tag]=[]
+		defaultDict[tag].append({"Time":currentTime,"Tag":tag,"Message":message})
+
+log=logClass("User Interface")
+
+
 #==================================(FUNCTIONS)=============================
 
 #==============HEX FUNCTIONS================
@@ -137,37 +192,6 @@ def recursiveChangeColour(parent,colour,fgColour):
 
 #==================================(CLASSES)=============================
 
-class logClass():
-	"""
-	The log class will store a log
-	for everything
-	"""
-	def __init__(self):
-
-		self.dataDict={}
-
-	def report(self,message,variable,*extra,**kwargs):
-
-		#Gether message
-		message=message+" "
-		message+=variable
-		if len(extra) > 0:
-			for item in extra:
-				message+=" "
-				message+=item
-		#Gather Tag
-		tag="Default"
-		if "tag" in kwargs:
-			tag=kwargs["tag"]
-
-		#Get time
-		currentTime=datetime.datetime.now().time()
-
-		#Create dictionary and add data
-		if tag not in self.dataDict:
-			self.dataDict[tag]=[]
-		self.dataDict[tag].append({"Time":currentTime,"Tag":tag,"Message":message})
-
 
 
 
@@ -211,12 +235,12 @@ class advancedListbox(Listbox):
 		try:
 			index =self.curselection()
 		except:
-			print("Method called on static listbox")
+			log.report("Method called on static listbox", "(Get Selected)", tag="error", system=True)
 		else:
 			try:
 				value=self.get(index)
 			except:
-				pass
+				log.report("Error getting value from listbox", "(Get Selected)", tag="error", system=True)
 			else:
 				for item in self.listData:
 					if item == value:
@@ -230,6 +254,7 @@ class advancedListbox(Listbox):
 		"""
 		self.delete(0,END)
 		self.listData.clear()
+		log.report("Listbox has been cleared of data", "(FullClear)", system=True)
 
 class mainButton(Button):
 	"""

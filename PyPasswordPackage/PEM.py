@@ -17,6 +17,10 @@ to save it from being in the main __init__ file
 from Crypto.Cipher import AES
 import pickle
 import os
+
+from PyUi import logClass
+
+log=logClass("Encryption Module")
 #==================================(FUNCTIONS)=============================
 
 def pad(text):
@@ -57,7 +61,7 @@ def savePickle(content,fileName):
 	a pickle file
 	"""
 	pickle.dump(content, open( fileName, "wb" ) )
-	print("Save complete at",fileName)
+	log.report("Save complete exported to",fileName,tag="File")
 #==================================(Classes)=============================
 
 class dataPod:
@@ -114,8 +118,10 @@ class masterPod:
 			try:
 				info=eval(info)
 			except:
+				log.report("Incorrect master password used","(Unlock)",tag="File")
 				return False
 			else:
+				log.report("Correct master password used","(Unlock)",tag="File")
 				return info
 		else:
 			return False
@@ -146,7 +152,7 @@ class masterPod:
 			#Save file
 			savePickle(cipher(str(exportDict),encryptionKey),self.location)
 		else:
-			print("Unable to save file (No master key)")
+			log.report("Unable to save file","(No master key)",tag="File")
 
 	def getRootName(self):
 		return os.path.splitext(self.fileName)[0]
