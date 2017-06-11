@@ -190,6 +190,24 @@ def recursiveChangeColour(parent,colour,fgColour):
 		except:
 			pass
 
+def recursiveBind(parent,bindButton,bindFunction):
+	"""
+	This function is very important because python
+	only binds functions to one item. This function will
+	bind all the children of that item to the same function.
+	"""
+	parentClass=parent.winfo_class()
+	if parentClass == "Frame":
+		parent.bind(bindButton,bindFunction)
+		children=parent.winfo_children()
+		for item in children:
+			recursiveBind(item,bindButton,bindFunction)
+	else:
+		try:
+			parent.bind(bindButton,bindFunction)
+		except:
+			pass
+	log.report("Added recursive binding to",parent.winfo_class(),tag="binding",system=True)
 #==================================(CLASSES)=============================
 
 
@@ -283,7 +301,9 @@ class mainFrame(Frame):
 		This method will allow the widget
 		to be binded with a better binding function
 		"""
-		self.bind(bindButton,bindFunction)
+		recursiveBind(self,bindButton,bindFunction)
+
+
 
 	def colour(self,chosenColour):
 		"""
