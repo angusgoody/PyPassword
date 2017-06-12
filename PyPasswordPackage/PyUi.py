@@ -234,8 +234,7 @@ class advancedListbox(Listbox):
 		self.scrollbar.config(command=self.yview)
 		self.config(yscrollcommand=self.scrollbar.set)
 
-
-	def addItem(self,textToDisplay,objectInstance):
+	def addItem(self,textToDisplay,objectInstance,**kwargs):
 		"""
 		The add function allows an object
 		to be added to the listbox and display plain
@@ -244,6 +243,19 @@ class advancedListbox(Listbox):
 		self.listData[textToDisplay]=objectInstance
 		self.insert(END,textToDisplay)
 
+		#Change colour
+		colour=generateHexColour()
+		if "colour" in kwargs:
+			colour=kwargs["colour"]
+		self.itemconfig(END,bg=colour)
+
+		#Change FG
+		try:
+			fgColour=getColourForBackground(colour)
+		except:
+			log.report("Error getting fg colour for",colour,tag="Error",system=True)
+		else:
+			self.itemconfig(END,fg=fgColour)
 	def getSelected(self):
 		"""
 		This method will attempt to return
