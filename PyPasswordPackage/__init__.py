@@ -37,7 +37,7 @@ statusBar=mainFrame(window)
 statusBar.pack(fill=X,side=BOTTOM)
 statusLabel=mainLabel(statusBar,textvariable=statusVar)
 statusLabel.pack(expand=True)
-
+statusBar.colour("#A9F955")
 #===============================(VARIABLES/ARRAYS)===============================
 currentDirectory=os.getcwd()
 lockedScreens=[]
@@ -178,7 +178,17 @@ viewPodNotebook.pack(expand=True,fill=BOTH)
 
 #Basic info
 viewPodBasicSection=passwordDisplayView(viewPodNotebook)
-
+viewPodBasicInfoArray=["Title","Username","Password"]
+viewPodBasicInfoDict={}
+viewPodBasicColourList=["#23A1F7","#1D86CE","#1972AE"]
+counter=-1
+for sec in viewPodBasicInfoArray:
+	counter+=1
+	newSection=hiddenDataSection(viewPodBasicSection,sec)
+	newSection.colour(viewPodBasicColourList[counter])
+	viewPodBasicSection.addSection(newSection)
+	viewPodBasicInfoDict[sec]=newSection
+viewPodBasicSection.showSections()
 #Advanced info
 viewPodAdvancedSection=displayView(viewPodNotebook)
 
