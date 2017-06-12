@@ -466,7 +466,7 @@ class hiddenDataSection(mainFrame):
 		self.titleLabel=mainLabel(self.centerFrame,text=self.title+":",width=10)
 		self.titleLabel.grid(row=0,column=0)
 
-		self.dataEntry=Entry(self.centerFrame)
+		self.dataEntry=Entry(self.centerFrame,state=DISABLED)
 		self.dataEntry.grid(row=0,column=1)
 
 		self.hideButton=Button(self.centerFrame,text="Hide",command=self.toggleHide,width=6)
@@ -486,12 +486,12 @@ class hiddenDataSection(mainFrame):
 		"""
 		if self.hiddenVar == False:
 			self.dataEntry.config(show="•")
-			self.dataEntry.config(state=DISABLED)
+			#self.dataEntry.config(state=DISABLED)
 			self.hideButton.config(text="Show")
 			self.hiddenVar=True
 		else:
 			self.dataEntry.config(show="")
-			self.dataEntry.config(state=NORMAL)
+			#self.dataEntry.config(state=NORMAL)
 			self.hideButton.config(text="Hide")
 			self.hiddenVar=False
 

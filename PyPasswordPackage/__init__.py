@@ -178,6 +178,8 @@ viewPodNotebook.pack(expand=True,fill=BOTH)
 
 #Basic info
 viewPodBasicSection=passwordDisplayView(viewPodNotebook)
+
+#todo make this into method for class
 viewPodBasicInfoArray=["Title","Username","Password"]
 viewPodBasicInfoDict={}
 viewPodBasicColourList=["#23A1F7","#1D86CE","#1972AE"]
