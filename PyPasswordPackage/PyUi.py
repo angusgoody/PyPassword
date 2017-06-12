@@ -495,4 +495,39 @@ class hiddenDataSection(mainFrame):
 			self.hideButton.config(text="Hide")
 			self.hiddenVar=False
 
+class multiView(mainFrame):
+	"""
+	The multiview class is a class that allows
+	multiple frames to be viewed in the same place
+	by changing frames with simple methods
+	"""
+	def __init__(self,parent,**kwargs):
+		mainFrame.__init__(self,parent,**kwargs)
+
+		#Stores the views
+		self.views=[]
+
+		self.lastView=None
+		self.currentView=None
+
+	def addView(self,frameToShow):
+		#Add a certain frame to the dictionary
+		if frameToShow not in self.views:
+			self.views.append(frameToShow)
+
+	def showView(self,frameToShow):
+		"""
+		The show view method when called will show
+		a certain frame in the dictionary. This value
+		is referenced using an indicator string
+		"""
+		if frameToShow in self.views:
+			if frameToShow != self.lastView:
+				for item in self.views:
+					item.pack_forget()
+				frameToShow.pack(expand=True,fill=BOTH)
+		else:
+			log.report("Non registered frame attempted to be show",frameToShow,tag="Error",system=True)
+
+
 

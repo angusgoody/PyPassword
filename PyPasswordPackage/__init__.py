@@ -203,8 +203,30 @@ viewPodBottomFrame=centerFrame(viewPodScreen)
 viewPodBottomFrame.pack(side=BOTTOM,fill=X)
 viewPodBottomSub=viewPodBottomFrame.miniFrame
 
+#-Controller--
+viewPodChangeController=multiView(viewPodBottomSub)
+viewPodChangeController.pack(pady=2)
+
+#Edit section
+viewPodEditFrame=mainFrame(viewPodChangeController)
+viewPodChangeController.addView(viewPodEditFrame)
+viewPodChangeController.showView(viewPodEditFrame)
+viewPodEditButton=Button(viewPodEditFrame,text="Edit",width=9)
+viewPodEditButton.pack(padx=5)
+
+#Cancel Edit section
+viewPodCancelEditSection=mainFrame(viewPodChangeController)
+viewPodChangeController.addView(viewPodCancelEditSection)
+viewPodCancelButton=Button(viewPodCancelEditSection,text="Cancel",width=9)
+viewPodCancelButton.grid(row=0,column=0)
+
+viewPodSaveButton=Button(viewPodCancelEditSection,text="Save",width=9)
+viewPodSaveButton.grid(row=0,column=1)
+
+#Delete Section
 viewPodDeleteButton=Button(viewPodBottomSub,text="Delete",width=9)
 viewPodDeleteButton.pack()
+
 #Colour Section
 viewPodScreen.colour("#4B5E9C")
 #endregion
@@ -339,7 +361,8 @@ def addPodDataToScreen(podInstance,displayViewInstance):
 		podTitle=podInstance.podName
 
 
-
+def test():
+	print("LEl")
 
 #===============================(BUTTONS)===============================
 
@@ -350,6 +373,10 @@ openMasterUnlockButton.config(command=unlockMasterPod)
 openMasterCancelButton.config(command=lambda: openScreen.show())
 #=====HOME SCREEN=====
 homeOpenPodButton.config(command=openDataPod)
+#=====VIEW POD=====
+viewPodEditButton.config(command=lambda view=viewPodCancelEditSection: viewPodChangeController.showView(view))
+viewPodCancelButton.config(command=lambda view=viewPodEditFrame: viewPodChangeController.showView(view))
+
 #===============================(BINDINGS)===============================
 
 #=====STATUS BAR=====
