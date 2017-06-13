@@ -246,6 +246,7 @@ def askMessage(pre,message):
 
 #=========Program Functions=========
 
+#=====Menu Commands====
 def lockdown():
 	"""
 	The lockdown function is used
@@ -266,28 +267,21 @@ def goHome():
 	else:
 		homeScreen.show()
 
-def addPodsToListbox(listbox,pods):
-	listbox.fullClear()
-	for pod in pods:
-		listbox.addItem(pod,pods[pod])
+#=====Button Commands====
 
-def loadFilesInDirectory():
+def openDataPod():
 	"""
-	This function will scan the current directory
-	of the python program to locate any pod files
+	This function opens
+	a normal data pod
 	"""
-	filesFound=[]
-	#Traverse current folder
-	for root, dirs, files in os.walk(currentDirectory, topdown=False):
-		for name in files:
-			if name.endswith(".mp"):
-				filesFound.append(name)
-
-	#Create Master Pods and display them
-	for item in filesFound:
-		pod=masterPod(item)
-		#Adds to listbox and removes extension
-		openMainListbox.addItem(os.path.splitext(item)[0],pod)
+	selectedPod=homePodListbox.getSelected()
+	if selectedPod != None and selectedPod != False:
+		#Show screen
+		viewPodScreen.show()
+		#Set label
+		viewPodTopNameVar.set(selectedPod.podName)
+		#Add data to screen
+		addPodDataToScreen(selectedPod,viewPodBasicSection)
 
 def openMasterPod():
 	"""
@@ -341,28 +335,56 @@ def unlockMasterPod():
 	#Clear entry
 	insertEntry(openMasterEntry,"")
 
-def openDataPod():
-	"""
-	This function opens
-	a normal data pod
-	"""
-	selectedPod=homePodListbox.getSelected()
-	if selectedPod != None and selectedPod != False:
-		#Show screen
-		viewPodScreen.show()
-		#Set label
-		viewPodTopNameVar.set(selectedPod.podName)
-		#Add data to screen
-		addPodDataToScreen(selectedPod,viewPodBasicSection)
-
 def addPodDataToScreen(podInstance,displayViewInstance):
 	if type(displayViewInstance) == passwordDisplayView:
 		podVault=podInstance.getVault()
 		podTitle=podInstance.podName
 
+#=====Initialiser Commands====
 
-def test():
-	print("LEl")
+def addPodsToListbox(listbox,pods):
+	listbox.fullClear()
+	for pod in pods:
+		listbox.addItem(pod,pods[pod])
+
+def loadFilesInDirectory():
+	"""
+	This function will scan the current directory
+	of the python program to locate any pod files
+	"""
+	filesFound=[]
+	#Traverse current folder
+	for root, dirs, files in os.walk(currentDirectory, topdown=False):
+		for name in files:
+			if name.endswith(".mp"):
+				filesFound.append(name)
+
+	#Create Master Pods and display them
+	for item in filesFound:
+		pod=masterPod(item)
+		#Adds to listbox and removes extension
+		openMainListbox.addItem(os.path.splitext(item)[0],pod)
+
+#=====Other Commands====
+
+def beginEdit():
+	"""
+	The begin Edit function is called
+	when the user selects to Edit the data
+	in the data pod
+	"""
+	#Show correct view
+	viewPodChangeController.showView(viewPodCancelEditSection)
+
+def cancelEdit():
+	"""
+	The begin Edit function is called
+	if the user decides to cancel ediing
+	the pod data
+	"""
+	#Show correct view
+	viewPodChangeController.showView(viewPodEditFrame)
+
 
 #===============================(BUTTONS)===============================
 
@@ -374,8 +396,8 @@ openMasterCancelButton.config(command=lambda: openScreen.show())
 #=====HOME SCREEN=====
 homeOpenPodButton.config(command=openDataPod)
 #=====VIEW POD=====
-viewPodEditButton.config(command=lambda view=viewPodCancelEditSection: viewPodChangeController.showView(view))
-viewPodCancelButton.config(command=lambda view=viewPodEditFrame: viewPodChangeController.showView(view))
+viewPodEditButton.config(command=beginEdit)
+viewPodCancelButton.config(command=cancelEdit)
 
 #===============================(BINDINGS)===============================
 
