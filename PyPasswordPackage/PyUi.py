@@ -428,7 +428,26 @@ class passwordDisplayView(displayView):
 
 	def addPasswordSection(self,hiddenDataSection):
 		self.addSection(hiddenDataSection)
-		self.sectionDict[hiddenDataSection.title]=hiddenDataSection.dataEntry
+		self.sectionDict[hiddenDataSection.title]=hiddenDataSection
+
+	def disable(self):
+		"""
+		The disable method will make the view "Read only"
+		and make it not possible to edit the data
+		:return:
+		"""
+		pass
+
+	def createSections(self,titleList,colourList):
+		"""
+		This method bulk creates sections in the displayView
+		"""
+		if len(titleList) == len(colourList):
+			for title in titleList:
+				newSection=hiddenDataSection(self,title)
+				newSection.colour(colourList[titleList.index(title)])
+				self.addSection(newSection)
+
 
 class topStrip(mainFrame):
 	"""
@@ -460,6 +479,7 @@ class hiddenDataSection(mainFrame):
 		mainFrame.__init__(self,parent)
 		self.title=title
 		self.data=StringVar()
+
 		self.centerFrame=mainFrame(self)
 		self.centerFrame.pack(expand=True)
 
@@ -477,6 +497,7 @@ class hiddenDataSection(mainFrame):
 	def addData(self,dataToAdd):
 		self.dataEntry.config(state=NORMAL)
 		insertEntry(self.dataEntry,dataToAdd)
+		self.data.set(dataToAdd)
 
 	def toggleHide(self):
 		"""
@@ -486,14 +507,20 @@ class hiddenDataSection(mainFrame):
 		"""
 		if self.hiddenVar == False:
 			self.dataEntry.config(show="•")
-			#self.dataEntry.config(state=DISABLED)
 			self.hideButton.config(text="Show")
 			self.hiddenVar=True
 		else:
 			self.dataEntry.config(show="")
-			#self.dataEntry.config(state=NORMAL)
 			self.hideButton.config(text="Hide")
 			self.hiddenVar=False
+
+	def restoreData(self):
+		"""
+		This method will restore the original
+		data to the entry if it is edited by
+		user
+		"""
+		self.addData(self.data.get())
 
 class multiView(mainFrame):
 	"""

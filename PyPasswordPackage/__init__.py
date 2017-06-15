@@ -178,18 +178,7 @@ viewPodNotebook.pack(expand=True,fill=BOTH)
 
 #Basic info
 viewPodBasicSection=passwordDisplayView(viewPodNotebook)
-
-#todo make this into method for class
-viewPodBasicInfoArray=["Title","Username","Password"]
-viewPodBasicInfoDict={}
-viewPodBasicColourList=["#23A1F7","#1D86CE","#1972AE"]
-counter=-1
-for sec in viewPodBasicInfoArray:
-	counter+=1
-	newSection=hiddenDataSection(viewPodBasicSection,sec)
-	newSection.colour(viewPodBasicColourList[counter])
-	viewPodBasicSection.addSection(newSection)
-	viewPodBasicInfoDict[sec]=newSection
+viewPodBasicSection.createSections(["Title","Username","Password"],["#1188D7","#0F74B7","#0D68A4"])
 viewPodBasicSection.showSections()
 #Advanced info
 viewPodAdvancedSection=displayView(viewPodNotebook)
@@ -267,8 +256,8 @@ def goHome():
 	else:
 		homeScreen.show()
 
-#=====Button Commands====
 
+#=====Screen Loaders====
 def openDataPod():
 	"""
 	This function opens
@@ -281,7 +270,9 @@ def openDataPod():
 		#Set label
 		viewPodTopNameVar.set(selectedPod.podName)
 		#Add data to screen
-		addPodDataToScreen(selectedPod,viewPodBasicSection)
+		print(viewPodBasicSection.sectionDict)
+		addBasicPodDataToScreen(selectedPod, viewPodBasicSection)
+		#Test
 
 def openMasterPod():
 	"""
@@ -298,6 +289,8 @@ def openMasterPod():
 
 	else:
 		askMessage("Select","No Pod Selected")
+
+#=====Button Commands====
 
 def unlockMasterPod():
 
@@ -335,10 +328,15 @@ def unlockMasterPod():
 	#Clear entry
 	insertEntry(openMasterEntry,"")
 
-def addPodDataToScreen(podInstance,displayViewInstance):
-	if type(displayViewInstance) == passwordDisplayView:
+def addBasicPodDataToScreen(podInstance, basicDisplayInstance):
+	"""
+	This function will take a pod and display
+	the data
+	"""
+	if type(basicDisplayInstance) == passwordDisplayView:
 		podVault=podInstance.getVault()
 		podTitle=podInstance.podName
+
 
 #=====Initialiser Commands====
 
