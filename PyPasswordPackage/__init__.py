@@ -271,7 +271,6 @@ def openDataPod():
 		viewPodTopNameVar.set(selectedPod.podName)
 		#Add data to screen
 		addBasicPodDataToScreen(selectedPod, viewPodBasicSection)
-		#Test
 
 def openMasterPod():
 	"""
@@ -300,7 +299,7 @@ def unlockMasterPod():
 		#Attempt to unlock
 		response=currentMasterPod.unlock(attempt)
 		if response != None and response != False:
-			print("Unlock success")
+			log.report("Unlock success","(Unlock)",tag="Login")
 			#Track the pods found
 			podDict={}
 			for item in response:
@@ -310,7 +309,6 @@ def unlockMasterPod():
 
 				#Add the pod data
 				podData=response[item]
-				print(podData)
 				for item in podData:
 					pod.addData(item,podData[item])
 			#Load screen
@@ -342,6 +340,12 @@ def addBasicPodDataToScreen(podInstance, basicDisplayInstance):
 		podTitle=podInstance.podName
 
 		#Add all the data in the vault to screen
+
+		#If the vault itself does not contain title it uses the pod title
+		if "Title" not in podVault:
+			basicDisplayInstance.sectionDict["Title"].addData(podTitle)
+
+		#Iterate through all data in the pod
 		for item in podVault:
 			if item in basicDisplayInstance.sectionDict:
 				#Add to the correct entry
@@ -376,7 +380,7 @@ def loadFilesInDirectory():
 
 #=====Other Commands====
 
-def beginEdit():
+def beginEdit(displayViewList):
 	"""
 	The begin Edit function is called
 	when the user selects to Edit the data
@@ -385,7 +389,13 @@ def beginEdit():
 	#Show correct view
 	viewPodChangeController.showView(viewPodCancelEditSection)
 
-def cancelEdit():
+	for display in displayViewList:
+		#Change states of Entry
+		for sectionTitle in display.sectionDict:
+			display.sectionDict[sectionTitle].enableEditing()
+
+
+def cancelEdit(displayViewList):
 	"""
 	The begin Edit function is called
 	if the user decides to cancel ediing
@@ -394,7 +404,10 @@ def cancelEdit():
 	#Show correct view
 	viewPodChangeController.showView(viewPodEditFrame)
 
-
+	for display in displayViewList:
+		#Change states of Entry
+		for sectionTitle in display.sectionDict:
+			display.sectionDict[sectionTitle].disableEditing()
 #===============================(BUTTONS)===============================
 
 #=====OPEN SCREEN=====
@@ -405,8 +418,8 @@ openMasterCancelButton.config(command=lambda: openScreen.show())
 #=====HOME SCREEN=====
 homeOpenPodButton.config(command=openDataPod)
 #=====VIEW POD=====
-viewPodEditButton.config(command=beginEdit)
-viewPodCancelButton.config(command=cancelEdit)
+viewPodEditButton.config(command=lambda:beginEdit([viewPodBasicSection]))
+viewPodCancelButton.config(command=lambda:cancelEdit([viewPodBasicSection]))
 
 #===============================(BINDINGS)===============================
 

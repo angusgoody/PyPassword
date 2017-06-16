@@ -504,7 +504,9 @@ class hiddenDataSection(mainFrame):
 		self.hideButton=Button(self.centerFrame,text="Hide",command=self.toggleHide,width=6)
 		self.hideButton.grid(row=0,column=2,padx=5)
 
+		#Edit variables
 		self.hiddenVar=False
+		self.editMode=False
 
 	def addData(self,dataToAdd):
 		"""
@@ -515,6 +517,8 @@ class hiddenDataSection(mainFrame):
 		self.dataEntry.config(state=NORMAL)
 		insertEntry(self.dataEntry,dataToAdd)
 		self.data.set(dataToAdd)
+		if self.editMode == False:
+			self.dataEntry.config(state=DISABLED)
 
 	def toggleHide(self):
 		"""
@@ -525,12 +529,16 @@ class hiddenDataSection(mainFrame):
 		if self.hiddenVar == False:
 			self.dataEntry.config(show="•")
 			self.hideButton.config(text="Show")
+			self.dataEntry.config(state=DISABLED)
 			self.hiddenVar=True
 		else:
 			self.dataEntry.config(show="")
 			self.hideButton.config(text="Hide")
 			self.hiddenVar=False
-
+			if self.editMode == False:
+				self.dataEntry.config(state=DISABLED)
+			else:
+				self.dataEntry.config(state=NORMAL)
 	def restoreData(self):
 		"""
 		This method will restore the original
@@ -546,6 +554,21 @@ class hiddenDataSection(mainFrame):
 		"""
 		insertEntry(self.dataEntry,"")
 		self.data.set("")
+
+	def enableEditing(self):
+		"""
+		This method allows the section to be edited
+		and changed
+		"""
+		self.editMode=True
+		self.dataEntry.config(state=NORMAL)
+	def disableEditing(self):
+		"""
+		This method disables the section and returns
+		to read only
+		"""
+		self.editMode=False
+		self.dataEntry.config(state=DISABLED)
 class multiView(mainFrame):
 	"""
 	The multiview class is a class that allows
