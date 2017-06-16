@@ -453,6 +453,13 @@ class passwordDisplayView(displayView):
 				newSection.colour(colourList[titleList.index(title)])
 				self.addPasswordSection(newSection)
 
+	def clearScreem(self):
+		"""
+		This method will wipe all data from the
+		screen and dictionary
+		"""
+		for item in self.sectionDict:
+			self.sectionDict[item].clear()
 
 class topStrip(mainFrame):
 	"""
@@ -500,6 +507,11 @@ class hiddenDataSection(mainFrame):
 		self.hiddenVar=False
 
 	def addData(self,dataToAdd):
+		"""
+		This method will add data to the section
+		by inserting the data into the entry and
+		updting the string variable
+		"""
 		self.dataEntry.config(state=NORMAL)
 		insertEntry(self.dataEntry,dataToAdd)
 		self.data.set(dataToAdd)
@@ -527,6 +539,13 @@ class hiddenDataSection(mainFrame):
 		"""
 		self.addData(self.data.get())
 
+	def clear(self):
+		"""
+		Remove data from entry and
+		the string var
+		"""
+		insertEntry(self.dataEntry,"")
+		self.data.set("")
 class multiView(mainFrame):
 	"""
 	The multiview class is a class that allows

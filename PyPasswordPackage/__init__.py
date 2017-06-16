@@ -333,6 +333,11 @@ def addBasicPodDataToScreen(podInstance, basicDisplayInstance):
 	the data
 	"""
 	if type(basicDisplayInstance) == passwordDisplayView:
+
+		#Clear screen first
+		basicDisplayInstance.clearScreem()
+
+		#Get basic pod info
 		podVault=podInstance.getVault()
 		podTitle=podInstance.podName
 
