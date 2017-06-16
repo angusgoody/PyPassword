@@ -270,7 +270,6 @@ def openDataPod():
 		#Set label
 		viewPodTopNameVar.set(selectedPod.podName)
 		#Add data to screen
-		print(viewPodBasicSection.sectionDict)
 		addBasicPodDataToScreen(selectedPod, viewPodBasicSection)
 		#Test
 
@@ -336,6 +335,13 @@ def addBasicPodDataToScreen(podInstance, basicDisplayInstance):
 	if type(basicDisplayInstance) == passwordDisplayView:
 		podVault=podInstance.getVault()
 		podTitle=podInstance.podName
+
+		#Add all the data in the vault to screen
+		for item in podVault:
+			if item in basicDisplayInstance.sectionDict:
+				#Add to the correct entry
+				basicDisplayInstance.sectionDict[item].addData(podVault[item])
+
 
 
 #=====Initialiser Commands====

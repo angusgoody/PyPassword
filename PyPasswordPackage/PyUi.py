@@ -427,6 +427,11 @@ class passwordDisplayView(displayView):
 		self.sectionDict={}
 
 	def addPasswordSection(self,hiddenDataSection):
+		"""
+		Overides the default add section method
+		because title needs to be stored in the
+		object
+		"""
 		self.addSection(hiddenDataSection)
 		self.sectionDict[hiddenDataSection.title]=hiddenDataSection
 
@@ -446,7 +451,7 @@ class passwordDisplayView(displayView):
 			for title in titleList:
 				newSection=hiddenDataSection(self,title)
 				newSection.colour(colourList[titleList.index(title)])
-				self.addSection(newSection)
+				self.addPasswordSection(newSection)
 
 
 class topStrip(mainFrame):
