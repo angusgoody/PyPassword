@@ -562,6 +562,7 @@ class hiddenDataSection(mainFrame):
 		"""
 		self.editMode=True
 		self.dataEntry.config(state=NORMAL)
+
 	def disableEditing(self):
 		"""
 		This method disables the section and returns
@@ -569,6 +570,9 @@ class hiddenDataSection(mainFrame):
 		"""
 		self.editMode=False
 		self.dataEntry.config(state=DISABLED)
+
+	def getData(self):
+		return self.dataEntry.get()
 class multiView(mainFrame):
 	"""
 	The multiview class is a class that allows

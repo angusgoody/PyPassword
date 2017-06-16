@@ -394,7 +394,6 @@ def beginEdit(displayViewList):
 		for sectionTitle in display.sectionDict:
 			display.sectionDict[sectionTitle].enableEditing()
 
-
 def cancelEdit(displayViewList):
 	"""
 	The begin Edit function is called
@@ -408,6 +407,19 @@ def cancelEdit(displayViewList):
 		#Change states of Entry
 		for sectionTitle in display.sectionDict:
 			display.sectionDict[sectionTitle].disableEditing()
+
+def overwritePodData(displayViewList):
+	"""
+	This function will take the data from the
+	pods on screen and update the old data
+	but not save to file yet
+	"""
+	for display in displayViewList:
+		for section in display.sectionDict:
+			if display.sectionDict[section].getData() != display.sectionDict[section].data.get():
+				print("Data has changed in",section.title)
+			else:
+				print("Data not changed in",section.title)
 #===============================(BUTTONS)===============================
 
 #=====OPEN SCREEN=====
@@ -420,7 +432,7 @@ homeOpenPodButton.config(command=openDataPod)
 #=====VIEW POD=====
 viewPodEditButton.config(command=lambda:beginEdit([viewPodBasicSection]))
 viewPodCancelButton.config(command=lambda:cancelEdit([viewPodBasicSection]))
-
+viewPodSaveButton.config(command=lambda: overwritePodData([viewPodBasicSection]))
 #===============================(BINDINGS)===============================
 
 #=====STATUS BAR=====
