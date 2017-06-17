@@ -409,12 +409,11 @@ def cancelEdit(displayViewList):
 
 	for display in displayViewList:
 
-
 		#Change states of Entry
 		for sectionTitle in display.sectionDict:
 			hiddenSection=display.sectionDict[sectionTitle]
+			#Check to see if data has been modified
 			if hiddenSection.getData() != hiddenSection.data.get():
-
 				#Change back to original
 				hiddenSection.restoreData()
 			hiddenSection.disableEditing()
@@ -425,6 +424,7 @@ def overwritePodData(displayViewList):
 	pods on screen and update the old data
 	but not save to file yet
 	"""
+	updated=False
 	for display in displayViewList:
 		for section in display.sectionDict:
 			hiddenSection=display.sectionDict[section]
@@ -432,9 +432,16 @@ def overwritePodData(displayViewList):
 				#Update the stored data for the display
 				hiddenSection.updateData()
 				#Update the pod data
-				print("Updated data successfully")
+				updated=True
 			else:
 				print("Data not changed in",section.title)
+
+	if updated == False:
+		askMessage("No changes","No data was changed")
+	else:
+		askMessage("Saved","Data saved successfully")
+		log.report("Saved data succesfully","(Saved)")
+		
 #===============================(BUTTONS)===============================
 
 #=====OPEN SCREEN=====
