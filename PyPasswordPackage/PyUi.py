@@ -539,6 +539,7 @@ class hiddenDataSection(mainFrame):
 				self.dataEntry.config(state=DISABLED)
 			else:
 				self.dataEntry.config(state=NORMAL)
+
 	def restoreData(self):
 		"""
 		This method will restore the original
@@ -573,6 +574,15 @@ class hiddenDataSection(mainFrame):
 
 	def getData(self):
 		return self.dataEntry.get()
+
+	def updateData(self):
+		"""
+		This method will get the data
+		from the entry and then update the data
+		"""
+		newData=self.dataEntry.get()
+		self.data.set(newData)
+
 class multiView(mainFrame):
 	"""
 	The multiview class is a class that allows

@@ -44,6 +44,10 @@ lockedScreens=[]
 currentBasicDisplayView=None
 #===============================(USER INTERFACE)===============================
 
+#-----Log Screen----
+#region logscreen
+
+#endregion
 #-----Open Screen----
 # region open screen
 openScreen=mainScreen(window,"PyPassword",statusVar,menu=lockScreenMenu)
@@ -185,7 +189,7 @@ viewPodAdvancedSection=displayView(viewPodNotebook)
 
 #Add pages
 viewPodNotebook.add(viewPodBasicSection,text="Basic")
-viewPodNotebook.add(viewPodAdvancedSection,text="Advanced")
+viewPodNotebook.add(viewPodAdvancedSection,text="Advanced",state=DISABLED)
 
 #--Bottom section--
 viewPodBottomFrame=centerFrame(viewPodScreen)
@@ -404,9 +408,16 @@ def cancelEdit(displayViewList):
 	viewPodChangeController.showView(viewPodEditFrame)
 
 	for display in displayViewList:
+
+
 		#Change states of Entry
 		for sectionTitle in display.sectionDict:
-			display.sectionDict[sectionTitle].disableEditing()
+			hiddenSection=display.sectionDict[sectionTitle]
+			if hiddenSection.getData() != hiddenSection.data.get():
+
+				#Change back to original
+				hiddenSection.restoreData()
+			hiddenSection.disableEditing()
 
 def overwritePodData(displayViewList):
 	"""
@@ -416,8 +427,12 @@ def overwritePodData(displayViewList):
 	"""
 	for display in displayViewList:
 		for section in display.sectionDict:
-			if display.sectionDict[section].getData() != display.sectionDict[section].data.get():
-				print("Data has changed in",section.title)
+			hiddenSection=display.sectionDict[section]
+			if hiddenSection.getData() != hiddenSection.data.get():
+				#Update the stored data for the display
+				hiddenSection.updateData()
+				#Update the pod data
+				print("Updated data successfully")
 			else:
 				print("Data not changed in",section.title)
 #===============================(BUTTONS)===============================

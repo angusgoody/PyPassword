@@ -84,6 +84,13 @@ class dataPod:
 	def getInfo(self):
 		return {self.podName:self.podVault}
 
+	def updateVault(self,name,newInfo):
+		if name in self.podVault:
+			self.podVault[name]=newInfo
+			log.report("Pod Vault info updated",name)
+		else:
+			log.report("Error pod vault name not found",name,tag="error",system=True)
+
 class masterPod:
 	"""
 	The master pod is a class
