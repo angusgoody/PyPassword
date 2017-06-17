@@ -439,9 +439,11 @@ def overwritePodData(displayViewList):
 	if updated == False:
 		askMessage("No changes","No data was changed")
 	else:
-		askMessage("Saved","Data saved successfully")
+		#askMessage("Saved","Data saved successfully")
 		log.report("Saved data succesfully","(Saved)")
-		
+		#Return to original screen
+		cancelEdit(displayViewList)
+
 #===============================(BUTTONS)===============================
 
 #=====OPEN SCREEN=====
