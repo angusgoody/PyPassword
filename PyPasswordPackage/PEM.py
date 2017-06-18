@@ -70,7 +70,7 @@ class dataPod:
 	that stores all the information
 	about a account
 	"""
-	def __init__(self,podTitle,master):
+	def __init__(self,master,podTitle):
 		self.master=master
 		self.podName=podTitle
 		self.podVault={}
@@ -85,10 +85,10 @@ class dataPod:
 		return {self.podName:self.podVault}
 
 	def updateVault(self,name,newInfo):
+		print("Gonna update the vault")
 		#Title
 		if name == "Title":
 			self.podName=newInfo
-
 		if name in self.podVault:
 			self.podVault[name]=newInfo
 			log.report("Pod Vault info updated",name)
@@ -107,6 +107,7 @@ class masterPod:
 		self.location=fileName
 		self.podDict={}
 		self.masterKey=None
+
 
 	def addKey(self,masterKey):
 		self.masterKey=masterKey
@@ -132,7 +133,23 @@ class masterPod:
 				return False
 			else:
 				log.report("Correct master password used","(Unlock)",tag="File")
-				return info
+				#Add key to class
+				self.masterKey=attempt
+				#Add all the pods to the master and return data
+				podDict={}
+				for iterPod in info:
+					#Create pod instance
+					currentPod=dataPod(self,iterPod)
+					podDict[iterPod]=currentPod
+
+					#Add the pod data
+					podData=info[iterPod]
+					for podSection in podData:
+						currentPod.addData(podSection,podData[podSection])
+
+					#Add the pod to self
+					self.addPodRefrence(currentPod.podName,currentPod)
+				return podDict
 		else:
 			return False
 
@@ -143,8 +160,15 @@ class masterPod:
 		"""
 		podInstance=dataPod(podName,self)
 		self.podDict[podName]=podInstance
+		print("Added a datapod")
 		return podInstance
 
+	def addPodRefrence(self,podTitle,podInstance):
+		"""
+		This method is to add pre existing pods to the master
+		without returning a value
+		"""
+		self.podDict[podTitle]=podInstance
 	def save(self):
 		"""
 		This is where the master pod
@@ -154,6 +178,7 @@ class masterPod:
 			exportDict={}
 			#Gather info here
 			for pod in self.podDict:
+
 				info=self.podDict[pod].getVault()
 				exportDict[pod]=info
 
@@ -161,8 +186,10 @@ class masterPod:
 			encryptionKey=AES.new(pad(self.masterKey))
 			#Save file
 			savePickle(cipher(str(exportDict),encryptionKey),self.location)
+			print("Saved succesfully")
 		else:
 			log.report("Unable to save file","(No master key)",tag="File")
+
 
 	def getRootName(self):
 		return os.path.splitext(self.fileName)[0]

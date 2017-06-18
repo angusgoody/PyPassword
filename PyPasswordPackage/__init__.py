@@ -38,11 +38,16 @@ statusBar.pack(fill=X,side=BOTTOM)
 statusLabel=mainLabel(statusBar,textvariable=statusVar)
 statusLabel.pack(expand=True)
 statusBar.colour("#A9F955")
+
+
+
 #===============================(VARIABLES/ARRAYS)===============================
 currentDirectory=os.getcwd()
 lockedScreens=[]
 mainCurrentMasterPod=None
 mainCurrentDataPod=None
+#Log
+log=logClass("Main")
 #===============================(USER INTERFACE)===============================
 
 #-----Log Screen----
@@ -238,6 +243,16 @@ def askMessage(pre,message):
 	except:
 		print(message)
 
+def onExit():
+	global mainCurrentMasterPod
+	answer=messagebox.askokcancel("Sure","Do you wish to exit?")
+	if answer:
+		if mainCurrentMasterPod != None:
+			print("Saving data")
+			mainCurrentMasterPod.save()
+		window.destroy()
+
+
 #=========Program Functions=========
 
 #=====Menu Commands====
@@ -306,23 +321,13 @@ def unlockMasterPod():
 
 		#Attempt to unlock
 		response=currentMasterPod.unlock(attempt)
+		print(response)
 		if response != None and response != False:
 			log.report("Unlock success","(Unlock)",tag="Login")
-			#Track the pods found
-			podDict={}
-			for item in response:
-				#Create pod instance
-				pod=dataPod(item,currentMasterPod)
-				podDict[item]=pod
-
-				#Add the pod data
-				podData=response[item]
-				for item in podData:
-					pod.addData(item,podData[item])
 			#Load screen
 			homeScreen.show()
 			#Show Pods
-			addPodsToListbox(homePodListbox,podDict)
+			addPodsToListbox(homePodListbox,response)
 			#Update top label
 			homeTopLabelVar.set(currentMasterPod.getRootName()+" accounts")
 			#Update variable
@@ -360,7 +365,6 @@ def addBasicPodDataToScreen(podInstance, basicDisplayInstance):
 			if item in basicDisplayInstance.sectionDict:
 				#Add to the correct entry
 				basicDisplayInstance.sectionDict[item].addData(podVault[item])
-
 
 
 #=====Initialiser Commands====
@@ -483,7 +487,8 @@ openMainListbox.bind("<Return>", lambda event: openMasterPod())
 openMasterEntry.bind("<Return>", lambda event: unlockMasterPod())
 #=====HOME SCREEN=====
 homePodListbox.bind("<Double-Button-1>", lambda event: openDataPod())
-
+#====ROOT======
+window.protocol("WM_DELETE_WINDOW", onExit)
 #===============================(MENU CASCADES)===============================
 mainMenu.add_cascade(label="File",menu=fileMenu)
 mainMenu.add_cascade(label="Edit",menu=editMenu)
@@ -493,6 +498,7 @@ mainMenu.add_cascade(label="View",menu=viewMenu)
 fileMenu.add_command(label="Lock Master Pod",command=lockdown)
 #==View==
 viewMenu.add_command(label="Show Log",command=lambda: logScreen.show())
+
 
 #===============================(INITIALISER)===============================
 loadFilesInDirectory()
