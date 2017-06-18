@@ -496,6 +496,8 @@ mainMenu.add_cascade(label="View",menu=viewMenu)
 
 #==File==
 fileMenu.add_command(label="Lock Master Pod",command=lockdown)
+fileMenu.add_command(label="Save Data",command=lambda: mainCurrentMasterPod.save())
+
 #==View==
 viewMenu.add_command(label="Show Log",command=lambda: logScreen.show())
 

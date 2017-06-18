@@ -85,7 +85,11 @@ class dataPod:
 		return {self.podName:self.podVault}
 
 	def updateVault(self,name,newInfo):
-		print("Gonna update the vault")
+		"""
+		This method will update the data
+		pod data to the new data entered
+		by the user
+		"""
 		#Title
 		if name == "Title":
 			oldName=self.podName
