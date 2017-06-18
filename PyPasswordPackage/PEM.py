@@ -88,7 +88,9 @@ class dataPod:
 		print("Gonna update the vault")
 		#Title
 		if name == "Title":
+			oldName=self.podName
 			self.podName=newInfo
+			self.master.updatePodTitle(oldName,self.podName)
 		if name in self.podVault:
 			self.podVault[name]=newInfo
 			log.report("Pod Vault info updated",name)
@@ -169,6 +171,10 @@ class masterPod:
 		without returning a value
 		"""
 		self.podDict[podTitle]=podInstance
+
+	def updatePodTitle(self,oldName,newName):
+		self.podDict[newName] = self.podDict.pop(oldName)
+
 	def save(self):
 		"""
 		This is where the master pod
@@ -189,7 +195,6 @@ class masterPod:
 			print("Saved succesfully")
 		else:
 			log.report("Unable to save file","(No master key)",tag="File")
-
 
 	def getRootName(self):
 		return os.path.splitext(self.fileName)[0]
