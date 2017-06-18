@@ -211,7 +211,7 @@ def recursiveBind(parent,bindButton,bindFunction):
 
 def deleteItemFromListbox(listbox,indicator):
 	counter=-1
-	for item in listbox:
+	for item in listbox.get(0,END):
 		counter+=1
 		if item == indicator:
 			listbox.delete(counter,counter)
@@ -308,8 +308,9 @@ class advancedListbox(Listbox):
 	def updateItemLabel(self,oldName,newName):
 		for item in self.listData:
 			if item == oldName:
+				listData=self.listData[oldName]
 				self.removeItem(oldName,True)
-				self.listData[newName] = self.listData.pop(oldName)
+				self.addItem(newName,listData)
 				break
 class mainButton(Button):
 	"""
