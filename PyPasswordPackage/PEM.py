@@ -85,6 +85,10 @@ class dataPod:
 		return {self.podName:self.podVault}
 
 	def updateVault(self,name,newInfo):
+		#Title
+		if name == "Title":
+			self.podName=newInfo
+
 		if name in self.podVault:
 			self.podVault[name]=newInfo
 			log.report("Pod Vault info updated",name)

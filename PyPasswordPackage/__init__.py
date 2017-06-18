@@ -435,12 +435,14 @@ def overwritePodData(displayViewList):
 		for section in display.sectionDict:
 			hiddenSection=display.sectionDict[section]
 			if hiddenSection.getData() != hiddenSection.data.get():
+				oldData=hiddenSection.data.get()
+				newData=hiddenSection.getData()
 				#Update the stored data for the display
 				hiddenSection.updateData()
 				#Update the pod data
 				currentPod=mainCurrentDataPod
-				currentPod.updateVault(hiddenSection.title,hiddenSection.getData())
-				#Update
+				currentPod.updateVault(hiddenSection.title,newData)
+				#Update Var
 				updated=True
 			else:
 				print("Data not changed in",section.title)

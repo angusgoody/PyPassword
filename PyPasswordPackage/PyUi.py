@@ -208,6 +208,15 @@ def recursiveBind(parent,bindButton,bindFunction):
 		except:
 			pass
 	log.report("Added recursive binding to",parent.winfo_class(),tag="binding",system=True)
+
+def deleteItemFromListbox(listbox,indicator):
+	counter=-1
+	for item in listbox:
+		counter+=1
+		if item == indicator:
+			listbox.delete(counter,counter)
+			break
+
 #==================================(CLASSES)=============================
 
 
@@ -256,6 +265,7 @@ class advancedListbox(Listbox):
 			log.report("Error getting fg colour for",colour,tag="Error",system=True)
 		else:
 			self.itemconfig(END,fg=fgColour)
+
 	def getSelected(self):
 		"""
 		This method will attempt to return
@@ -286,6 +296,21 @@ class advancedListbox(Listbox):
 		self.listData.clear()
 		log.report("Listbox has been cleared of data", "(FullClear)", system=True)
 
+	def removeItem(self,indicator,tempOrNot):
+		if indicator in self.listData:
+			deleteItemFromListbox(self,indicator)
+			#if not temp it removes reference from dict
+			if tempOrNot == False:
+				del self.listData[indicator]
+			log.report("Removed item from listbox",indicator)
+
+
+	def updateItemLabel(self,oldName,newName):
+		for item in self.listData:
+			if item == oldName:
+				self.removeItem(oldName,True)
+				self.listData[newName] = self.listData.pop(oldName)
+				break
 class mainButton(Button):
 	"""
 	The main button class is mainly
