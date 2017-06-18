@@ -41,12 +41,13 @@ statusBar.colour("#A9F955")
 #===============================(VARIABLES/ARRAYS)===============================
 currentDirectory=os.getcwd()
 lockedScreens=[]
-currentBasicDisplayView=None
+mainCurrentMasterPod=None
+mainCurrentDataPod=None
 #===============================(USER INTERFACE)===============================
 
 #-----Log Screen----
 #region logscreen
-
+logScreen=mainScreen(window,"Log",statusVar)
 #endregion
 #-----Open Screen----
 # region open screen
@@ -263,6 +264,7 @@ def goHome():
 
 #=====Screen Loaders====
 def openDataPod():
+	global mainCurrentDataPod
 	"""
 	This function opens
 	a normal data pod
@@ -273,6 +275,8 @@ def openDataPod():
 		viewPodScreen.show()
 		#Set label
 		viewPodTopNameVar.set(selectedPod.podName)
+		#Set Variable
+		mainCurrentDataPod=selectedPod
 		#Add data to screen
 		addBasicPodDataToScreen(selectedPod, viewPodBasicSection)
 
@@ -295,7 +299,7 @@ def openMasterPod():
 #=====Button Commands====
 
 def unlockMasterPod():
-
+	global mainCurrentMasterPod
 	attempt=openMasterEntry.get()
 	if len(attempt.split()) > 0:
 		currentMasterPod=masterPod.currentLoadedPod
@@ -321,6 +325,8 @@ def unlockMasterPod():
 			addPodsToListbox(homePodListbox,podDict)
 			#Update top label
 			homeTopLabelVar.set(currentMasterPod.getRootName()+" accounts")
+			#Update variable
+			mainCurrentMasterPod=currentMasterPod
 		else:
 			askMessage("Incorrect","Password Incorrect")
 	else:
@@ -432,6 +438,9 @@ def overwritePodData(displayViewList):
 				#Update the stored data for the display
 				hiddenSection.updateData()
 				#Update the pod data
+				currentPod=mainCurrentDataPod
+				currentPod.updateVault(hiddenSection.title,hiddenSection.getData())
+				#Update
 				updated=True
 			else:
 				print("Data not changed in",section.title)
@@ -476,6 +485,9 @@ mainMenu.add_cascade(label="View",menu=viewMenu)
 
 #==File==
 fileMenu.add_command(label="Lock Master Pod",command=lockdown)
+#==View==
+viewMenu.add_command(label="Show Log",command=lambda: logScreen.show())
+
 #===============================(INITIALISER)===============================
 loadFilesInDirectory()
 #===============================(TESTING AREA)===============================
