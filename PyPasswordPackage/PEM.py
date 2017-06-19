@@ -99,7 +99,9 @@ class dataPod:
 			self.podVault[name]=newInfo
 			log.report("Pod Vault info updated",name)
 		else:
-			log.report("Error pod vault name not found",name,tag="error",system=True)
+			#Add that data to the pod
+			self.podVault[name]=newInfo
+			log.report("New section added to pod",name,tag="File",system=True)
 
 class masterPod:
 	"""

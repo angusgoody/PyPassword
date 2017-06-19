@@ -473,7 +473,7 @@ class passwordDisplayView(displayView):
 		"""
 		This method bulk creates sections in the displayView
 		"""
-		if len(titleList) == len(colourList):
+		if len(titleList) <= len(colourList):
 			for title in titleList:
 				newSection=hiddenDataSection(self,title)
 				newSection.colour(colourList[titleList.index(title)])

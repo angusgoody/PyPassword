@@ -188,7 +188,7 @@ viewPodNotebook.pack(expand=True,fill=BOTH)
 
 #Basic info
 viewPodBasicSection=passwordDisplayView(viewPodNotebook)
-viewPodBasicSection.createSections(["Title","Username","Password"],["#1188D7","#0F74B7","#0D68A4"])
+viewPodBasicSection.createSections(["Title","Username","Password","Website"],["#1188D7","#0F74B7","#0D68A4","#2E6091"])
 viewPodBasicSection.showSections()
 #Advanced info
 viewPodAdvancedSection=displayView(viewPodNotebook)
@@ -321,7 +321,6 @@ def unlockMasterPod():
 
 		#Attempt to unlock
 		response=currentMasterPod.unlock(attempt)
-		print(response)
 		if response != None and response != False:
 			log.report("Unlock success","(Unlock)",tag="Login")
 			#Load screen
@@ -434,6 +433,7 @@ def overwritePodData(displayViewList):
 	pods on screen and update the old data
 	but not save to file yet
 	"""
+	#todo add ability to add new sections
 	updated=False
 	for display in displayViewList:
 		for section in display.sectionDict:
@@ -459,7 +459,7 @@ def overwritePodData(displayViewList):
 		askMessage("No changes","No data was changed")
 	else:
 		#askMessage("Saved","Data saved successfully")
-		log.report("Saved data succesfully","(Saved)")
+		log.report("Saved data successfully","(Saved)")
 		#Return to original screen
 		cancelEdit(displayViewList)
 
