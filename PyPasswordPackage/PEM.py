@@ -74,9 +74,10 @@ class dataPod:
 		self.master=master
 		self.podName=podTitle
 		self.podVault={}
-
+		self.edited=False
 	def addData(self,name,info):
 		self.podVault[name]=info
+		self.edited=True
 
 	def getVault(self):
 		return self.podVault
@@ -102,6 +103,8 @@ class dataPod:
 			#Add that data to the pod
 			self.podVault[name]=newInfo
 			log.report("New section added to pod",name,tag="File",system=True)
+
+		self.edited=True
 
 class masterPod:
 	"""
@@ -185,20 +188,41 @@ class masterPod:
 		"""
 		This is where the master pod
 		is exported and saved to a file
+		Firstly it checks all the pods
+		to see if any data has been modified
+		and if so then it will save to file
 		"""
+		#Wont save without encryption key
 		if self.masterKey != None:
-			exportDict={}
-			#Gather info here
-			for pod in self.podDict:
 
-				info=self.podDict[pod].getVault()
-				exportDict[pod]=info
+			#Check if save needs to happen
+			edited=False
+			for i in self.podDict:
+				pod=self.podDict[i]
+				if pod.edited == True:
+					edited=True
+					break
 
-			#Encrypt file here
-			encryptionKey=AES.new(pad(self.masterKey))
-			#Save file
-			savePickle(cipher(str(exportDict),encryptionKey),self.location)
-			print("Saved succesfully")
+			if edited == True:
+				exportDict={}
+				#Gather info here
+				for pod in self.podDict:
+
+					info=self.podDict[pod].getVault()
+					exportDict[pod]=info
+
+				#Encrypt file here
+				encryptionKey=AES.new(pad(self.masterKey))
+				#Save file
+				savePickle(cipher(str(exportDict),encryptionKey),self.location)
+
+				#Update variables in pods to NOT edited
+				for i in self.podDict:
+					pod=self.podDict[i]
+					pod.edited=False
+				print("Saved mp successfully")
+			else:
+				print("No need to save data nothing changed")
 		else:
 			log.report("Unable to save file","(No master key)",tag="File")
 

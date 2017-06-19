@@ -243,14 +243,6 @@ def askMessage(pre,message):
 	except:
 		print(message)
 
-def onExit():
-	global mainCurrentMasterPod
-	answer=messagebox.askokcancel("Sure","Do you wish to exit?")
-	if answer:
-		if mainCurrentMasterPod != None:
-			print("Saving data")
-			mainCurrentMasterPod.save()
-		window.destroy()
 
 
 #=========Program Functions=========
@@ -452,14 +444,13 @@ def overwritePodData(displayViewList):
 					homePodListbox.updateItemLabel(oldData,newData)
 				#Update Var
 				updated=True
-			else:
-				print("Data not changed in",section.title)
 
 	if updated == False:
 		askMessage("No changes","No data was changed")
 	else:
-		#askMessage("Saved","Data saved successfully")
 		log.report("Saved data successfully","(Saved)")
+		#Save to file
+		mainCurrentMasterPod.save()
 		#Return to original screen
 		cancelEdit(displayViewList)
 
@@ -488,7 +479,6 @@ openMasterEntry.bind("<Return>", lambda event: unlockMasterPod())
 #=====HOME SCREEN=====
 homePodListbox.bind("<Double-Button-1>", lambda event: openDataPod())
 #====ROOT======
-window.protocol("WM_DELETE_WINDOW", onExit)
 #===============================(MENU CASCADES)===============================
 mainMenu.add_cascade(label="File",menu=fileMenu)
 mainMenu.add_cascade(label="Edit",menu=editMenu)
