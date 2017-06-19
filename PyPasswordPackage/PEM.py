@@ -220,7 +220,7 @@ class masterPod:
 				for i in self.podDict:
 					pod=self.podDict[i]
 					pod.edited=False
-				print("Saved mp successfully")
+				log.report("Saved master pod successfully","(MP)",tag="File")
 			else:
 				print("No need to save data nothing changed")
 		else:

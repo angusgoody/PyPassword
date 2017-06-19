@@ -188,7 +188,7 @@ viewPodNotebook.pack(expand=True,fill=BOTH)
 
 #Basic info
 viewPodBasicSection=passwordDisplayView(viewPodNotebook)
-viewPodBasicSection.createSections(["Title","Username","Password","Website","Phone"],["#1188D7","#0F74B7","#0D68A4","#2E6091","#295480"])
+viewPodBasicSection.createSections(["Title","Username","Password"],["#1188D7","#0F74B7","#0D68A4","#2B6198"])
 viewPodBasicSection.showSections()
 #Advanced info
 viewPodAdvancedSection=displayView(viewPodNotebook)
@@ -273,15 +273,20 @@ def goHome():
 def openDataPod():
 	global mainCurrentDataPod
 	"""
-	This function opens
-	a normal data pod
+	This is the function that runs when a data pod
+	needs to be displayed onto the screen. It will
+	show the screen and then add the pod data to it
+	and updates any variables.
 	"""
+
+	#Find the pod the user selected
 	selectedPod=homePodListbox.getSelected()
+	#Checks if a pod has actually been selected
 	if selectedPod != None and selectedPod != False:
 		#Show screen
 		viewPodScreen.show()
-		#Set label
-		viewPodTopNameVar.set(selectedPod.podName)
+		#Set label at top of screen to master/data
+		viewPodTopNameVar.set(str(mainCurrentMasterPod.getRootName())+" / "+str(selectedPod.podName))
 		#Set Variable
 		mainCurrentDataPod=selectedPod
 		#Add data to screen
@@ -423,13 +428,16 @@ def overwritePodData(displayViewList):
 	"""
 	This function will take the data from the
 	pods on screen and update the old data
-	but not save to file yet
+	then save the data to file.
+	
+	It takes parameter of display view to
+	get the data from screen
 	"""
-	#todo add ability to add new sections
 	updated=False
 	for display in displayViewList:
 		for section in display.sectionDict:
 			hiddenSection=display.sectionDict[section]
+			#Compares saved data to data on screen
 			if hiddenSection.getData() != hiddenSection.data.get():
 				oldData=hiddenSection.data.get()
 				newData=hiddenSection.getData()
@@ -437,8 +445,7 @@ def overwritePodData(displayViewList):
 				#Update the stored data for the display
 				hiddenSection.updateData()
 				#Update the pod data
-				currentPod=mainCurrentDataPod
-				currentPod.updateVault(sectionTitle,newData)
+				mainCurrentDataPod.updateVault(sectionTitle,newData)
 				if sectionTitle == "Title":
 					#Update listbox
 					homePodListbox.updateItemLabel(oldData,newData)
