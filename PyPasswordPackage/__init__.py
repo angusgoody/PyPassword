@@ -188,7 +188,7 @@ viewPodNotebook.pack(expand=True,fill=BOTH)
 
 #Basic info
 viewPodBasicSection=passwordDisplayView(viewPodNotebook)
-viewPodBasicSection.createSections(["Title","Username","Password","Website"],["#1188D7","#0F74B7","#0D68A4","#2E6091"])
+viewPodBasicSection.createSections(["Title","Username","Password","Website","Phone"],["#1188D7","#0F74B7","#0D68A4","#2E6091","#295480"])
 viewPodBasicSection.showSections()
 #Advanced info
 viewPodAdvancedSection=displayView(viewPodNotebook)
