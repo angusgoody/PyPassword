@@ -481,13 +481,16 @@ class passwordDisplayView(displayView):
 				pass
 			self.addPasswordSection(newSection)
 
-	def clearScreem(self):
+	def clearScreen(self):
 		"""
 		This method will wipe all data from the
 		screen and dictionary
 		"""
 		for item in self.sectionDict:
+			#Remove refrence
 			self.sectionDict[item].clear()
+			#Remove from entry
+
 
 class topStrip(mainFrame):
 	"""
@@ -581,8 +584,10 @@ class hiddenDataSection(mainFrame):
 		Remove data from entry and
 		the string var
 		"""
+		#print("CLEARING")
 		insertEntry(self.dataEntry,"")
 		self.data.set("")
+		print("set",self.title,"section to have data of...",self.data.get())
 
 	def enableEditing(self):
 		"""

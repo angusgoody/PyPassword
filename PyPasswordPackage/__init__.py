@@ -44,7 +44,6 @@ statusBar.colour("#A9F955")
 #===============================(VARIABLES/ARRAYS)===============================
 currentDirectory=os.getcwd()
 lockedScreens=[]
-mainCurrentMasterPod=None
 mainCurrentDataPod=None
 #Log
 log=logClass("Main")
@@ -286,7 +285,7 @@ def openDataPod():
 		#Show screen
 		viewPodScreen.show()
 		#Set label at top of screen to master/data
-		viewPodTopNameVar.set(str(mainCurrentMasterPod.getRootName())+" / "+str(selectedPod.podName))
+		viewPodTopNameVar.set(str(masterPod.currentLoadedPod.getRootName())+" / "+str(selectedPod.podName))
 		#Set Variable
 		mainCurrentDataPod=selectedPod
 		#Add data to screen
@@ -311,7 +310,6 @@ def openMasterPod():
 #=====Button Commands====
 
 def unlockMasterPod():
-	global mainCurrentMasterPod
 	attempt=openMasterEntry.get()
 	if len(attempt.split()) > 0:
 		currentMasterPod=masterPod.currentLoadedPod
@@ -327,7 +325,7 @@ def unlockMasterPod():
 			#Update top label
 			homeTopLabelVar.set(currentMasterPod.getRootName()+" accounts")
 			#Update variable
-			mainCurrentMasterPod=currentMasterPod
+			masterPod.currentLoadedPod=currentMasterPod
 		else:
 			askMessage("Incorrect","Password Incorrect")
 	else:
@@ -344,7 +342,7 @@ def addBasicPodDataToScreen(podInstance, basicDisplayInstance):
 	if type(basicDisplayInstance) == passwordDisplayView:
 
 		#Clear screen first
-		basicDisplayInstance.clearScreem()
+		basicDisplayInstance.clearScreen()
 
 		#Get basic pod info
 		podVault=podInstance.getVault()
@@ -457,9 +455,24 @@ def overwritePodData(displayViewList):
 	else:
 		log.report("Saved data successfully","(Saved)")
 		#Save to file
-		mainCurrentMasterPod.save()
+		masterPod.currentLoadedPod.save()
 		#Return to original screen
 		cancelEdit(displayViewList)
+
+def createNewPod(master,podName):
+	"""
+	This function will create
+	a new pod in the current
+	master pod that is open
+	"""
+	if type(master) == masterPod:
+
+		#Create pod
+		pod=master.addPod("OhHello")
+		print(pod.podName)
+		#Add to listbox
+		homePodListbox.addItem(podName,pod)
+
 
 #===============================(BUTTONS)===============================
 
@@ -470,6 +483,7 @@ openMasterUnlockButton.config(command=unlockMasterPod)
 openMasterCancelButton.config(command=lambda: openScreen.show())
 #=====HOME SCREEN=====
 homeOpenPodButton.config(command=openDataPod)
+homeNewPodButton.config(command=lambda: createNewPod(masterPod.currentLoadedPod,"Untitled"))
 #=====VIEW POD=====
 viewPodEditButton.config(command=lambda:beginEdit([viewPodBasicSection]))
 viewPodCancelButton.config(command=lambda:cancelEdit([viewPodBasicSection]))
@@ -493,7 +507,7 @@ mainMenu.add_cascade(label="View",menu=viewMenu)
 
 #==File==
 fileMenu.add_command(label="Lock Master Pod",command=lockdown)
-fileMenu.add_command(label="Save Data",command=lambda: mainCurrentMasterPod.save())
+fileMenu.add_command(label="Save Data",command=lambda: masterPod.currentLoadedPod.save())
 
 #==View==
 viewMenu.add_command(label="Show Log",command=lambda: logScreen.show())

@@ -75,6 +75,7 @@ class dataPod:
 		self.podName=podTitle
 		self.podVault={}
 		self.edited=False
+
 	def addData(self,name,info):
 		self.podVault[name]=info
 		self.edited=True
@@ -113,12 +114,13 @@ class masterPod:
 	all the passwords for a user
 	"""
 	currentLoadedPod=None
+	masterPodList=[]
 	def __init__(self,fileName):
 		self.fileName=fileName
 		self.location=fileName
 		self.podDict={}
 		self.masterKey=None
-
+		masterPod.masterPodList.append(self)
 
 	def addKey(self,masterKey):
 		self.masterKey=masterKey
@@ -169,7 +171,7 @@ class masterPod:
 		This method will create a new data pod
 		that contains account information
 		"""
-		podInstance=dataPod(podName,self)
+		podInstance=dataPod(self,podName)
 		self.podDict[podName]=podInstance
 		print("Added a datapod")
 		return podInstance
