@@ -410,6 +410,7 @@ class mainScreen(mainFrame):
 		the statusVar to the name of the screen
 		"""
 		if self != mainScreen.lastScreen:
+
 			for screen in mainScreen.screens:
 				screen.pack_forget()
 			self.pack(expand=True,fill=BOTH)
@@ -489,7 +490,6 @@ class passwordDisplayView(displayView):
 		for item in self.sectionDict:
 			#Remove refrence
 			self.sectionDict[item].clear()
-			#Remove from entry
 
 
 class topStrip(mainFrame):
@@ -584,10 +584,9 @@ class hiddenDataSection(mainFrame):
 		Remove data from entry and
 		the string var
 		"""
-		#print("CLEARING")
-		insertEntry(self.dataEntry,"")
+		#Clear Entry
+		self.addData("")
 		self.data.set("")
-		print("set",self.title,"section to have data of...",self.data.get())
 
 	def enableEditing(self):
 		"""
