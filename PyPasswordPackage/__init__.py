@@ -228,6 +228,7 @@ viewPodDeleteButton.pack()
 #Colour Section
 viewPodScreen.colour("#4B5E9C")
 #endregion
+
 #===============================(FUNCTIONS)===============================
 
 #=========Utility Functions=========
@@ -459,6 +460,9 @@ def overwritePodData(displayViewList):
 		#Return to original screen
 		cancelEdit(displayViewList)
 
+
+#=====TEST Commands====
+
 def createNewPod(master,podName):
 	"""
 	This function will create
@@ -475,7 +479,17 @@ def createNewPod(master,podName):
 
 
 def launchNewPodPopup():
-	newWindow=popUpWindow(window,"New Pop")
+	newWindow=popUpWindow(window,"Create Pod")
+
+	#Add the frame view
+	popUpFrame=mainFrame(newWindow)
+
+	mainLabel(popUpFrame,text="Enter Pod Name").pack(expand=True)
+	
+	popUpEntry=Entry(popUpFrame)
+	popUpEntry.pack(expand=True)
+
+	newWindow.addView(popUpFrame)
 	newWindow.run()
 #===============================(BUTTONS)===============================
 
