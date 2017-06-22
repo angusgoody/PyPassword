@@ -312,6 +312,7 @@ class advancedListbox(Listbox):
 				self.removeItem(oldName,True)
 				self.addItem(newName,listData)
 				break
+
 class mainButton(Button):
 	"""
 	The main button class is mainly
@@ -507,6 +508,12 @@ class topStrip(mainFrame):
 		self.labelView.pack(expand=True)
 
 class centerFrame(mainFrame):
+	"""
+	A center frame is a frame that
+	automatically creates a sub frame
+	that will be in the center of the
+	screen
+	"""
 	def __init__(self,parent,**kwargs):
 		mainFrame.__init__(self,parent,**kwargs)
 
@@ -649,5 +656,48 @@ class multiView(mainFrame):
 		else:
 			log.report("Non registered frame attempted to be show",frameToShow,tag="Error",system=True)
 
+class popUpWindow(Toplevel):
+	"""
+	The popUpWindow Class is a class that
+	will display a pop up window to the user
+	and disable the main window.
+	"""
+	def __init__(self,root,name):
+		Toplevel.__init__(self,root)
+		self.name=name
+		self.frameToShow=None
+		self.root=root
+
+		#Setup
+		self.title(self.name)
+		self.geometry("200x200")
+
+		#Add Buttons to bottom of screen
+		self.buttonStrip=centerFrame(self)
+		self.buttonStrip.pack(side=BOTTOM,fill=X)
+		self.buttonStripSub=self.buttonStrip.miniFrame
+
+		self.cancelButton=Button(self.buttonStripSub,text="Cancel",width=8,command=self.cancel)
+		self.cancelButton.grid(row=0,column=0)
+
+		self.saveButton=Button(self.buttonStripSub,text="Save",width=8)
+		self.saveButton.grid(row=0,column=1)
+
+		#Add menu items
+		self.menu=Menu(self)
+		self.config(menu=self.menu)
+
+	def addView(self,frameToShow):
+		self.frameToShow=frameToShow
+		frameToShow.pack(expand=True,fill=BOTH)
+
+	def run(self):
+		self.focus_set()
+		self.grab_set()
+		self.transient(self.root)
+
+	def cancel(self):
+		self.grab_release()
+		self.destroy()
 
 

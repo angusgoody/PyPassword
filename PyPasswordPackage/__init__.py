@@ -474,6 +474,9 @@ def createNewPod(master,podName):
 		homePodListbox.addItem(podName,pod)
 
 
+def launchNewPodPopup():
+	newWindow=popUpWindow(window,"New Pop")
+	newWindow.run()
 #===============================(BUTTONS)===============================
 
 #=====OPEN SCREEN=====
@@ -483,7 +486,7 @@ openMasterUnlockButton.config(command=unlockMasterPod)
 openMasterCancelButton.config(command=lambda: openScreen.show())
 #=====HOME SCREEN=====
 homeOpenPodButton.config(command=openDataPod)
-homeNewPodButton.config(command=lambda: createNewPod(masterPod.currentLoadedPod,"Untitled"))
+homeNewPodButton.config(command=launchNewPodPopup)
 #=====VIEW POD=====
 viewPodEditButton.config(command=lambda:beginEdit([viewPodBasicSection]))
 viewPodCancelButton.config(command=lambda:cancelEdit([viewPodBasicSection]))
