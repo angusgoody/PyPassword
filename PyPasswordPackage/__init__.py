@@ -461,36 +461,58 @@ def overwritePodData(displayViewList):
 		cancelEdit(displayViewList)
 
 
-#=====TEST Commands====
+#=====POPUP COMMANDS====
 
-def createNewPod(master,podName):
+def initiatePod(popupInstance):
+	"""
+	This is the function that runs
+	when the user clicks the "Save" button
+	on the popup screen when choosing a name
+	:return:
+	"""
+	data=popupInstance.gatheredData
+	print(data)
+
+def createPopup():
+	"""
+	This function creates a popup window
+	that allows the user to enter a name
+	for the pod
+	:return:
+	"""
+	newWindow=popUpWindow(window,"Create Pod")
+
+	#Add the frame view
+	popUpFrame=centerFrame(newWindow)
+	popUpFrame.pack(expand=True)
+	popUpSub=popUpFrame.miniFrame
+
+	mainLabel(popUpSub,text="Enter Pod Name").pack()
+	popUpEntry=Entry(popUpFrame,width=20,justify=CENTER)
+	popUpEntry.pack()
+
+	newWindow.addView(popUpSub)
+
+
+	#Add data sources and return values
+	newWindow.addDataSource([popUpEntry])
+	newWindow.addCommands([initiatePod],True)
+
+	#Run
+	newWindow.run()
+def createNewPod():
 	"""
 	This function will create
 	a new pod in the current
 	master pod that is open
 	"""
+	master=masterPod.currentLoadedPod
 	if type(master) == masterPod:
 
-		#Create pod
-		pod=master.addPod("OhHello")
-		print(pod.podName)
-		#Add to listbox
-		homePodListbox.addItem(podName,pod)
 
+		#Launch window to choose name
+		createPopup()
 
-def launchNewPodPopup():
-	newWindow=popUpWindow(window,"Create Pod")
-
-	#Add the frame view
-	popUpFrame=mainFrame(newWindow)
-
-	mainLabel(popUpFrame,text="Enter Pod Name").pack(expand=True)
-	
-	popUpEntry=Entry(popUpFrame)
-	popUpEntry.pack(expand=True)
-
-	newWindow.addView(popUpFrame)
-	newWindow.run()
 #===============================(BUTTONS)===============================
 
 #=====OPEN SCREEN=====
@@ -500,7 +522,7 @@ openMasterUnlockButton.config(command=unlockMasterPod)
 openMasterCancelButton.config(command=lambda: openScreen.show())
 #=====HOME SCREEN=====
 homeOpenPodButton.config(command=openDataPod)
-homeNewPodButton.config(command=launchNewPodPopup)
+homeNewPodButton.config(command=createNewPod)
 #=====VIEW POD=====
 viewPodEditButton.config(command=lambda:beginEdit([viewPodBasicSection]))
 viewPodCancelButton.config(command=lambda:cancelEdit([viewPodBasicSection]))

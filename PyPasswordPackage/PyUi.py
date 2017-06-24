@@ -672,6 +672,11 @@ class popUpWindow(Toplevel):
 		self.title(self.name)
 		self.geometry("200x200")
 
+		#Initiate any entrys the window will have that needs to store data
+		self.entryList=[]
+		self.runCommandDict={}
+		self.gatheredData=[]
+
 		#Add Buttons to bottom of screen
 		self.buttonStrip=centerFrame(self)
 		self.buttonStrip.pack(side=BOTTOM,fill=X)
@@ -680,16 +685,30 @@ class popUpWindow(Toplevel):
 		self.cancelButton=Button(self.buttonStripSub,text="Cancel",width=8,command=self.cancel)
 		self.cancelButton.grid(row=0,column=0)
 
-		self.saveButton=Button(self.buttonStripSub,text="Save",width=8)
+		self.saveButton=Button(self.buttonStripSub,text="Save",width=8,command=self.save)
 		self.saveButton.grid(row=0,column=1)
 
+		self.buttonStrip.colour(generateHexColour())
 		#Add menu items
 		self.menu=Menu(self)
 		self.config(menu=self.menu)
 
+
+
 	def addView(self,frameToShow):
 		self.frameToShow=frameToShow
 		frameToShow.pack(expand=True,fill=BOTH)
+
+	def addCommands(self,runCommandList,parameterValue):
+		"""
+		This method allows a command to be added to the object
+		so when the user clicks "Save" a certain command is executed
+		the parameterValue determines whether the commands need to
+		be given a paramter of the object or not.
+		"""
+		for item in runCommandList:
+			self.runCommandDict[item]=parameterValue
+			print("Added command with par value of",parameterValue)
 
 	def run(self):
 		self.focus_set()
@@ -700,4 +719,41 @@ class popUpWindow(Toplevel):
 		self.grab_release()
 		self.destroy()
 
+	def addDataSource(self,entryList):
+		"""
+		Allows the user to add refrences to widgets
+		that collect data from the user, to it can
+		be returned when the "Save" button is run
+		"""
+		for entry in entryList:
+			self.entryList.append(entry)
+
+	def save(self):
+
+		#Gather data
+		if len(self.entryList) > 0:
+			for item in self.entryList:
+				if type(item) == Entry:
+					self.gatheredData.append(item.get())
+				else:
+					log.report("Invalid data source used in popup",item,tag="Error",system=True)
+		else:
+			log.report("The popup window was not given any data sources and has not returned any data","(UI)",tag="UI")
+
+		#Kill window
+		self.cancel()
+		#Execute commands
+		if len(self.runCommandDict) > 0:
+			for command in self.runCommandDict:
+				if self.runCommandDict[command]:
+					print("Running",command,"with par values")
+					try:
+						command(self)
+					except:
+						log.report("Encountered error when running popup window commands",self.name,tag="Error")
+				else:
+					try:
+						command()
+					except:
+						log.report("Encountered error when running popup window commands",self.name,tag="Error")
 
