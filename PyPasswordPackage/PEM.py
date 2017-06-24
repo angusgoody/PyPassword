@@ -41,7 +41,10 @@ def cipher(plainText, key):
 	return encrypted
 
 def decrypt(data,key):
-	return key.decrypt(data).rstrip()
+	try:
+		return key.decrypt(data).rstrip()
+	except:
+		log.report("An error occurred when attempting to decrypt","(Decrypt)",tag="Error")
 
 def openPickle(fileName):
 	"""
