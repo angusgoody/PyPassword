@@ -12,6 +12,10 @@ This file is the Encryption module
 this is where all the encryption and
 decryption of the data will happen
 to save it from being in the main __init__ file
+
+To run on computers without Crypto installed use command...
+pip install --use-wheel --no-index --find-links=https://github.com/sfbahr/PyCrypto-Wheels/raw/master/pycrypto-2.6.1-cp35-none-win_amd64.whl pycrypto
+
 """
 #==================================(IMPORTS)=============================
 from Crypto.Cipher import AES
