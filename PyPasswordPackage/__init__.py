@@ -118,9 +118,9 @@ openMasterEntry.pack()
 openMasterBottomFrame=centerFrame(openMasterDisplay)
 openMasterBottomSub=openMasterBottomFrame.miniFrame
 
-openMasterUnlockButton=Button(openMasterBottomSub,text="Unlock",width=12)
+openMasterUnlockButton=mainButton(openMasterBottomSub,text="Unlock",width=12)
 openMasterUnlockButton.pack(pady=5)
-openMasterCancelButton=Button(openMasterBottomSub,text="Cancel",width=12)
+openMasterCancelButton=mainButton(openMasterBottomSub,text="Cancel",width=12)
 openMasterCancelButton.pack()
 
 #--Add Views--
@@ -158,10 +158,10 @@ homeBottomFrame=centerFrame(homeScreen)
 homeBottomFrame.pack(side=BOTTOM,fill=X)
 homeBottomSub=homeBottomFrame.miniFrame
 
-homeOpenPodButton=Button(homeBottomSub,text="Open Pod",width=9)
+homeOpenPodButton=mainButton(homeBottomSub,text="Open Pod",width=9)
 homeOpenPodButton.pack()
 
-homeNewPodButton=Button(homeBottomSub,text="New Pod",width=9)
+homeNewPodButton=mainButton(homeBottomSub,text="New Pod",width=9)
 homeNewPodButton.pack(pady=5)
 
 #Colour Section
@@ -209,20 +209,20 @@ viewPodChangeController.pack(pady=2)
 viewPodEditFrame=mainFrame(viewPodChangeController)
 viewPodChangeController.addView(viewPodEditFrame)
 viewPodChangeController.showView(viewPodEditFrame)
-viewPodEditButton=Button(viewPodEditFrame,text="Edit",width=9)
+viewPodEditButton=mainButton(viewPodEditFrame,text="Edit",width=9)
 viewPodEditButton.pack(padx=5)
 
 #Cancel Edit section
 viewPodCancelEditSection=mainFrame(viewPodChangeController)
 viewPodChangeController.addView(viewPodCancelEditSection)
-viewPodCancelButton=Button(viewPodCancelEditSection,text="Cancel",width=9)
+viewPodCancelButton=mainButton(viewPodCancelEditSection,text="Cancel",width=9)
 viewPodCancelButton.grid(row=0,column=0)
 
-viewPodSaveButton=Button(viewPodCancelEditSection,text="Save",width=9)
+viewPodSaveButton=mainButton(viewPodCancelEditSection,text="Save",width=9)
 viewPodSaveButton.grid(row=0,column=1)
 
 #Delete Section
-viewPodDeleteButton=Button(viewPodBottomSub,text="Delete",width=9)
+viewPodDeleteButton=mainButton(viewPodBottomSub,text="Delete",width=9)
 viewPodDeleteButton.pack()
 
 #Colour Section
