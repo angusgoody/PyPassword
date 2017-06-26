@@ -266,6 +266,11 @@ class advancedListbox(Listbox):
 		else:
 			self.itemconfig(END,fg=fgColour)
 
+	def addPodList(self,poDict):
+		self.fullClear()
+		for item in poDict:
+			self.addItem(item,poDict[item])
+
 	def getSelected(self):
 		"""
 		This method will attempt to return
@@ -303,7 +308,6 @@ class advancedListbox(Listbox):
 			if tempOrNot == False:
 				del self.listData[indicator]
 			log.report("Removed item from listbox",indicator)
-
 
 	def updateItemLabel(self,oldName,newName):
 		for item in self.listData:

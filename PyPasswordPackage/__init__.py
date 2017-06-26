@@ -250,6 +250,11 @@ def askMessage(pre,message):
 
 
 #=====Screen Loaders====
+"""
+These functions will load different screens
+when they run. They will execute different commands
+as well as load screens
+"""
 
 def goHome():
 	"""
@@ -323,7 +328,7 @@ def unlockMasterPod():
 			#Load screen
 			homeScreen.show()
 			#Show Pods
-			addPodsToListbox(homePodListbox,response)
+			homePodListbox.addPodList(response)
 			#Update top label
 			homeTopLabelVar.set(currentMasterPod.getRootName()+" accounts")
 			#Update variable
@@ -365,11 +370,6 @@ def addBasicPodDataToScreen(podInstance, basicDisplayInstance):
 
 #=====Initialiser Commands====
 
-def addPodsToListbox(listbox,pods):
-	listbox.fullClear()
-	for pod in pods:
-		listbox.addItem(pod,pods[pod])
-
 def loadFilesInDirectory():
 	"""
 	This function will scan the current directory
@@ -389,7 +389,12 @@ def loadFilesInDirectory():
 		openMainListbox.addItem(os.path.splitext(item)[0],pod)
 
 #=====QUICK RUN Loaders====
-
+"""
+Quick run commands are commands
+that usually run very quickly and are 
+binded to keystrokes etc. They include
+search functions while the user is typing
+"""
 def checkNameValid(entry,dataSource,popupInstance):
 	"""
 	This function takes the name currently in
@@ -494,7 +499,11 @@ def overwritePodData(displayViewList):
 
 
 #=====POPUP COMMANDS====
-
+"""
+Popup commands are all the commands associated
+with the popup windows and the functions that are run when the
+user clicks "Save" etc
+"""
 def initiatePod(popupInstance):
 	"""
 	This is the function that runs
@@ -505,47 +514,45 @@ def initiatePod(popupInstance):
 	data=popupInstance.gatheredData
 	print(data)
 
-def createPopup():
+def createNewPodPopup():
 	"""
 	This function creates a popup window
 	that allows the user to enter a name
 	for the pod
 	"""
-	newWindow=popUpWindow(window,"Create Pod")
 
-	#Add the frame view
-	popUpFrame=centerFrame(newWindow)
-	popUpFrame.pack(expand=True)
-	popUpSub=popUpFrame.miniFrame
+	#Will only run if a master pod has been loaded
+	if masterPod.currentLoadedPod != None:
 
-	mainLabel(popUpSub,text="Enter Pod Name").pack()
-	popUpEntry=Entry(popUpFrame,width=20,justify=CENTER)
-	popUpEntry.pack()
-	popUpEntry.bind("<KeyRelease>",lambda event, ds=masterPod.currentLoadedPod,
-	                                      en=popUpEntry, ins=newWindow: checkNameValid(en,ds,ins))
-	newWindow.addView(popUpSub)
+		#Initiate a new TK window
+		newWindow=popUpWindow(window,"Create Pod")
 
-	#Disable button by default to avoid blank names
-	newWindow.toggle("DISABLED")
-	#Add data sources and return values
-	newWindow.addDataSource([popUpEntry])
-	newWindow.addCommands([initiatePod],True)
+		#Add the frame view and ui elements
+		popUpFrame=centerFrame(newWindow)
+		popUpFrame.pack(expand=True)
+		popUpSub=popUpFrame.miniFrame
 
-	#Run
-	newWindow.run()
+		mainLabel(popUpSub,text="Enter Pod Name").pack()
+		popUpEntry=Entry(popUpFrame,width=20,justify=CENTER)
+		popUpEntry.pack()
+		popUpEntry.bind("<KeyRelease>",lambda event, ds=masterPod.currentLoadedPod,
+		                                      en=popUpEntry, ins=newWindow: checkNameValid(en,ds,ins))
+		newWindow.addView(popUpSub)
 
-def createNewPod():
-	"""
-	This function will create
-	a new pod in the current
-	master pod that is open
-	"""
-	master=masterPod.currentLoadedPod
-	if type(master) == masterPod:
+		#Disable button by default to avoid blank names and disable resizing
+		newWindow.toggle("DISABLED")
+		newWindow.resizable(width=False, height=False)
 
+		#Add data sources and return values
+		newWindow.addDataSource([popUpEntry])
+		newWindow.addCommands([initiatePod],True)
 
-		#Launch window to choose name
-		createPopup()
+		#Run
+		newWindow.run()
+
+		#Add to log
+		log.report("New popup launched","(POPUP)",tag="UI")
+
 
 #===============================(BUTTONS)===============================
 
@@ -556,7 +563,7 @@ openMasterUnlockButton.config(command=unlockMasterPod)
 openMasterCancelButton.config(command=lambda: openScreen.show())
 #=====HOME SCREEN=====
 homeOpenPodButton.config(command=openDataPod)
-homeNewPodButton.config(command=createNewPod)
+homeNewPodButton.config(command=createNewPodPopup)
 #=====VIEW POD=====
 viewPodEditButton.config(command=lambda:beginEdit([viewPodBasicSection]))
 viewPodCancelButton.config(command=lambda:cancelEdit([viewPodBasicSection]))
