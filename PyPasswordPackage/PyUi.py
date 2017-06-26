@@ -683,9 +683,7 @@ class popUpWindow(Toplevel):
 		self.root=root
 		self.infoStringVar=StringVar()
 
-		print(extra)
 		if "infoVar" in extra:
-			print("Updated info var")
 			self.infoStringVar=extra["infoVar"]
 
 		#Setup
@@ -730,7 +728,6 @@ class popUpWindow(Toplevel):
 		"""
 		for item in runCommandList:
 			self.runCommandDict[item]=parameterValue
-			print("Added command with par value of",parameterValue)
 
 	def run(self):
 		self.focus_set()

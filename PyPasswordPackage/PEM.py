@@ -36,12 +36,14 @@ def cipher(plainText, key):
 	The cipher function encrypts
 	data with an AES key
 	"""
+	key=AES.new(pad(key))
 	text=pad(str(plainText))
 	encrypted=key.encrypt(text)
 	return encrypted
 
 def decrypt(data,key):
 	try:
+		key=AES.new(pad(key))
 		return key.decrypt(data).rstrip()
 	except:
 		log.report("An error occurred when attempting to decrypt","(Decrypt)",tag="Error")
@@ -137,10 +139,8 @@ class masterPod:
 		#Get file contents
 		content=openPickle(self.location)
 		if content != None:
-			#Create encryption key
-			key=AES.new(pad(attempt))
 			#Attempt unlock
-			info=decrypt(content,key)
+			info=decrypt(content,attempt)
 
 			#Check if decryption was successful
 			try:
@@ -208,10 +208,8 @@ class masterPod:
 				info=self.podDict[pod].getVault()
 				exportDict[pod]=info
 
-			#Encrypt file here
-			encryptionKey=AES.new(pad(self.masterKey))
 			#Save file
-			savePickle(cipher(str(exportDict),encryptionKey),self.location)
+			savePickle(cipher(str(exportDict),self.masterKey),self.location)
 
 			#Update variables in pods to NOT edited
 			for i in self.podDict:
