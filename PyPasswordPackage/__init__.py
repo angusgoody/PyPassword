@@ -45,6 +45,7 @@ statusBar.colour("#A9F955")
 currentDirectory=os.getcwd()
 lockedScreens=[]
 mainCurrentDataPod=None
+defaultColour=window.cget("bg")
 #Log
 log=logClass("Main")
 #===============================(USER INTERFACE)===============================
@@ -247,15 +248,8 @@ def askMessage(pre,message):
 
 #=========Program Functions=========
 
-#=====Menu Commands====
-def lockdown():
-	"""
-	The lockdown function is used
-	to lock the master pod and return
-	to the open file screen
-	"""
-	homePodListbox.fullClear()
-	openMasterScreen.show()
+
+#=====Screen Loaders====
 
 def goHome():
 	"""
@@ -268,8 +262,15 @@ def goHome():
 	else:
 		homeScreen.show()
 
+def lockdown():
+	"""
+	The lockdown function is used
+	to lock the master pod and return
+	to the open file screen
+	"""
+	homePodListbox.fullClear()
+	openMasterScreen.show()
 
-#=====Screen Loaders====
 def openDataPod():
 	global mainCurrentDataPod
 	"""
@@ -387,6 +388,37 @@ def loadFilesInDirectory():
 		#Adds to listbox and removes extension
 		openMainListbox.addItem(os.path.splitext(item)[0],pod)
 
+#=====QUICK RUN Loaders====
+
+def checkNameValid(entry,dataSource,popupInstance):
+	"""
+	This function takes the name currently in
+	the entry and will check the data source to see
+	if the name is taken. If it is the entry will turn
+	red and toggle the popup instance button. If not it will turn green
+	and return True
+	"""
+	if type(dataSource) == masterPod:
+
+		#First Check for actual data
+		if len(entry.get().split()) < 1:
+			entry.config(bg="salmon")
+			popupInstance.toggle("DISABLED")
+			return False
+		else:
+
+			#Check by comparing upper cases
+			for pod in dataSource.podDict:
+				if pod.upper() == entry.get().upper():
+					entry.config(bg="salmon")
+					popupInstance.toggle("DISABLED")
+					return False
+
+			else:
+				entry.config(bg="light green")
+				popupInstance.toggle("NORMAL")
+				return True
+
 #=====Other Commands====
 
 def beginEdit(displayViewList):
@@ -478,7 +510,6 @@ def createPopup():
 	This function creates a popup window
 	that allows the user to enter a name
 	for the pod
-	:return:
 	"""
 	newWindow=popUpWindow(window,"Create Pod")
 
@@ -490,16 +521,19 @@ def createPopup():
 	mainLabel(popUpSub,text="Enter Pod Name").pack()
 	popUpEntry=Entry(popUpFrame,width=20,justify=CENTER)
 	popUpEntry.pack()
-
+	popUpEntry.bind("<KeyRelease>",lambda event, ds=masterPod.currentLoadedPod,
+	                                      en=popUpEntry, ins=newWindow: checkNameValid(en,ds,ins))
 	newWindow.addView(popUpSub)
 
-
+	#Disable button by default to avoid blank names
+	newWindow.toggle("DISABLED")
 	#Add data sources and return values
 	newWindow.addDataSource([popUpEntry])
 	newWindow.addCommands([initiatePod],True)
 
 	#Run
 	newWindow.run()
+
 def createNewPod():
 	"""
 	This function will create

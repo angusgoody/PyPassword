@@ -689,11 +689,13 @@ class popUpWindow(Toplevel):
 		self.saveButton.grid(row=0,column=1)
 
 		self.buttonStrip.colour(generateHexColour())
+
 		#Add menu items
 		self.menu=Menu(self)
 		self.config(menu=self.menu)
 
-
+		#Variables
+		self.saveButtonState=True
 
 	def addView(self,frameToShow):
 		self.frameToShow=frameToShow
@@ -756,4 +758,13 @@ class popUpWindow(Toplevel):
 						command()
 					except:
 						log.report("Encountered error when running popup window commands",self.name,tag="Error")
+
+	def toggle(self,state):
+		if state == "DISABLED":
+			self.saveButton.config(state=DISABLED)
+			self.saveButtonState=False
+		else:
+			self.saveButton.config(state=NORMAL)
+			self.saveButtonState=True
+
 
