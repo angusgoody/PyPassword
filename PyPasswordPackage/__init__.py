@@ -44,7 +44,6 @@ statusBar.colour("#A9F955")
 #===============================(VARIABLES/ARRAYS)===============================
 currentDirectory=os.getcwd()
 lockedScreens=[]
-mainCurrentDataPod=None
 defaultColour=window.cget("bg")
 #Log
 log=logClass("Main")
@@ -248,7 +247,15 @@ def askMessage(pre,message):
 	except:
 		print(message)
 
-
+def askFirst(pre,message,command):
+	try:
+		response=messagebox.askokcancel(pre,message)
+	except:
+		return False
+	else:
+		if response:
+			command()
+		return response
 
 #=========Program Functions=========
 
@@ -280,8 +287,21 @@ def lockdown():
 	homePodListbox.fullClear()
 	openMasterScreen.show()
 
-def openDataPod():
-	global mainCurrentDataPod
+def loadDataPod(selectedPod):
+	"""
+	The actual function that
+	loads the right screen and displays pod info
+	"""
+	#Show screen
+	viewPodScreen.show()
+	#Set label at top of screen to master/data
+	viewPodTopNameVar.set(str(masterPod.currentMasterPod.getRootName()) + " / " + str(selectedPod.podName))
+	#Set Variable
+	masterPod.currentDataPod=selectedPod
+	#Add data to screen
+	addBasicPodDataToScreen(selectedPod, viewPodBasicSection)
+
+def getSelectedDataPod():
 	"""
 	This is the function that runs when a data pod
 	needs to be displayed onto the screen. It will
@@ -293,14 +313,8 @@ def openDataPod():
 	selectedPod=homePodListbox.getSelected()
 	#Checks if a pod has actually been selected
 	if selectedPod != None and selectedPod != False:
-		#Show screen
-		viewPodScreen.show()
-		#Set label at top of screen to master/data
-		viewPodTopNameVar.set(str(masterPod.currentLoadedPod.getRootName())+" / "+str(selectedPod.podName))
-		#Set Variable
-		mainCurrentDataPod=selectedPod
-		#Add data to screen
-		addBasicPodDataToScreen(selectedPod, viewPodBasicSection)
+		loadDataPod(selectedPod)
+
 
 def openMasterPod():
 	"""
@@ -313,7 +327,7 @@ def openMasterPod():
 		openMasterScreen.show()
 		openMasterTopVar.set(current.getRootName())
 		#Load master pod
-		masterPod.currentLoadedPod=current
+		masterPod.currentMasterPod=current
 
 	else:
 		askMessage("Select","No Pod Selected")
@@ -326,7 +340,7 @@ that are linked to a button pressed
 def unlockMasterPod():
 	attempt=openMasterEntry.get()
 	if len(attempt.split()) > 0:
-		currentMasterPod=masterPod.currentLoadedPod
+		currentMasterPod=masterPod.currentMasterPod
 
 		#Attempt to unlock
 		response=currentMasterPod.unlock(attempt)
@@ -339,7 +353,7 @@ def unlockMasterPod():
 			#Update top label
 			homeTopLabelVar.set(currentMasterPod.getRootName()+" accounts")
 			#Update variable
-			masterPod.currentLoadedPod=currentMasterPod
+			masterPod.currentMasterPod=currentMasterPod
 		else:
 			askMessage("Incorrect","Password Incorrect")
 	else:
@@ -490,7 +504,7 @@ def overwritePodData(displayViewList):
 				#Update the stored data for the display
 				hiddenSection.updateData()
 				#Update the pod data
-				mainCurrentDataPod.updateVault(sectionTitle,newData)
+				masterPod.currentDataPod.updateVault(sectionTitle,newData)
 				if sectionTitle == "Title":
 					#Update listbox
 					homePodListbox.updateItemLabel(oldData,newData)
@@ -502,9 +516,19 @@ def overwritePodData(displayViewList):
 	else:
 		log.report("Saved data successfully","(Saved)")
 		#Save to file
-		masterPod.currentLoadedPod.save()
+		masterPod.currentMasterPod.save()
 		#Return to original screen
 		cancelEdit(displayViewList)
+
+def deletePod(podInstance):
+	rsp=askFirst("Sure","Are you sure you wish to delete this pod?",lambda: masterPod.currentMasterPod.deletePod(podInstance.podName,True))
+	#Carry out other tasks such as changing screen and removing from listbox
+	if rsp:
+		viewPodBasicSection.clearScreen()
+		homePodListbox.removeItem(podInstance.podName,False)
+		homeScreen.show()
+
+
 
 
 #=====POPUP COMMANDS====
@@ -524,11 +548,13 @@ def initiatePod(popupInstance):
 	if len(data) > 0:
 		single=data[0]
 		#Create pod with that name
-		pd=masterPod.currentLoadedPod.addPod(single)
+		pd=masterPod.currentMasterPod.addPod(single)
 		#Add to listbox
 		homePodListbox.addItem(single,pd)
-		print("Complete")
-
+		#Save data
+		masterPod.currentMasterPod.save()
+		#Display the screen
+		loadDataPod(pd)
 
 def createNewPodPopup():
 	"""
@@ -538,7 +564,7 @@ def createNewPodPopup():
 	"""
 
 	#Will only run if a master pod has been loaded
-	if masterPod.currentLoadedPod != None:
+	if masterPod.currentMasterPod != None:
 
 		#Initiate a new TK window
 		popupInfoVar=StringVar()
@@ -552,8 +578,8 @@ def createNewPodPopup():
 		mainLabel(popUpSub,text="Enter Pod Name").pack()
 		popUpEntry=Entry(popUpFrame,width=20,justify=CENTER)
 		popUpEntry.pack()
-		popUpEntry.bind("<KeyRelease>",lambda event, ds=masterPod.currentLoadedPod,
-		                                     en=popUpEntry, ins=newWindow: checkNameValid(en,ds,ins))
+		popUpEntry.bind("<KeyRelease>",lambda event, ds=masterPod.currentMasterPod,
+		                                      en=popUpEntry, ins=newWindow: checkNameValid(en,ds,ins))
 		mainLabel(popUpSub,textvariable=popupInfoVar,font="Helvetica 10").pack(side=BOTTOM)
 		newWindow.addView(popUpSub)
 
@@ -580,12 +606,13 @@ openSelectFileButton.config(command=openMasterPod)
 openMasterUnlockButton.config(command=unlockMasterPod)
 openMasterCancelButton.config(command=lambda: openScreen.show())
 #=====HOME SCREEN=====
-homeOpenPodButton.config(command=openDataPod)
+homeOpenPodButton.config(command=getSelectedDataPod)
 homeNewPodButton.config(command=createNewPodPopup)
 #=====VIEW POD=====
 viewPodEditButton.config(command=lambda:beginEdit([viewPodBasicSection]))
 viewPodCancelButton.config(command=lambda:cancelEdit([viewPodBasicSection]))
 viewPodSaveButton.config(command=lambda: overwritePodData([viewPodBasicSection]))
+viewPodDeleteButton.config(command=lambda: deletePod(masterPod.currentDataPod))
 #===============================(BINDINGS)===============================
 
 #=====STATUS BAR=====
@@ -596,7 +623,7 @@ openMainListbox.bind("<Return>", lambda event: openMasterPod())
 #=====MASTER SCREEN=====
 openMasterEntry.bind("<Return>", lambda event: unlockMasterPod())
 #=====HOME SCREEN=====
-homePodListbox.bind("<Double-Button-1>", lambda event: openDataPod())
+homePodListbox.bind("<Double-Button-1>", lambda event: getSelectedDataPod())
 #===============================(MENU CASCADES)===============================
 mainMenu.add_cascade(label="File",menu=fileMenu)
 mainMenu.add_cascade(label="Edit",menu=editMenu)
@@ -604,7 +631,7 @@ mainMenu.add_cascade(label="View",menu=viewMenu)
 
 #==File==
 fileMenu.add_command(label="Lock Master Pod",command=lockdown)
-fileMenu.add_command(label="Save Data",command=lambda: masterPod.currentLoadedPod.save())
+fileMenu.add_command(label="Save Data", command=lambda: masterPod.currentMasterPod.save())
 
 #==View==
 viewMenu.add_command(label="Show Log",command=lambda: logScreen.show())

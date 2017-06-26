@@ -316,6 +316,9 @@ class advancedListbox(Listbox):
 			if tempOrNot == False:
 				del self.listData[indicator]
 			log.report("Removed item from listbox",indicator)
+		else:
+			log.report("Unable to remove item from listbox not in dict",indicator)
+			print("Unable")
 
 	def updateItemLabel(self,oldName,newName):
 		for item in self.listData:
@@ -765,7 +768,6 @@ class popUpWindow(Toplevel):
 		if len(self.runCommandDict) > 0:
 			for command in self.runCommandDict:
 				if self.runCommandDict[command]:
-					print("Running",command,"with par values")
 					try:
 						command(self)
 					except:

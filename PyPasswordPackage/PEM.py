@@ -116,7 +116,8 @@ class masterPod:
 	for the pod that contains
 	all the passwords for a user
 	"""
-	currentLoadedPod=None
+	currentMasterPod=None
+	currentDataPod=None
 	masterPodList=[]
 	def __init__(self,fileName):
 		self.fileName=fileName
@@ -174,9 +175,10 @@ class masterPod:
 		This method will create a new data pod
 		that contains account information
 		"""
+		if podName in self.podDict:
+			log.report("Pod data has been overwritten",podName,tag="Pod")
 		podInstance=dataPod(self,podName)
 		self.podDict[podName]=podInstance
-		print("Added a datapod")
 		return podInstance
 
 	def addPodRefrence(self,podTitle,podInstance):
@@ -199,40 +201,46 @@ class masterPod:
 		"""
 		#Wont save without encryption key
 		if self.masterKey != None:
+			exportDict={}
+			#Gather info here
+			for pod in self.podDict:
 
-			#Check if save needs to happen
-			edited=False
+				info=self.podDict[pod].getVault()
+				exportDict[pod]=info
+
+			#Encrypt file here
+			encryptionKey=AES.new(pad(self.masterKey))
+			#Save file
+			savePickle(cipher(str(exportDict),encryptionKey),self.location)
+
+			#Update variables in pods to NOT edited
 			for i in self.podDict:
 				pod=self.podDict[i]
-				if pod.edited == True:
-					edited=True
-					break
+				pod.edited=False
+			log.report("Saved master pod successfully","(MP)",tag="File")
 
-			if edited == True:
-				exportDict={}
-				#Gather info here
-				for pod in self.podDict:
-
-					info=self.podDict[pod].getVault()
-					exportDict[pod]=info
-
-				#Encrypt file here
-				encryptionKey=AES.new(pad(self.masterKey))
-				#Save file
-				savePickle(cipher(str(exportDict),encryptionKey),self.location)
-
-				#Update variables in pods to NOT edited
-				for i in self.podDict:
-					pod=self.podDict[i]
-					pod.edited=False
-				log.report("Saved master pod successfully","(MP)",tag="File")
-			else:
-				print("No need to save data nothing changed")
 		else:
 			log.report("Unable to save file","(No master key)",tag="File")
 
 	def getRootName(self):
 		return os.path.splitext(self.fileName)[0]
+
+	def deletePod(self,podName,saveOrNot):
+		"""
+		This method will delete a pod from the master
+		by using the podName
+		"""
+		#Remove from dictionary
+		try:
+			self.podDict.pop(podName,None)
+		except:
+			log.report("Attempted to remove pod that isn't here",podName,tag="Error")
+		else:
+			log.report("Removed pod from master",podName,tag="pod")
+
+		#Save or not
+		if saveOrNot:
+			self.save()
 
 
 #==================Testing area=================
