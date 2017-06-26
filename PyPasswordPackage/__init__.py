@@ -195,7 +195,7 @@ viewPodAdvancedSection=displayView(viewPodNotebook)
 
 #Add pages
 viewPodNotebook.add(viewPodBasicSection,text="Basic")
-viewPodNotebook.add(viewPodAdvancedSection,text="Advanced",state=DISABLED)
+viewPodNotebook.add(viewPodAdvancedSection,text="Advanced")
 
 #--Bottom section--
 viewPodBottomFrame=centerFrame(viewPodScreen)
@@ -518,10 +518,17 @@ def initiatePod(popupInstance):
 	This is the function that runs
 	when the user clicks the "Save" button
 	on the popup screen when choosing a name
-	:return:
 	"""
 	data=popupInstance.gatheredData
-	print(data)
+
+	if len(data) > 0:
+		single=data[0]
+		#Create pod with that name
+		pd=masterPod.currentLoadedPod.addPod(single)
+		#Add to listbox
+		homePodListbox.addItem(single,pd)
+		print("Complete")
+
 
 def createNewPodPopup():
 	"""
