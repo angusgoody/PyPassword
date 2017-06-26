@@ -79,9 +79,9 @@ openBottomFrame.pack(fill=X,side=BOTTOM)
 openBottomButtonFrame=mainFrame(openBottomFrame)
 openBottomButtonFrame.pack(expand=True)
 
-openCreateFileButton=mainButton(openBottomButtonFrame,text="Create Master Pod",width=12)
+openCreateFileButton=mainButton(openBottomButtonFrame,text="Create Master Pod",width=15)
 openCreateFileButton.pack(side=LEFT,padx=5)
-openSelectFileButton=mainButton(openBottomButtonFrame,text="Open Selected",width=12)
+openSelectFileButton=mainButton(openBottomButtonFrame,text="Open Selected",width=15)
 openSelectFileButton.pack(side=RIGHT,padx=5)
 
 #Colour Section

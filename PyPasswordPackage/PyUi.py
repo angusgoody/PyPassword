@@ -21,6 +21,7 @@ from tkinter import ttk
 import random
 import datetime
 
+
 #==============LOG CLASS==============
 
 class logClass():
@@ -222,6 +223,17 @@ def deleteItemFromListbox(listbox,indicator):
 
 #==============Master Classes==============
 
+class mainButton(Button):
+	"""
+	The main button class is mainly
+	used to track all the buttons
+	on the screen but can be used
+	to modify styles of the button
+	"""
+	def __init__(self,parent,*args,**kwargs):
+		Button.__init__(self,parent,kwargs)
+		self.config(relief=FLAT)
+
 class advancedListbox(Listbox):
 	"""
 	The advanced Listbox is based on
@@ -328,15 +340,6 @@ class advancedListbox(Listbox):
 				self.addItem(newName,listData)
 				break
 
-class mainButton(Button):
-	"""
-	The main button class is mainly
-	used to track all the buttons
-	on the screen but can be used
-	to modify styles of the button
-	"""
-	def __init__(self,parent,*args,**kwargs):
-		Button.__init__(self,parent,kwargs)
 
 class mainFrame(Frame):
 	"""
@@ -553,7 +556,7 @@ class hiddenDataSection(mainFrame):
 		self.dataEntry=Entry(self.centerFrame,state=DISABLED)
 		self.dataEntry.grid(row=0,column=1)
 
-		self.hideButton=Button(self.centerFrame,text="Hide",command=self.toggleHide,width=6)
+		self.hideButton=mainButton(self.centerFrame,text="Hide",command=self.toggleHide,width=6)
 		self.hideButton.grid(row=0,column=2,padx=5)
 
 		#Edit variables
@@ -700,10 +703,10 @@ class popUpWindow(Toplevel):
 		self.buttonStrip.pack(side=BOTTOM,fill=X)
 		self.buttonStripSub=self.buttonStrip.miniFrame
 
-		self.cancelButton=Button(self.buttonStripSub,text="Cancel",width=8,command=self.cancel)
+		self.cancelButton=mainButton(self.buttonStripSub,text="Cancel",width=8,command=self.cancel)
 		self.cancelButton.grid(row=0,column=0)
 
-		self.saveButton=Button(self.buttonStripSub,text="Save",width=8,command=self.save)
+		self.saveButton=mainButton(self.buttonStripSub,text="Save",width=8,command=self.save)
 		self.saveButton.grid(row=0,column=1)
 
 		self.buttonStrip.colour(generateHexColour())
