@@ -220,8 +220,6 @@ def deleteItemFromListbox(listbox,indicator):
 #==================================(CLASSES)=============================
 
 
-
-
 #==============Master Classes==============
 
 class advancedListbox(Listbox):
@@ -267,6 +265,10 @@ class advancedListbox(Listbox):
 			self.itemconfig(END,fg=fgColour)
 
 	def addPodList(self,poDict):
+		"""
+		This method can add a dictionary of data
+		pods to the listbox
+		"""
 		self.fullClear()
 		for item in poDict:
 			self.addItem(item,poDict[item])
@@ -302,6 +304,12 @@ class advancedListbox(Listbox):
 		log.report("Listbox has been cleared of data", "(FullClear)", system=True)
 
 	def removeItem(self,indicator,tempOrNot):
+		"""
+		This method will remove an item
+		from the listbox. The indicator is used
+		to identify the item to remove and tempOrNot 
+		determines the refrence from the dict or not.
+		"""
 		if indicator in self.listData:
 			deleteItemFromListbox(self,indicator)
 			#if not temp it removes reference from dict
@@ -496,7 +504,6 @@ class passwordDisplayView(displayView):
 			#Remove refrence
 			self.sectionDict[item].clear()
 
-
 class topStrip(mainFrame):
 	"""
 	The stopStrip class is a class
@@ -666,11 +673,17 @@ class popUpWindow(Toplevel):
 	will display a pop up window to the user
 	and disable the main window.
 	"""
-	def __init__(self,root,name):
+	def __init__(self,root,name,**extra):
 		Toplevel.__init__(self,root)
 		self.name=name
 		self.frameToShow=None
 		self.root=root
+		self.infoStringVar=StringVar()
+
+		print(extra)
+		if "infoVar" in extra:
+			print("Updated info var")
+			self.infoStringVar=extra["infoVar"]
 
 		#Setup
 		self.title(self.name)

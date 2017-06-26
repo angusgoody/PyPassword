@@ -233,7 +233,11 @@ viewPodScreen.colour("#4B5E9C")
 #===============================(FUNCTIONS)===============================
 
 #=========Utility Functions=========
-
+"""
+Utility Functions are handy little
+functions that help reduce the amount
+of code needed.
+"""
 def insertEntry(entry,message):
 	entry.delete(0,END)
 	entry.insert(END,message)
@@ -315,7 +319,10 @@ def openMasterPod():
 		askMessage("Select","No Pod Selected")
 
 #=====Button Commands====
-
+"""
+These commands are fucntions 
+that are linked to a button pressed
+"""
 def unlockMasterPod():
 	attempt=openMasterEntry.get()
 	if len(attempt.split()) > 0:
@@ -367,7 +374,6 @@ def addBasicPodDataToScreen(podInstance, basicDisplayInstance):
 				#Add to the correct entry
 				basicDisplayInstance.sectionDict[item].addData(podVault[item])
 
-
 #=====Initialiser Commands====
 
 def loadFilesInDirectory():
@@ -409,6 +415,7 @@ def checkNameValid(entry,dataSource,popupInstance):
 		if len(entry.get().split()) < 1:
 			entry.config(bg="salmon")
 			popupInstance.toggle("DISABLED")
+			popupInstance.infoStringVar.set("Invalid Name")
 			return False
 		else:
 
@@ -417,11 +424,13 @@ def checkNameValid(entry,dataSource,popupInstance):
 				if pod.upper() == entry.get().upper():
 					entry.config(bg="salmon")
 					popupInstance.toggle("DISABLED")
+					popupInstance.infoStringVar.set("Invalid Name")
 					return False
 
 			else:
 				entry.config(bg="light green")
 				popupInstance.toggle("NORMAL")
+				popupInstance.infoStringVar.set("Valid Name")
 				return True
 
 #=====Other Commands====
@@ -525,7 +534,8 @@ def createNewPodPopup():
 	if masterPod.currentLoadedPod != None:
 
 		#Initiate a new TK window
-		newWindow=popUpWindow(window,"Create Pod")
+		popupInfoVar=StringVar()
+		newWindow=popUpWindow(window,"Create Pod",infoVar=popupInfoVar)
 
 		#Add the frame view and ui elements
 		popUpFrame=centerFrame(newWindow)
@@ -536,7 +546,8 @@ def createNewPodPopup():
 		popUpEntry=Entry(popUpFrame,width=20,justify=CENTER)
 		popUpEntry.pack()
 		popUpEntry.bind("<KeyRelease>",lambda event, ds=masterPod.currentLoadedPod,
-		                                      en=popUpEntry, ins=newWindow: checkNameValid(en,ds,ins))
+		                                     en=popUpEntry, ins=newWindow: checkNameValid(en,ds,ins))
+		mainLabel(popUpSub,textvariable=popupInfoVar,font="Helvetica 10").pack(side=BOTTOM)
 		newWindow.addView(popUpSub)
 
 		#Disable button by default to avoid blank names and disable resizing
@@ -579,7 +590,6 @@ openMainListbox.bind("<Return>", lambda event: openMasterPod())
 openMasterEntry.bind("<Return>", lambda event: unlockMasterPod())
 #=====HOME SCREEN=====
 homePodListbox.bind("<Double-Button-1>", lambda event: openDataPod())
-#====ROOT======
 #===============================(MENU CASCADES)===============================
 mainMenu.add_cascade(label="File",menu=fileMenu)
 mainMenu.add_cascade(label="Edit",menu=editMenu)
