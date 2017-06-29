@@ -640,6 +640,11 @@ class hiddenDataSection(mainFrame):
 		self.data.set(newData)
 
 	def addButton(self,buttonText):
+		"""
+		This method will add a button
+		to the frame and commands can be
+		added later
+		"""
 
 		#Create button
 		newButton=mainButton(self.centerFrame,text=buttonText,width=7)
@@ -652,6 +657,13 @@ class hiddenDataSection(mainFrame):
 		#Return button
 		return newButton
 
+	def addButtonCommand(self,buttonName,command):
+		"""
+		This method will add a command to one of the buttons
+		in the data section
+		"""
+		if buttonName in self.buttonDict:
+			self.buttonDict[buttonName].config(command=command)
 class multiView(mainFrame):
 	"""
 	The multiview class is a class that allows

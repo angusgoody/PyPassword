@@ -12,6 +12,7 @@ from tkinter import *
 from tkinter import messagebox
 import random
 import os
+import webbrowser
 
 from PyUi import *
 from PEM import *
@@ -196,6 +197,14 @@ viewPodAdvancedSection=passwordDisplayView(viewPodNotebook)
 viewPodAdvancedWebsiteSection=hiddenDataSection(viewPodAdvancedSection,"Website")
 viewPodAdvancedWebsiteSection.addButton("Launch")
 viewPodAdvancedSection.addPasswordSection(viewPodAdvancedWebsiteSection,colour="#4CC885")
+
+viewPodAdvancedNoteSection=centerFrame(viewPodAdvancedSection)
+viewPodAdvancedNoteSub=viewPodAdvancedNoteSection.miniFrame
+mainLabel(viewPodAdvancedNoteSub,text="Notes").pack()
+viewPodAdvancedNotes=Text(viewPodAdvancedNoteSub,height=4)
+viewPodAdvancedNotes.pack()
+viewPodAdvancedSection.addSection(viewPodAdvancedNoteSection)
+
 viewPodAdvancedSection.showSections()
 
 #Add pages
@@ -541,6 +550,18 @@ def deletePod(podInstance):
 		homePodListbox.removeItem(podInstance.podName,False)
 		homeScreen.show()
 
+def launchWebsite(url,podInstance):
+	"""
+	This function will launch the website in the default
+	webbrowser
+	"""
+	if url:
+		try:
+			if "http://" not in url:
+				url="http://"+url
+			webbrowser.open_new(url)
+		except:
+			log.report("Error opening website",url,tag="Error")
 
 
 
@@ -626,6 +647,8 @@ viewPodEditButton.config(command=lambda:beginEdit([viewPodBasicSection,viewPodAd
 viewPodCancelButton.config(command=lambda:cancelEdit([viewPodBasicSection,viewPodAdvancedSection]))
 viewPodSaveButton.config(command=lambda: overwritePodData([viewPodBasicSection,viewPodAdvancedSection]))
 viewPodDeleteButton.config(command=lambda: deletePod(masterPod.currentDataPod))
+viewPodAdvancedWebsiteSection.addButtonCommand("Launch",lambda:launchWebsite(viewPodAdvancedWebsiteSection.data.get(),masterPod.currentDataPod))
+
 #===============================(BINDINGS)===============================
 
 #=====STATUS BAR=====
