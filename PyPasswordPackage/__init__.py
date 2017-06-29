@@ -189,8 +189,14 @@ viewPodNotebook.pack(expand=True,fill=BOTH)
 viewPodBasicSection=passwordDisplayView(viewPodNotebook)
 viewPodBasicSection.createSections(["Title","Username","Password"],["#1188D7","#0F74B7","#0D68A4","#2B6198"])
 viewPodBasicSection.showSections()
+
 #Advanced info
-viewPodAdvancedSection=displayView(viewPodNotebook)
+viewPodAdvancedSection=passwordDisplayView(viewPodNotebook)
+
+viewPodAdvancedWebsiteSection=hiddenDataSection(viewPodAdvancedSection,"Website")
+viewPodAdvancedWebsiteSection.addButton("Launch")
+viewPodAdvancedSection.addPasswordSection(viewPodAdvancedWebsiteSection,colour="#4CC885")
+viewPodAdvancedSection.showSections()
 
 #Add pages
 viewPodNotebook.add(viewPodBasicSection,text="Basic")
@@ -346,6 +352,7 @@ def unlockMasterPod():
 		response=currentMasterPod.unlock(attempt)
 		if response != None and response != False:
 			log.report("Unlock success","(Unlock)",tag="Login")
+			
 			#Load screen
 			homeScreen.show()
 			#Show Pods
@@ -496,6 +503,7 @@ def overwritePodData(displayViewList):
 	for display in displayViewList:
 		for section in display.sectionDict:
 			hiddenSection=display.sectionDict[section]
+			print(hiddenSection)
 			#Compares saved data to data on screen
 			if hiddenSection.getData() != hiddenSection.data.get():
 				oldData=hiddenSection.data.get()
@@ -609,9 +617,9 @@ openMasterCancelButton.config(command=lambda: openScreen.show())
 homeOpenPodButton.config(command=getSelectedDataPod)
 homeNewPodButton.config(command=createNewPodPopup)
 #=====VIEW POD=====
-viewPodEditButton.config(command=lambda:beginEdit([viewPodBasicSection]))
-viewPodCancelButton.config(command=lambda:cancelEdit([viewPodBasicSection]))
-viewPodSaveButton.config(command=lambda: overwritePodData([viewPodBasicSection]))
+viewPodEditButton.config(command=lambda:beginEdit([viewPodBasicSection,viewPodAdvancedSection]))
+viewPodCancelButton.config(command=lambda:cancelEdit([viewPodBasicSection,viewPodAdvancedSection]))
+viewPodSaveButton.config(command=lambda: overwritePodData([viewPodBasicSection,viewPodAdvancedSection]))
 viewPodDeleteButton.config(command=lambda: deletePod(masterPod.currentDataPod))
 #===============================(BINDINGS)===============================
 

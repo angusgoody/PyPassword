@@ -456,12 +456,15 @@ class displayView(mainFrame):
 		mainFrame.__init__(self,parent)
 		self.sections=[]
 
-	def addSection(self,frameToShow):
+	def addSection(self,frameToShow,**kwargs):
 		self.sections.append(frameToShow)
+		if "colour" in kwargs:
+			self.sections[frameToShow].colour(kwargs["Colour"])
 
 	def showSections(self):
 		for item in self.sections:
 			item.pack(expand=True,fill=BOTH)
+
 
 class passwordDisplayView(displayView):
 	"""
@@ -472,22 +475,15 @@ class passwordDisplayView(displayView):
 		displayView.__init__(self,parent)
 		self.sectionDict={}
 
-	def addPasswordSection(self,hiddenDataSection):
+	def addPasswordSection(self,hiddenDataSection,**kwargs):
 		"""
 		Overides the default add section method
 		because title needs to be stored in the
 		object
 		"""
-		self.addSection(hiddenDataSection)
+		self.addSection(hiddenDataSection,**kwargs)
 		self.sectionDict[hiddenDataSection.title]=hiddenDataSection
 
-	def disable(self):
-		"""
-		The disable method will make the view "Read only"
-		and make it not possible to edit the data
-		:return:
-		"""
-		pass
 
 	def createSections(self,titleList,colourList):
 		"""
@@ -562,6 +558,10 @@ class hiddenDataSection(mainFrame):
 		#Edit variables
 		self.hiddenVar=False
 		self.editMode=False
+
+		#Store Buttons
+		self.buttonDict={}
+		self.buttonCounter=3
 
 	def addData(self,dataToAdd):
 		"""
@@ -638,6 +638,19 @@ class hiddenDataSection(mainFrame):
 		"""
 		newData=self.dataEntry.get()
 		self.data.set(newData)
+
+	def addButton(self,buttonText):
+
+		#Create button
+		newButton=mainButton(self.centerFrame,text=buttonText,width=7)
+		newButton.grid(row=0,column=self.buttonCounter)
+		self.buttonCounter+=1
+
+		#Add to list
+		self.buttonDict[buttonText]=newButton
+
+		#Return button
+		return newButton
 
 class multiView(mainFrame):
 	"""
