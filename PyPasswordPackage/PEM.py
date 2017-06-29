@@ -101,6 +101,7 @@ class dataPod:
 		pod data to the new data entered
 		by the user
 		"""
+		print("Adding data to pod",name,newInfo)
 		#Title
 		if name == "Title":
 			oldName=self.podName

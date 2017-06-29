@@ -305,7 +305,7 @@ def loadDataPod(selectedPod):
 	#Set Variable
 	masterPod.currentDataPod=selectedPod
 	#Add data to screen
-	addBasicPodDataToScreen(selectedPod, viewPodBasicSection)
+	addBasicPodDataToScreen(selectedPod, [viewPodBasicSection,viewPodAdvancedSection])
 
 def getSelectedDataPod():
 	"""
@@ -340,7 +340,7 @@ def openMasterPod():
 
 #=====Button Commands====
 """
-These commands are fucntions 
+These commands are functions 
 that are linked to a button pressed
 """
 def unlockMasterPod():
@@ -369,31 +369,36 @@ def unlockMasterPod():
 	#Clear entry
 	insertEntry(openMasterEntry,"")
 
-def addBasicPodDataToScreen(podInstance, basicDisplayInstance):
+def addBasicPodDataToScreen(podInstance, displayList):
 	"""
 	This function will take a pod and display
 	the data
 	"""
-	if type(basicDisplayInstance) == passwordDisplayView:
+	titleFound=False
+	for display in displayList:
 
-		#Clear screen first
-		basicDisplayInstance.clearScreen()
+		if type(display) == passwordDisplayView:
 
-		#Get basic pod info
-		podVault=podInstance.getVault()
-		podTitle=podInstance.podName
+			#Clear screen first
+			display.clearScreen()
 
-		#Add all the data in the vault to screen
+			#Get basic pod info
+			podVault=podInstance.getVault()
+			podTitle=podInstance.podName
 
-		#If the vault itself does not contain title it uses the pod title
-		if "Title" not in podVault:
-			basicDisplayInstance.sectionDict["Title"].addData(podTitle)
+			#Add all the data in the vault to screen
 
-		#Iterate through all data in the pod
-		for item in podVault:
-			if item in basicDisplayInstance.sectionDict:
-				#Add to the correct entry
-				basicDisplayInstance.sectionDict[item].addData(podVault[item])
+			if titleFound == False:
+				#If the vault itself does not contain title it uses the pod title
+				if "Title" not in podVault:
+					display.sectionDict["Title"].addData(podTitle)
+				titleFound=True
+
+			#Iterate through all data in the pod
+			for item in display.sectionDict:
+				if item in podVault:
+					#Add to the correct entry
+					display.sectionDict[item].addData(podVault[item])
 
 #=====Initialiser Commands====
 
@@ -503,7 +508,7 @@ def overwritePodData(displayViewList):
 	for display in displayViewList:
 		for section in display.sectionDict:
 			hiddenSection=display.sectionDict[section]
-			print(hiddenSection)
+			print(hiddenSection.title)
 			#Compares saved data to data on screen
 			if hiddenSection.getData() != hiddenSection.data.get():
 				oldData=hiddenSection.data.get()

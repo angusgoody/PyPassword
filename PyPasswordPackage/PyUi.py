@@ -459,7 +459,7 @@ class displayView(mainFrame):
 	def addSection(self,frameToShow,**kwargs):
 		self.sections.append(frameToShow)
 		if "colour" in kwargs:
-			self.sections[frameToShow].colour(kwargs["Colour"])
+			frameToShow.colour(kwargs["colour"])
 
 	def showSections(self):
 		for item in self.sections:
