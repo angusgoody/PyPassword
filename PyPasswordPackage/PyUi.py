@@ -53,7 +53,8 @@ class logClass():
 		#Add the log to log dict
 		logClass.allLogs[self.logName]=self
 		#Store the tree view the data is stored in
-		self.treeExport=None
+		self.defaultTree=None
+		self.systemTree=None
 
 	def report(self,message,variable,*extra,**kwargs):
 
@@ -90,8 +91,16 @@ class logClass():
 			defaultDict[tag]=[]
 		defaultDict[tag].append({"Time":currentTime,"Tag":tag,"Message":message})
 
-	def addTree(self,tree):
-		self.treeExport=tree
+	def addTree(self,indicator,tree):
+		"""
+		Assign a tree to export to for
+		each option. System info and default info
+		"""
+		valid={"System":self.systemTree,"Default":self.defaultTree}
+		if indicator in valid:
+			valid[indicator]=tree
+
+
 		#Add all current data to the tree
 
 	def addDataToTree(self,data,time):
@@ -900,7 +909,7 @@ class advancedNotebook(mainFrame):
 		#Add to dictionary
 		self.views[name]=frame
 		#Add to top bar
-		newLabel=mainLabel(self.topSub,text=name,width=10,bg=self.notSelected,borderwidth=2)
+		newLabel=mainLabel(self.topSub,text=name,width=10,bg=self.notSelected)
 		newLabel.grid(row=0,column=self.viewCount)
 		#Add binding
 		newLabel.bind("<Button-1>",lambda event, s=self,n=name: s.showView(n))

@@ -72,7 +72,12 @@ for logName in logClass.allLogs:
 	newNotebook.addView(newNormalFrame,"Default")
 	newNotebook.addView(newSystemFrame,"System")
 
-	#Add the actual info
+	#Add default info
+	newNormalTree=ttk.Treeview(newNormalFrame)
+	logClass.allLogs[logName].addTree("Default",newNormalTree)
+	#Add system info
+	newSystemTree=ttk.Treeview(newSystemFrame)
+	logClass.allLogs[logName].addTree("System",newSystemTree)
 
 
 
