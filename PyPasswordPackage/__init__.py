@@ -53,6 +53,18 @@ log=logClass("Main")
 #-----Log Screen----
 #region logscreen
 logScreen=mainScreen(window,"Log",statusVar)
+
+mainNotebook=advancedNotebook(logScreen)
+mainNotebook.pack(expand=True,fill=BOTH)
+
+sub1=mainFrame(mainNotebook)
+titleLabel(sub1,text="SCREEN 1").pack(expand=True)
+
+sub2=mainFrame(mainNotebook)
+titleLabel(sub2,text="SCREEN 2").pack(expand=True)
+
+mainNotebook.addView(sub1,"File")
+mainNotebook.addView(sub2,"Main")
 #endregion
 #-----Open Screen----
 # region open screen
@@ -145,8 +157,8 @@ homeScreen=mainScreen(window,"Home",statusVar,menu=mainMenu)
 homeTopFrame=centerFrame(homeScreen)
 homeTopFrame.pack(side=TOP,fill=BOTH)
 homeTopLabelVar=StringVar()
-homeTopLabel=titleLabel(homeTopFrame,textvariable=homeTopLabelVar)
-homeTopLabel.pack(expand=True)
+homeTopLabel=topStrip(homeTopFrame,homeTopLabelVar)
+homeTopLabel.pack(side=TOP,fill=X)
 #Main view
 homeMainFrame=mainFrame(homeScreen)
 homeMainFrame.pack(expand=True,fill=BOTH)
@@ -174,12 +186,9 @@ homeScreen.colour("#9C2553")
 viewPodScreen=mainScreen(window,"Pod Info",statusVar)
 
 #--Top Bar--
-viewPodTopFrame=centerFrame(viewPodScreen)
-viewPodTopFrame.pack(side=TOP,fill=X)
-viewPodTopSub=viewPodTopFrame.miniFrame
 viewPodTopNameVar=StringVar()
-titleLabel(viewPodTopSub,textvariable=viewPodTopNameVar).pack()
-
+viewPodTopFrame=topStrip(viewPodScreen,viewPodTopNameVar)
+viewPodTopFrame.pack(side=TOP,fill=X)
 #--Main Notebook--
 viewPodNotebookFrame=mainFrame(viewPodScreen)
 viewPodNotebookFrame.pack(expand=True,fill=BOTH)

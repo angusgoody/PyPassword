@@ -564,13 +564,6 @@ class dataSection(mainFrame):
 		self.frameToShow=frameToShow
 		self.dataSource=dataSource
 
-
-
-
-
-
-
-
 class hiddenDataSection(mainFrame):
 	"""
 	This class is used to display sensitive
@@ -712,7 +705,6 @@ class hiddenDataSection(mainFrame):
 		clipboard
 		"""
 		pass
-
 
 class multiView(mainFrame):
 	"""
@@ -860,5 +852,61 @@ class popUpWindow(Toplevel):
 		else:
 			self.saveButton.config(state=NORMAL)
 			self.saveButtonState=True
+
+#==============TEST==============
+
+class advancedNotebook(mainFrame):
+	"""
+	The advanced Notebook is
+	a custom notebook class that will look
+	better and do more than the standard notebook
+	class
+	"""
+	def __init__(self,parent,**kwargs):
+		mainFrame.__init__(self,parent,**kwargs)
+		#Top view
+		self.topBar=centerFrame(self)
+		self.topSub=self.topBar.miniFrame
+		self.topBar.pack(side=TOP,fill=X)
+		self.topBar.colour("#B9BEBD")
+
+		self.views={}
+		self.labelDict={}
+		self.currentView=None
+
+		self.viewCount=0
+
+		self.selectColour="#FFFFFF"
+		self.notSelected="#98A5AA"
+	def addView(self,frame,name):
+		"""
+		This method will add a frame to the notebook
+		view and create a label to nagivate with
+		"""
+		#Add to dictionary
+		self.views[name]=frame
+		#Add to top bar
+		newLabel=mainLabel(self.topSub,text=name,width=10,bg=self.notSelected)
+		newLabel.grid(row=0,column=self.viewCount)
+		#Add binding
+		newLabel.bind("<Button-1>",lambda event, s=self,n=name: s.showView(n))
+		#Add label to dictionary
+		self.labelDict[name]=newLabel
+		self.viewCount+=1
+
+	def showView(self,name):
+		if name in self.views:
+			currentViewName=self.currentView
+			frameToLoad=self.views[name]
+
+			if currentViewName != None:
+				#Hide frame
+				self.views[currentViewName].pack_forget()
+				#Update label
+				self.labelDict[currentViewName].config(bg=self.notSelected)
+
+			frameToLoad.pack(expand=True,fill=BOTH,side=BOTTOM)
+			self.labelDict[name].config(bg=self.selectColour)
+			self.currentView=name
 
 
