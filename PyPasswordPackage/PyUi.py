@@ -52,6 +52,8 @@ class logClass():
 		self.systemDict={}
 		#Add the log to log dict
 		logClass.allLogs[self.logName]=self
+		#Store the tree view the data is stored in
+		self.treeExport=None
 
 	def report(self,message,variable,*extra,**kwargs):
 
@@ -88,7 +90,17 @@ class logClass():
 			defaultDict[tag]=[]
 		defaultDict[tag].append({"Time":currentTime,"Tag":tag,"Message":message})
 
-log=logClass("User Interface")
+	def addTree(self,tree):
+		self.treeExport=tree
+		#Add all current data to the tree
+
+	def addDataToTree(self,data,time):
+		"""
+		This method will take the time and data
+		provided and insert it into the tree
+		"""
+		pass
+log=logClass("UI")
 
 
 #==================================(FUNCTIONS)=============================
@@ -184,26 +196,28 @@ def recursiveChangeColour(parent,colour,fgColour):
 	of an element and change their colour
 	"""
 	widgetArray =["Entry", "Button", "Text", "Listbox", "OptionMenu", "Menu"]
+	excludeArray=[advancedNotebook]
 	parentClass=parent.winfo_class()
-	if parentClass == "Frame":
-		parent.config(bg=colour)
-		children=parent.winfo_children()
-		for item in children:
-			recursiveChangeColour(item,colour,fgColour)
-	else:
-		try:
-			#Certain widgets need diffrent attention
-			if parent.winfo_class() in widgetArray:
-					parent.config(highlightbackground=colour)
-			else:
-				parent.config(bg=colour)
+	if type(parent) not in excludeArray:
+		if parentClass == "Frame":
+			parent.config(bg=colour)
+			children=parent.winfo_children()
+			for item in children:
+				recursiveChangeColour(item,colour,fgColour)
+		else:
+			try:
+				#Certain widgets need diffrent attention
+				if parent.winfo_class() in widgetArray:
+						parent.config(highlightbackground=colour)
+				else:
+					parent.config(bg=colour)
 
-			#Update labels so they show up on certain colours
-			if parent.winfo_class() == "Label":
-					parent.changeColour(getColourForBackground(colour))
+				#Update labels so they show up on certain colours
+				if parent.winfo_class() == "Label":
+						parent.changeColour(getColourForBackground(colour))
 
-		except:
-			pass
+			except:
+				pass
 
 def recursiveBind(parent,bindButton,bindFunction):
 	"""
@@ -886,13 +900,17 @@ class advancedNotebook(mainFrame):
 		#Add to dictionary
 		self.views[name]=frame
 		#Add to top bar
-		newLabel=mainLabel(self.topSub,text=name,width=10,bg=self.notSelected)
+		newLabel=mainLabel(self.topSub,text=name,width=10,bg=self.notSelected,borderwidth=2)
 		newLabel.grid(row=0,column=self.viewCount)
 		#Add binding
 		newLabel.bind("<Button-1>",lambda event, s=self,n=name: s.showView(n))
 		#Add label to dictionary
 		self.labelDict[name]=newLabel
 		self.viewCount+=1
+
+		#Show view
+		if self.viewCount == 1:
+			self.showView(name)
 
 	def showView(self,name):
 		if name in self.views:

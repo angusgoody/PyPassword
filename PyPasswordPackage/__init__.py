@@ -54,17 +54,29 @@ log=logClass("Main")
 #region logscreen
 logScreen=mainScreen(window,"Log",statusVar)
 
-mainNotebook=advancedNotebook(logScreen)
-mainNotebook.pack(expand=True,fill=BOTH)
+logNotebook=advancedNotebook(logScreen)
+logNotebook.pack(expand=True,fill=BOTH)
 
-sub1=mainFrame(mainNotebook)
-titleLabel(sub1,text="SCREEN 1").pack(expand=True)
+#Generate log views
 
-sub2=mainFrame(mainNotebook)
-titleLabel(sub2,text="SCREEN 2").pack(expand=True)
+for logName in logClass.allLogs:
+	#Add tab to main notebook
+	newFrame=mainFrame(logNotebook)
+	logNotebook.addView(newFrame,logName)
+	#Add new notebook on new frame
+	newNotebook=advancedNotebook(newFrame)
+	newNotebook.pack(expand=True,fill=BOTH)
+	#Add the custom pages
+	newNormalFrame=mainFrame(newNotebook)
+	newSystemFrame=mainFrame(newNotebook)
+	newNotebook.addView(newNormalFrame,"Default")
+	newNotebook.addView(newSystemFrame,"System")
 
-mainNotebook.addView(sub1,"File")
-mainNotebook.addView(sub2,"Main")
+	#Add the actual info
+
+
+
+
 #endregion
 #-----Open Screen----
 # region open screen

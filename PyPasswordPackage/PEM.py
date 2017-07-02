@@ -24,7 +24,7 @@ import os
 
 from PyUi import logClass
 
-log=logClass("Encryption Module")
+log=logClass("Encryption")
 #==================================(FUNCTIONS)=============================
 
 def pad(text):
