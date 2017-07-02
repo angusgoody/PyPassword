@@ -21,6 +21,20 @@ from tkinter import ttk
 import random
 import datetime
 
+def getData(dataSource):
+	"""
+	This function will get data from a number
+	of different widgets
+	"""
+	valids=[Entry,Text]
+	if type(dataSource) == Entry:
+		return dataSource.get(0,END)
+	elif type(dataSource) == Text:
+		return dataSource.get("1.0",END)
+	else:
+		log.report("Not able to get data from",dataSource)
+
+
 
 #==============LOG CLASS==============
 
@@ -340,7 +354,6 @@ class advancedListbox(Listbox):
 				self.addItem(newName,listData)
 				break
 
-
 class mainFrame(Frame):
 	"""
 	The Main Frame class is a modified tkinter Frame
@@ -465,7 +478,6 @@ class displayView(mainFrame):
 		for item in self.sections:
 			item.pack(expand=True,fill=BOTH)
 
-
 class passwordDisplayView(displayView):
 	"""
 	This class is a modified display view
@@ -473,6 +485,7 @@ class passwordDisplayView(displayView):
 	"""
 	def __init__(self,parent):
 		displayView.__init__(self,parent)
+		#The section dict stores hiddenData sections with key of name
 		self.sectionDict={}
 
 	def addPasswordSection(self,hiddenDataSection,**kwargs):
@@ -483,7 +496,6 @@ class passwordDisplayView(displayView):
 		"""
 		self.addSection(hiddenDataSection,**kwargs)
 		self.sectionDict[hiddenDataSection.title]=hiddenDataSection
-
 
 	def createSections(self,titleList,colourList):
 		"""
@@ -505,6 +517,13 @@ class passwordDisplayView(displayView):
 		for item in self.sectionDict:
 			#Remove refrence
 			self.sectionDict[item].clear()
+
+	def addCustomScreen(self,frameToShow,dataSource,title):
+		"""
+		The add custom screen allows a custom frame
+		to be added to the password display view
+		"""
+		self.addSection(frameToShow)
 
 class topStrip(mainFrame):
 	"""
@@ -533,6 +552,25 @@ class centerFrame(mainFrame):
 		self.miniFrame=mainFrame(self)
 		self.miniFrame.pack(expand=True)
 
+class dataSection(mainFrame):
+	"""
+	This class is a mainFrame that wil be able
+	to store data and display a title. It will
+	be used for custom password sections that require
+	more than the standard hidden data section.
+	"""
+	def __init__(self,title,frameToShow,dataSource):
+		self.title=title
+		self.frameToShow=frameToShow
+		self.dataSource=dataSource
+
+
+
+
+
+
+
+
 class hiddenDataSection(mainFrame):
 	"""
 	This class is used to display sensitive
@@ -552,16 +590,19 @@ class hiddenDataSection(mainFrame):
 		self.dataEntry=Entry(self.centerFrame,state=DISABLED)
 		self.dataEntry.grid(row=0,column=1)
 
-		self.hideButton=mainButton(self.centerFrame,text="Hide",command=self.toggleHide,width=6)
-		self.hideButton.grid(row=0,column=2,padx=5)
-
 		#Edit variables
 		self.hiddenVar=False
 		self.editMode=False
 
 		#Store Buttons
 		self.buttonDict={}
-		self.buttonCounter=3
+		self.buttonCounter=2
+
+		#Create preset buttons (Array used because order matters)
+		initButtons=[["Hide",lambda s=self:s.toggleHide()],["Copy",lambda s=self: s.copyData()]]
+		for but in initButtons:
+			self.addButton(but[0])
+			self.addButtonCommand(but[0],but[1])
 
 	def addData(self,dataToAdd):
 		"""
@@ -583,12 +624,12 @@ class hiddenDataSection(mainFrame):
 		"""
 		if self.hiddenVar == False:
 			self.dataEntry.config(show="•")
-			self.hideButton.config(text="Show")
+			self.buttonDict["Hide"].config(text="Show")
 			self.dataEntry.config(state=DISABLED)
 			self.hiddenVar=True
 		else:
 			self.dataEntry.config(show="")
-			self.hideButton.config(text="Hide")
+			self.buttonDict["Hide"].config(text="Hide")
 			self.hiddenVar=False
 			if self.editMode == False:
 				self.dataEntry.config(state=DISABLED)
@@ -664,6 +705,15 @@ class hiddenDataSection(mainFrame):
 		"""
 		if buttonName in self.buttonDict:
 			self.buttonDict[buttonName].config(command=command)
+
+	def copyData(self):
+		"""
+		This method will copy the saved data to the
+		clipboard
+		"""
+		pass
+
+
 class multiView(mainFrame):
 	"""
 	The multiview class is a class that allows

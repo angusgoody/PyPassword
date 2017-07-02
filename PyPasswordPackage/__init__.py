@@ -201,7 +201,7 @@ viewPodAdvancedSection.addPasswordSection(viewPodAdvancedWebsiteSection,colour="
 viewPodAdvancedNoteSection=centerFrame(viewPodAdvancedSection)
 viewPodAdvancedNoteSub=viewPodAdvancedNoteSection.miniFrame
 mainLabel(viewPodAdvancedNoteSub,text="Notes").pack()
-viewPodAdvancedNotes=Text(viewPodAdvancedNoteSub,height=4)
+viewPodAdvancedNotes=Text(viewPodAdvancedNoteSub,height=5,wrap=WORD)
 viewPodAdvancedNotes.pack()
 viewPodAdvancedSection.addSection(viewPodAdvancedNoteSection)
 
