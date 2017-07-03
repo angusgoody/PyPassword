@@ -598,36 +598,50 @@ class centerFrame(mainFrame):
 		self.miniFrame=mainFrame(self)
 		self.miniFrame.pack(expand=True)
 
-class dataSection(mainFrame):
+class dataSection(centerFrame):
 	"""
 	This class is a mainFrame that wil be able
 	to store data and display a title. It will
 	be used for custom password sections that require
 	more than the standard hidden data section.
 	"""
-	def __init__(self,title,frameToShow,dataSource):
+	def __init__(self,parent,title,**kwargs):
+		centerFrame.__init__(self,parent,**kwargs)
 		self.title=title
-		self.frameToShow=frameToShow
+		self.dataSource=None
+
+	def addDataSource(self,dataSource):
 		self.dataSource=dataSource
 
-class hiddenDataSection(mainFrame):
+	def getData(self):
+		"""
+		This method will get data for a number
+		of diffrent widgets and return the data
+		"""
+		if type(self.dataSource) == Entry:
+			return self.dataSource.get()
+		elif type(self.dataSource) == Text:
+			return self.dataSource.get("1.0",END)
+
+class hiddenDataSection(dataSection):
 	"""
 	This class is used to display sensitive
 	information such as password or username
 	"""
 	def __init__(self,parent,title):
-		mainFrame.__init__(self,parent)
+		dataSection.__init__(self,parent,title)
+
 		self.title=title
 		self.data=StringVar()
 
-		self.centerFrame=mainFrame(self)
-		self.centerFrame.pack(expand=True)
+		self.centerFrame=self.miniFrame
 
 		self.titleLabel=mainLabel(self.centerFrame,text=self.title+":",width=10)
 		self.titleLabel.grid(row=0,column=0)
 
 		self.dataEntry=Entry(self.centerFrame,state=DISABLED)
 		self.dataEntry.grid(row=0,column=1)
+		self.addDataSource(self.dataEntry)
 
 		self.buttonFrame=mainFrame(self.centerFrame)
 		self.buttonFrame.grid(row=0,column=2,padx=7)
@@ -711,8 +725,7 @@ class hiddenDataSection(mainFrame):
 		self.editMode=False
 		self.dataEntry.config(state=DISABLED)
 
-	def getData(self):
-		return self.dataEntry.get()
+
 
 	def updateData(self):
 		"""
