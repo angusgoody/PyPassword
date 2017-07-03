@@ -66,7 +66,7 @@ for logName in logClass.allLogs:
 	newFrame=mainFrame(logNotebook)
 	logNotebook.addView(newFrame,logName)
 	#Add new notebook on new frame
-	newNotebook=advancedNotebook(newFrame)
+	newNotebook=advancedNotebook(newFrame,select="#3DCCAB")
 	newNotebook.pack(expand=True,fill=BOTH)
 	#Add the custom pages
 	newNormalFrame=mainFrame(newNotebook)
