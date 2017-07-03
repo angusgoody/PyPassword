@@ -57,7 +57,6 @@ class logClass():
 		self.systemTree=None
 
 	def report(self,message,variable,*extra,**kwargs):
-
 		"""
 		The report method is the main
 		method that is called to report
@@ -68,6 +67,7 @@ class logClass():
 		#Gether message
 		message=message+" "
 		message+=variable
+		system=False
 		if len(extra) > 0:
 			for item in extra:
 				message+=" "
@@ -85,30 +85,44 @@ class logClass():
 		if "system" in kwargs:
 			if kwargs["system"]:
 				defaultDict=self.systemDict
+				system=True
 
 		#Create dictionary and add data
 		if tag not in defaultDict:
 			defaultDict[tag]=[]
 		defaultDict[tag].append({"Time":currentTime,"Tag":tag,"Message":message})
 
+		#Add to listbox if there is one
+
+		if system:
+			self.addDataToTree(message,currentTime,True)
+		else:
+			self.addDataToTree(message,currentTime,False)
+
 	def addTree(self,indicator,tree):
 		"""
 		Assign a tree to export to for
 		each option. System info and default info
 		"""
-		valid={"System":self.systemTree,"Default":self.defaultTree}
-		if indicator in valid:
-			valid[indicator]=tree
+		if indicator == "System":
+			self.systemTree=tree
+		elif indicator == "Default":
+			self.defaultTree=tree
 
 
-		#Add all current data to the tree
-
-	def addDataToTree(self,data,time):
+	def addDataToTree(self,data,time,system):
 		"""
 		This method will take the time and data
 		provided and insert it into the tree
 		"""
-		pass
+		if system:
+			#Add to system tree
+				if self.systemTree != None:
+					self.systemTree.insert("" , 0,values=(data,time))
+		else:
+			if self.defaultTree != None:
+				self.defaultTree.insert("" , 0,values=(data,time))
+
 log=logClass("UI")
 
 

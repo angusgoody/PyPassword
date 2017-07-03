@@ -74,11 +74,26 @@ for logName in logClass.allLogs:
 
 	#Add default info
 	newNormalTree=ttk.Treeview(newNormalFrame)
+	newNormalTree.pack(expand=True,fill=BOTH)
 	logClass.allLogs[logName].addTree("Default",newNormalTree)
 	#Add system info
 	newSystemTree=ttk.Treeview(newSystemFrame)
+	newSystemTree.pack(expand=True,fill=BOTH)
 	logClass.allLogs[logName].addTree("System",newSystemTree)
+	#Create headings for trees
+	for tree in [newSystemTree,newNormalTree]:
+		tree.config(columns=["Message","Time"],show="headings")
+		newTreeScroll=Scrollbar(tree)
+		newTreeScroll.pack(side=RIGHT,fill=Y)
 
+		newTreeScroll.config(command=tree.yview)
+		tree.config(yscrollcommand=newTreeScroll.set)
+
+		tree.column("Message",width=10,minwidth=45)
+		tree.column("Time",width=5,minwidth=20)
+
+		tree.heading("Message",text="Message")
+		tree.heading("Time",text="Time")
 
 
 
