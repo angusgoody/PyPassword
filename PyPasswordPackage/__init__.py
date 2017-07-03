@@ -226,7 +226,7 @@ viewPodTopFrame.pack(side=TOP,fill=X)
 #--Main Notebook--
 viewPodNotebookFrame=mainFrame(viewPodScreen)
 viewPodNotebookFrame.pack(expand=True,fill=BOTH)
-viewPodNotebook=ttk.Notebook(viewPodNotebookFrame)
+viewPodNotebook=advancedNotebook(viewPodNotebookFrame,select="#C1E600",topColour="#263260")
 viewPodNotebook.pack(expand=True,fill=BOTH)
 
 #Basic info
@@ -251,8 +251,8 @@ viewPodAdvancedSection.addSection(viewPodAdvancedNoteSection)
 viewPodAdvancedSection.showSections()
 
 #Add pages
-viewPodNotebook.add(viewPodBasicSection,text="Basic")
-viewPodNotebook.add(viewPodAdvancedSection,text="Advanced")
+viewPodNotebook.addView(viewPodBasicSection,"Basic")
+viewPodNotebook.addView(viewPodAdvancedSection,"Advanced")
 
 #--Bottom section--
 viewPodBottomFrame=centerFrame(viewPodScreen)

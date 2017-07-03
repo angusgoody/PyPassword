@@ -938,6 +938,10 @@ class advancedNotebook(mainFrame):
 		if "select" in kwargs:
 			self.selectColour=kwargs["select"]
 			self.selectFG=getColourForBackground(kwargs["select"])
+		if "topColour" in kwargs:
+			self.topBar.colour(kwargs["topColour"])
+
+
 	def addView(self,frame,name):
 		"""
 		This method will add a frame to the notebook
