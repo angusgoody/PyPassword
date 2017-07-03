@@ -21,6 +21,8 @@ from PEM import *
 window=Tk()
 window.title("PyPassword 2")
 window.geometry("400x300")
+addUIWindow(window)
+addPEMWindow(window)
 
 #---Main Menu---
 mainMenu=Menu(window)
@@ -54,7 +56,7 @@ log=logClass("Main")
 #region logscreen
 logScreen=mainScreen(window,"Log",statusVar)
 
-logNotebook=advancedNotebook(logScreen)
+logNotebook=advancedNotebook(logScreen,select="#42f4bf")
 logNotebook.pack(expand=True,fill=BOTH)
 
 #Generate log views

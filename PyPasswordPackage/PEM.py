@@ -23,9 +23,17 @@ import pickle
 import os
 
 from PyUi import logClass
+mainWindow=None
 
 log=logClass("Encryption")
 #==================================(FUNCTIONS)=============================
+def addPEMWindow(window):
+	global mainWindow
+	"""
+	Allows a tk window to be added
+	to this program
+	"""
+	mainWindow=window
 
 def pad(text):
 	"""

@@ -21,6 +21,9 @@ from tkinter import ttk
 import random
 import datetime
 
+#Stores the main TK windos for __init__ to use in this program
+mainWindow=None
+
 def getData(dataSource):
 	"""
 	This function will get data from a number
@@ -34,7 +37,13 @@ def getData(dataSource):
 	else:
 		log.report("Not able to get data from",dataSource)
 
-
+def addUIWindow(window):
+	global mainWindow
+	"""
+	Allows a tk window to be added
+	to this program
+	"""
+	mainWindow=window
 
 #==============LOG CLASS==============
 
@@ -744,7 +753,10 @@ class hiddenDataSection(mainFrame):
 		This method will copy the saved data to the
 		clipboard
 		"""
-		pass
+		if mainWindow != None:
+			mainWindow.clipboard_clear()
+			mainWindow.clipboard_append(self.data.get())
+			log.report("Added data to clipboard","(Hidden data entry)")
 
 class multiView(mainFrame):
 	"""
