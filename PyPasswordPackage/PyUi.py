@@ -620,13 +620,16 @@ class hiddenDataSection(mainFrame):
 		self.dataEntry=Entry(self.centerFrame,state=DISABLED)
 		self.dataEntry.grid(row=0,column=1)
 
+		self.buttonFrame=mainFrame(self.centerFrame)
+		self.buttonFrame.grid(row=0,column=2,padx=7)
+
 		#Edit variables
 		self.hiddenVar=False
 		self.editMode=False
 
 		#Store Buttons
 		self.buttonDict={}
-		self.buttonCounter=2
+		self.buttonCounter=0
 
 		#Create preset buttons (Array used because order matters)
 		initButtons=[["Hide",lambda s=self:s.toggleHide()],["Copy",lambda s=self: s.copyData()]]
@@ -718,7 +721,7 @@ class hiddenDataSection(mainFrame):
 		"""
 
 		#Create button
-		newButton=mainButton(self.centerFrame,text=buttonText,width=7)
+		newButton=mainButton(self.buttonFrame,text=buttonText,width=7)
 		newButton.grid(row=0,column=self.buttonCounter)
 		self.buttonCounter+=1
 
@@ -901,6 +904,8 @@ class advancedNotebook(mainFrame):
 	"""
 	def __init__(self,parent,**kwargs):
 		mainFrame.__init__(self,parent,**kwargs)
+
+
 		#Top view
 		self.topBar=centerFrame(self)
 		self.topSub=self.topBar.miniFrame
@@ -914,7 +919,13 @@ class advancedNotebook(mainFrame):
 		self.viewCount=0
 
 		self.selectColour="#FFFFFF"
+		self.selectFG="#000000"
 		self.notSelected="#98A5AA"
+
+		#Get a select colour from kwargs
+		if "select" in kwargs:
+			self.selectColour=kwargs["select"]
+			self.selectFG=getColourForBackground(kwargs["select"])
 	def addView(self,frame,name):
 		"""
 		This method will add a frame to the notebook
@@ -948,6 +959,7 @@ class advancedNotebook(mainFrame):
 
 			frameToLoad.pack(expand=True,fill=BOTH,side=BOTTOM)
 			self.labelDict[name].config(bg=self.selectColour)
+			self.labelDict[name].config(fg=self.selectFG)
 			self.currentView=name
 
 
