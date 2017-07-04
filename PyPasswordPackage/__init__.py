@@ -674,11 +674,14 @@ def createNewPodPopup():
 		#Add to log
 		log.report("New popup launched","(POPUP)",tag="UI")
 
+def createNewMasterPodPopup():
+	print("Ready to launch new pod window")
 
 #===============================(BUTTONS)===============================
 
 #=====OPEN SCREEN=====
 openSelectFileButton.config(command=openMasterPod)
+openCreateFileButton.config(command=createNewMasterPodPopup)
 #=====MASTER SCREEN=====
 openMasterUnlockButton.config(command=unlockMasterPod)
 openMasterCancelButton.config(command=lambda: openScreen.show())

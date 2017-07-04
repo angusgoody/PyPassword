@@ -1028,6 +1028,8 @@ class advancedNotebook(mainFrame):
 					currentLabel=self.labelDict[currentViewName]
 					currentLabel.bind("<Enter>",lambda event,lab=currentLabel: lab.config(bg=self.notSelectedHover))
 					currentLabel.bind("<Leave>",lambda event,lab=currentLabel: lab.config(bg=self.notSelected))
+
+				#Display the new frame
 				frameToLoad.pack(expand=True,fill=BOTH,side=BOTTOM)
 
 				#Update new label
@@ -1035,8 +1037,8 @@ class advancedNotebook(mainFrame):
 				currentLabel.config(bg=self.selectColour)
 				currentLabel.config(fg=self.selectFG)
 				self.currentView=name
-				#Add new bindings to label (Same because no change in colour is needed)
-				currentLabel.bind("<Enter>",lambda event,lab=currentLabel: lab.config(bg=self.selectColour))
-				currentLabel.bind("<Leave>",lambda event,lab=currentLabel: lab.config(bg=self.selectColour))
+				#Unbind because when selected tab has no bindings
+				currentLabel.unbind("<Enter>")
+				currentLabel.unbind("<Leave>")
 
 
