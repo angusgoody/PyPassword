@@ -623,6 +623,37 @@ class dataSection(centerFrame):
 		elif type(self.dataSource) == Text:
 			return self.dataSource.get("1.0",END)
 
+	def insertData(self,dataToAdd):
+		"""
+		The method that adds data to the range
+		of data sources that this class will have
+		"""
+		if self.dataSource != None:
+			if type(self.dataSource) == Entry:
+				self.dataSource.insert(END,dataToAdd)
+			elif type(self.dataSource) == Text:
+				self.dataSource.insert("1.0",dataToAdd)
+
+	def clear(self):
+		if self.dataSource != None:
+			self.insertData("")
+
+	def disableDataSource(self):
+		"""
+		This method will disable the objects data source
+		so the user is unable to edit it
+		"""
+		if self.dataSource != None:
+			self.dataSource.config(state=DISABLED)
+
+	def enableDataSource(self):
+		"""
+		This method will make the data source
+		available to edit again
+		"""
+		if self.dataSource != None:
+			self.dataSource.config(state=NORMAL)
+
 class hiddenDataSection(dataSection):
 	"""
 	This class is used to display sensitive
@@ -667,7 +698,7 @@ class hiddenDataSection(dataSection):
 		updting the string variable
 		"""
 		self.dataEntry.config(state=NORMAL)
-		insertEntry(self.dataEntry,dataToAdd)
+		self.insertData(dataToAdd)
 		self.data.set(dataToAdd)
 		if self.editMode == False:
 			self.dataEntry.config(state=DISABLED)
@@ -715,7 +746,7 @@ class hiddenDataSection(dataSection):
 		and changed
 		"""
 		self.editMode=True
-		self.dataEntry.config(state=NORMAL)
+		self.enableDataSource()
 
 	def disableEditing(self):
 		"""
@@ -723,9 +754,7 @@ class hiddenDataSection(dataSection):
 		to read only
 		"""
 		self.editMode=False
-		self.dataEntry.config(state=DISABLED)
-
-
+		self.disableDataSource()
 
 	def updateData(self):
 		"""

@@ -247,7 +247,7 @@ mainLabel(viewPodAdvancedNoteSub,text="Notes").pack()
 viewPodAdvancedNotes=Text(viewPodAdvancedNoteSub,height=5,wrap=WORD)
 viewPodAdvancedNoteSection.addDataSource(viewPodAdvancedNotes)
 viewPodAdvancedNotes.pack()
-viewPodAdvancedSection.addSection(viewPodAdvancedNoteSection)
+viewPodAdvancedSection.addPasswordSection(viewPodAdvancedNoteSection)
 
 viewPodAdvancedSection.showSections()
 
@@ -526,7 +526,11 @@ def beginEdit(displayViewList):
 	for display in displayViewList:
 		#Change states of Entry
 		for sectionTitle in display.sectionDict:
-			display.sectionDict[sectionTitle].enableEditing()
+			if type(sectionTitle) == hiddenDataSection:
+				display.sectionDict[sectionTitle].enableEditing()
+			elif type(sectionTitle) == dataSection:
+				display.sectionDict[sectionTitle].enableDataSource
+
 
 def cancelEdit(displayViewList):
 	"""
