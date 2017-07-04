@@ -214,13 +214,14 @@ def generateHexColour():
 #==============OTHER FUNCTIONS================
 
 def insertEntry(entry,message):
-	entry.delete(0,END)
-	entry.insert(END,message)
+	if type(entry) == Entry:
+		entry.delete(0,END)
+		entry.insert(END,message)
+	elif type(entry) == Text:
+		entry.delete("1.0",END)
+		entry.insert("1.0",message)
 
-def insertDisabledEntry(entry,message):
-	entry.config(state=NORMAL)
-	insertEntry(entry,message)
-	entry.config(state=DISABLED)
+
 
 def recursiveChangeColour(parent,colour,fgColour):
 	"""
@@ -489,8 +490,8 @@ class mainScreen(mainFrame):
 		"""
 		if self != mainScreen.lastScreen:
 
-			for screen in mainScreen.screens:
-				screen.pack_forget()
+			if mainScreen.lastScreen != None:
+				mainScreen.lastScreen.pack_forget()
 			self.pack(expand=True,fill=BOTH)
 
 			#Update statusVar
@@ -607,8 +608,14 @@ class dataSection(centerFrame):
 	"""
 	def __init__(self,parent,title,**kwargs):
 		centerFrame.__init__(self,parent,**kwargs)
+
 		self.title=title
 		self.dataSource=None
+
+		#Key variables
+		self.editData=False
+		self.data=StringVar()
+
 
 	def addDataSource(self,dataSource):
 		self.dataSource=dataSource
@@ -618,10 +625,8 @@ class dataSection(centerFrame):
 		This method will get data for a number
 		of diffrent widgets and return the data
 		"""
-		if type(self.dataSource) == Entry:
-			return self.dataSource.get()
-		elif type(self.dataSource) == Text:
-			return self.dataSource.get("1.0",END)
+		if self.dataSource != None:
+			return getData(self.dataSource)
 
 	def insertData(self,dataToAdd):
 		"""
@@ -629,20 +634,30 @@ class dataSection(centerFrame):
 		of data sources that this class will have
 		"""
 		if self.dataSource != None:
-			if type(self.dataSource) == Entry:
-				self.dataSource.insert(END,dataToAdd)
-			elif type(self.dataSource) == Text:
-				self.dataSource.insert("1.0",dataToAdd)
+			self.dataSource.config(state=NORMAL)
+			insertEntry(self.dataSource,dataToAdd)
+			if self.editData == False:
+				self.dataSource.config(state=DISABLED)
+
+
+
+
 
 	def clear(self):
+		"""
+		This method removes all data from the object
+		so it can be used by another pod
+		"""
 		if self.dataSource != None:
 			self.insertData("")
+		self.data.set("")
 
 	def disableDataSource(self):
 		"""
 		This method will disable the objects data source
 		so the user is unable to edit it
 		"""
+		self.editMode=False
 		if self.dataSource != None:
 			self.dataSource.config(state=DISABLED)
 
@@ -651,8 +666,39 @@ class dataSection(centerFrame):
 		This method will make the data source
 		available to edit again
 		"""
+		self.editMode=True
 		if self.dataSource != None:
 			self.dataSource.config(state=NORMAL)
+
+	def addData(self,dataToAdd):
+		"""
+		This method will add data to the section
+		by inserting the data into the entry and
+		updting the string variable
+		"""
+		if self.dataSource != None:
+			self.enableDataSource()
+			self.insertData(dataToAdd)
+			self.data.set(dataToAdd)
+			if self.editMode == False:
+				self.dataSource.config(state=DISABLED)
+
+	def restoreData(self):
+		"""
+		This method will restore the original
+		data to the entry if it is edited by
+		user
+		"""
+		self.addData(self.data.get())
+
+	def updateData(self):
+		"""
+		This method will get the data
+		from the entry and then update the data
+		"""
+		if self.dataSource != None:
+			newData=self.getData()
+			self.data.set(newData)
 
 class hiddenDataSection(dataSection):
 	"""
@@ -691,17 +737,7 @@ class hiddenDataSection(dataSection):
 			self.addButton(but[0])
 			self.addButtonCommand(but[0],but[1])
 
-	def addData(self,dataToAdd):
-		"""
-		This method will add data to the section
-		by inserting the data into the entry and
-		updting the string variable
-		"""
-		self.dataEntry.config(state=NORMAL)
-		self.insertData(dataToAdd)
-		self.data.set(dataToAdd)
-		if self.editMode == False:
-			self.dataEntry.config(state=DISABLED)
+
 
 	def toggleHide(self):
 		"""
@@ -712,57 +748,16 @@ class hiddenDataSection(dataSection):
 		if self.hiddenVar == False:
 			self.dataEntry.config(show="•")
 			self.buttonDict["Hide"].config(text="Show")
-			self.dataEntry.config(state=DISABLED)
+			self.disableDataSource()
 			self.hiddenVar=True
 		else:
 			self.dataEntry.config(show="")
 			self.buttonDict["Hide"].config(text="Hide")
 			self.hiddenVar=False
 			if self.editMode == False:
-				self.dataEntry.config(state=DISABLED)
+				self.disableDataSource()
 			else:
-				self.dataEntry.config(state=NORMAL)
-
-	def restoreData(self):
-		"""
-		This method will restore the original
-		data to the entry if it is edited by
-		user
-		"""
-		self.addData(self.data.get())
-
-	def clear(self):
-		"""
-		Remove data from entry and
-		the string var
-		"""
-		#Clear Entry
-		self.addData("")
-		self.data.set("")
-
-	def enableEditing(self):
-		"""
-		This method allows the section to be edited
-		and changed
-		"""
-		self.editMode=True
-		self.enableDataSource()
-
-	def disableEditing(self):
-		"""
-		This method disables the section and returns
-		to read only
-		"""
-		self.editMode=False
-		self.disableDataSource()
-
-	def updateData(self):
-		"""
-		This method will get the data
-		from the entry and then update the data
-		"""
-		newData=self.dataEntry.get()
-		self.data.set(newData)
+				self.enableDataSource()
 
 	def addButton(self,buttonText):
 		"""
@@ -1005,19 +1000,27 @@ class advancedNotebook(mainFrame):
 			self.showView(name)
 
 	def showView(self,name):
+		"""
+		This method is run when a screen
+		needs to be shown. It will hide and
+		show relevant screens and update label
+		colours etc.
+		"""
 		if name in self.views:
 			currentViewName=self.currentView
 			frameToLoad=self.views[name]
 
-			if currentViewName != None:
-				#Hide frame
-				self.views[currentViewName].pack_forget()
-				#Update label
-				self.labelDict[currentViewName].config(bg=self.notSelected)
+			#Ensure same frame isnt loaded
+			if currentViewName != name:
+				if currentViewName != None:
+					#Hide frame
+					self.views[currentViewName].pack_forget()
+					#Update label
+					self.labelDict[currentViewName].config(bg=self.notSelected)
 
-			frameToLoad.pack(expand=True,fill=BOTH,side=BOTTOM)
-			self.labelDict[name].config(bg=self.selectColour)
-			self.labelDict[name].config(fg=self.selectFG)
-			self.currentView=name
+				frameToLoad.pack(expand=True,fill=BOTH,side=BOTTOM)
+				self.labelDict[name].config(bg=self.selectColour)
+				self.labelDict[name].config(fg=self.selectFG)
+				self.currentView=name
 
 

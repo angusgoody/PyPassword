@@ -425,7 +425,7 @@ def unlockMasterPod():
 def addBasicPodDataToScreen(podInstance, displayList):
 	"""
 	This function will take a pod and display
-	the data
+	the data on screen.
 	"""
 	titleFound=False
 	for display in displayList:
@@ -440,7 +440,6 @@ def addBasicPodDataToScreen(podInstance, displayList):
 			podTitle=podInstance.podName
 
 			#Add all the data in the vault to screen
-
 			if titleFound == False:
 				#If the vault itself does not contain title it uses the pod title
 				if "Title" not in podVault:
@@ -526,10 +525,7 @@ def beginEdit(displayViewList):
 	for display in displayViewList:
 		#Change states of Entry
 		for sectionTitle in display.sectionDict:
-			if type(sectionTitle) == hiddenDataSection:
-				display.sectionDict[sectionTitle].enableEditing()
-			elif type(sectionTitle) == dataSection:
-				display.sectionDict[sectionTitle].enableDataSource
+			display.sectionDict[sectionTitle].enableDataSource()
 
 
 def cancelEdit(displayViewList):
@@ -550,7 +546,7 @@ def cancelEdit(displayViewList):
 			if hiddenSection.getData() != hiddenSection.data.get():
 				#Change back to original
 				hiddenSection.restoreData()
-			hiddenSection.disableEditing()
+			hiddenSection.disableDataSource()
 
 def overwritePodData(displayViewList):
 	"""
@@ -565,11 +561,10 @@ def overwritePodData(displayViewList):
 	for display in displayViewList:
 		for section in display.sectionDict:
 			hiddenSection=display.sectionDict[section]
-			print(hiddenSection.title)
 			#Compares saved data to data on screen
-			if hiddenSection.getData() != hiddenSection.data.get():
-				oldData=hiddenSection.data.get()
-				newData=hiddenSection.getData()
+			oldData=hiddenSection.data.get()
+			newData=hiddenSection.getData()
+			if oldData != newData:
 				sectionTitle=hiddenSection.title
 				#Update the stored data for the display
 				hiddenSection.updateData()
