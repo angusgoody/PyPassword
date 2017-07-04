@@ -573,6 +573,9 @@ def overwritePodData(displayViewList):
 				if sectionTitle == "Title":
 					#Update listbox
 					homePodListbox.updateItemLabel(oldData,newData)
+					#Update the label at top of screen
+					viewPodTopNameVar.set(str(masterPod.currentMasterPod.getRootName())+" / "+newData)
+
 				#Update Var
 				updated=True
 
