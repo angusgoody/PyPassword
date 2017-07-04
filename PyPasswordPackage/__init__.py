@@ -244,10 +244,10 @@ viewPodAdvancedSection.addPasswordSection(viewPodAdvancedWebsiteSection,colour="
 viewPodAdvancedNoteSection=dataSection(viewPodAdvancedSection,"Notes")
 viewPodAdvancedNoteSub=viewPodAdvancedNoteSection.miniFrame
 mainLabel(viewPodAdvancedNoteSub,text="Notes").pack()
-viewPodAdvancedNotes=Text(viewPodAdvancedNoteSub,height=5,wrap=WORD)
+viewPodAdvancedNotes=Text(viewPodAdvancedNoteSub,height=5,wrap=WORD,font="Arial 13")
 viewPodAdvancedNoteSection.addDataSource(viewPodAdvancedNotes)
 viewPodAdvancedNotes.pack()
-viewPodAdvancedSection.addPasswordSection(viewPodAdvancedNoteSection)
+viewPodAdvancedSection.addPasswordSection(viewPodAdvancedNoteSection,colour="#4DB585")
 
 viewPodAdvancedSection.showSections()
 

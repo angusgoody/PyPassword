@@ -31,7 +31,7 @@ def getData(dataSource):
 	"""
 	valids=[Entry,Text]
 	if type(dataSource) == Entry:
-		return dataSource.get(0,END)
+		return dataSource.get()
 	elif type(dataSource) == Text:
 		return dataSource.get("1.0",END)
 	else:
@@ -502,6 +502,8 @@ class mainScreen(mainFrame):
 			#Update menu
 			if self.mainMenu != None:
 				self.parent.config(menu=self.mainMenu)
+			#Report to log
+			log.report("Showing screen",self.screenName,tag="Screen")
 
 class displayView(mainFrame):
 	"""
@@ -634,14 +636,10 @@ class dataSection(centerFrame):
 		of data sources that this class will have
 		"""
 		if self.dataSource != None:
-			self.dataSource.config(state=NORMAL)
+			self.enableDataSource()
 			insertEntry(self.dataSource,dataToAdd)
 			if self.editData == False:
-				self.dataSource.config(state=DISABLED)
-
-
-
-
+				self.disableDataSource()
 
 	def clear(self):
 		"""
@@ -660,6 +658,9 @@ class dataSection(centerFrame):
 		self.editMode=False
 		if self.dataSource != None:
 			self.dataSource.config(state=DISABLED)
+			#Text boxes are hard to tell if disabled or not
+			if type(self.dataSource) == Text:
+				self.dataSource.config(fg="#919591")
 
 	def enableDataSource(self):
 		"""
@@ -669,6 +670,9 @@ class dataSection(centerFrame):
 		self.editMode=True
 		if self.dataSource != None:
 			self.dataSource.config(state=NORMAL)
+			#Text boxes are hard to tell if disabled or not
+			if type(self.dataSource) == Text:
+				self.dataSource.config(fg="#000000")
 
 	def addData(self,dataToAdd):
 		"""
@@ -736,8 +740,6 @@ class hiddenDataSection(dataSection):
 		for but in initButtons:
 			self.addButton(but[0])
 			self.addButtonCommand(but[0],but[1])
-
-
 
 	def toggleHide(self):
 		"""
@@ -967,9 +969,11 @@ class advancedNotebook(mainFrame):
 
 		self.viewCount=0
 
+		#Colour variables
 		self.selectColour="#FFFFFF"
 		self.selectFG="#000000"
 		self.notSelected="#98A5AA"
+		self.notSelectedHover="#AFBCC2"
 
 		#Get a select colour from kwargs
 		if "select" in kwargs:
@@ -977,6 +981,7 @@ class advancedNotebook(mainFrame):
 			self.selectFG=getColourForBackground(kwargs["select"])
 		if "topColour" in kwargs:
 			self.topBar.colour(kwargs["topColour"])
+
 
 
 	def addView(self,frame,name):
@@ -991,6 +996,8 @@ class advancedNotebook(mainFrame):
 		newLabel.grid(row=0,column=self.viewCount)
 		#Add binding
 		newLabel.bind("<Button-1>",lambda event, s=self,n=name: s.showView(n))
+		newLabel.bind("<Enter>",lambda event,lab=newLabel: lab.config(bg=self.notSelectedHover))
+		newLabel.bind("<Leave>",lambda event,lab=newLabel: lab.config(bg=self.notSelected))
 		#Add label to dictionary
 		self.labelDict[name]=newLabel
 		self.viewCount+=1
@@ -1017,10 +1024,19 @@ class advancedNotebook(mainFrame):
 					self.views[currentViewName].pack_forget()
 					#Update label
 					self.labelDict[currentViewName].config(bg=self.notSelected)
-
+					#Remove old bindings
+					currentLabel=self.labelDict[currentViewName]
+					currentLabel.bind("<Enter>",lambda event,lab=currentLabel: lab.config(bg=self.notSelectedHover))
+					currentLabel.bind("<Leave>",lambda event,lab=currentLabel: lab.config(bg=self.notSelected))
 				frameToLoad.pack(expand=True,fill=BOTH,side=BOTTOM)
-				self.labelDict[name].config(bg=self.selectColour)
-				self.labelDict[name].config(fg=self.selectFG)
+
+				#Update new label
+				currentLabel=self.labelDict[name]
+				currentLabel.config(bg=self.selectColour)
+				currentLabel.config(fg=self.selectFG)
 				self.currentView=name
+				#Add new bindings to label (Same because no change in colour is needed)
+				currentLabel.bind("<Enter>",lambda event,lab=currentLabel: lab.config(bg=self.selectColour))
+				currentLabel.bind("<Leave>",lambda event,lab=currentLabel: lab.config(bg=self.selectColour))
 
 
