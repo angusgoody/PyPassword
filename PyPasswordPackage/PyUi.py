@@ -445,10 +445,39 @@ class mainLabel(Label):
 	"""
 	def __init__(self,parent,**kwargs):
 		Label.__init__(self,parent,kwargs)
+		self.labelData=StringVar()
+		self.textVar=None
+		if "text" in kwargs:
+			self.labelData.set(kwargs["text"])
+		if "textvariable" in kwargs:
+			self.textVar=kwargs["textvariable"]
 
 	def changeColour(self,colour):
 		self.config(fg=colour)
 
+	def updateText(self,newText,changeData):
+		"""
+		This method is used to update the text
+		of the label class. It can be updated temporarily
+		or not. changeData means the data in class is not changed
+		"""
+		if self.textVar != None:
+			self.textVar.set(newText)
+		else:
+			self.config(text=newText)
+		#If data needs to be changed or not
+		if changeData:
+			self.labelData.set(newText)
+
+	def restoreData(self):
+		"""
+		This method will restore that data back
+		to what is stored in the string var
+		"""
+		if self.textVar != None:
+			self.textVar.set(self.labelData.get())
+		else:
+			self.config(text=self.labelData.get())
 class titleLabel(mainLabel):
 	"""
 	The title label is a class

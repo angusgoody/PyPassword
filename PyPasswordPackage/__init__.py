@@ -702,6 +702,7 @@ viewPodAdvancedWebsiteSection.addButtonCommand("Launch",lambda:launchWebsite(vie
 
 #=====STATUS BAR=====
 statusBar.addBinding("<Double-Button-1>",lambda event: goHome())
+
 #=====OPEN SCREEN=====
 openMainListbox.bind("<Double-Button-1>", lambda event: openMasterPod())
 openMainListbox.bind("<Return>", lambda event: openMasterPod())
