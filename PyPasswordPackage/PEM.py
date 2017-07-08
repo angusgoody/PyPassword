@@ -51,11 +51,14 @@ def cipher(plainText, key):
 	key=AES.new(pad(key))
 	text=pad(str(plainText))
 	encrypted=key.encrypt(text)
+	log.report("Cipher command executed","(PEM)",tag="Encryption")
 	return encrypted
 
 def decrypt(data,key):
 	try:
 		key=AES.new(pad(key))
+		log.report("Decrypt command executed","(PEM)",tag="Encryption")
+
 		return key.decrypt(data).rstrip()
 	except:
 		log.report("An error occurred when attempting to decrypt","(Decrypt)",tag="Error")

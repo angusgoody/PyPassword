@@ -75,12 +75,12 @@ class logClass():
 		"""
 		#Gether message
 		message=message+" "
-		message+=variable
+		message+=str(variable)
 		system=False
 		if len(extra) > 0:
 			for item in extra:
 				message+=" "
-				message+=item
+				message+=str(item)
 		#Gather Tag
 		tag="Default"
 		if "tag" in kwargs:
@@ -251,6 +251,9 @@ def recursiveChangeColour(parent,colour,fgColour):
 
 			except:
 				pass
+		log.report("Change colour of",type(parent),tag="UI",system=True)
+
+
 
 def recursiveBind(parent,bindButton,bindFunction):
 	"""
@@ -269,7 +272,7 @@ def recursiveBind(parent,bindButton,bindFunction):
 			parent.bind(bindButton,bindFunction)
 		except:
 			pass
-	log.report("Added recursive binding to",parent.winfo_class(),tag="binding",system=True)
+	log.report("Added recursive binding to",parent.winfo_class(),tag="UI",system=True)
 
 def deleteItemFromListbox(listbox,indicator):
 	counter=-1
@@ -444,7 +447,7 @@ class mainLabel(Label):
 	and also hover bindings etc.
 	"""
 	def __init__(self,parent,**kwargs):
-		Label.__init__(self,parent,kwargs)
+		Label.__init__(self,parent,**kwargs)
 		self.labelData=StringVar()
 		self.textVar=None
 		if "text" in kwargs:
@@ -452,8 +455,18 @@ class mainLabel(Label):
 		if "textvariable" in kwargs:
 			self.textVar=kwargs["textvariable"]
 
+		#Store colour variables
+		self.colourVar=""
+
+		#Bind label to hover functions
+		if "hover" in kwargs:
+			if kwargs["hover"]:
+				self.bind("<Enter>",lambda event:self.hover())
+				self.bind("<Leave>",lambda event:self.changeColour(self.colourVar))
+
 	def changeColour(self,colour):
 		self.config(fg=colour)
+		self.colourVar=colour
 
 	def updateText(self,newText,changeData):
 		"""
@@ -478,6 +491,19 @@ class mainLabel(Label):
 			self.textVar.set(self.labelData.get())
 		else:
 			self.config(text=self.labelData.get())
+
+	def hover(self):
+		currentColour=self.cget("fg")
+		if currentColour == "#000000":
+			self.config(fg="#FFFFFF")
+		elif currentColour == "#FFFFFF":
+			self.config(fg="#000000")
+		else:
+			self.config(fg=getColourForBackground(currentColour))
+
+
+
+
 class titleLabel(mainLabel):
 	"""
 	The title label is a class
@@ -746,7 +772,7 @@ class hiddenDataSection(dataSection):
 
 		self.centerFrame=self.miniFrame
 
-		self.titleLabel=mainLabel(self.centerFrame,text=self.title+":",width=10)
+		self.titleLabel=mainLabel(self.centerFrame,text=self.title+":",width=10,hover=True)
 		self.titleLabel.grid(row=0,column=0)
 
 		self.dataEntry=Entry(self.centerFrame,state=DISABLED)
