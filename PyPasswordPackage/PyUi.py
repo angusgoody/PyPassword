@@ -447,6 +447,12 @@ class mainLabel(Label):
 	and also hover bindings etc.
 	"""
 	def __init__(self,parent,**kwargs):
+		if "hover" in kwargs:
+			kwargs.pop("hover")
+			hover=True
+		else:
+			hover=False
+
 		Label.__init__(self,parent,**kwargs)
 		self.labelData=StringVar()
 		self.textVar=None
@@ -459,10 +465,9 @@ class mainLabel(Label):
 		self.colourVar=""
 
 		#Bind label to hover functions
-		if "hover" in kwargs:
-			if kwargs["hover"]:
-				self.bind("<Enter>",lambda event:self.hover())
-				self.bind("<Leave>",lambda event:self.changeColour(self.colourVar))
+		if hover:
+			self.bind("<Enter>",lambda event:self.hover())
+			self.bind("<Leave>",lambda event:self.changeColour(self.colourVar))
 
 	def changeColour(self,colour):
 		self.config(fg=colour)
