@@ -34,6 +34,8 @@ viewMenu=Menu(mainMenu)
 #---Lock Screen Menu---
 lockScreenMenu=Menu(window)
 
+lockFileMenu=Menu(lockScreenMenu)
+
 #--Status bar--
 statusVar=StringVar()
 statusBar=mainFrame(window)
@@ -116,7 +118,7 @@ openTopFrame.pack(side=TOP,fill=X)
 openMainFrame=mainFrame(openScreen)
 openMainFrame.pack(expand=True,fill=BOTH)
 
-openMainListbox=advancedListbox(openMainFrame,font="serif 19")
+openMainListbox=advancedListbox(openMainFrame,font="Arial 25")
 openMainListbox.pack(expand=True,fill=BOTH)
 
 #--Bottom--
@@ -290,32 +292,6 @@ viewPodScreen.colour("#4B5E9C")
 
 #===============================(FUNCTIONS)===============================
 
-#=========Utility Functions=========
-"""
-Utility Functions are handy little
-functions that help reduce the amount
-of code needed.
-"""
-def insertEntry(entry,message):
-	entry.delete(0,END)
-	entry.insert(END,message)
-
-def askMessage(pre,message):
-	try:
-		messagebox.showinfo(pre,message)
-	except:
-		print(message)
-
-def askFirst(pre,message,command):
-	try:
-		response=messagebox.askokcancel(pre,message)
-	except:
-		return False
-	else:
-		if response:
-			command()
-		return response
-
 #=========Program Functions=========
 
 
@@ -374,7 +350,6 @@ def getSelectedDataPod():
 	if selectedPod != None and selectedPod != False:
 		loadDataPod(selectedPod)
 
-
 def openMasterPod():
 	"""
 	This function is for when the user
@@ -390,6 +365,22 @@ def openMasterPod():
 
 	else:
 		askMessage("Select","No Pod Selected")
+
+def openOtherMasterPod():
+	"""
+	This function will open a master pod
+	using the built in file explorer.
+	"""
+	directory=askForFile()
+	if directory:
+		if directory in masterPod.masterPodDict:
+			askMessage("Already open","This pod is currently open")
+		else:
+			pod=masterPod(os.path.basename(directory))
+			pod.addDirectory(directory)
+			#Adds to listbox and removes extension
+			openMainListbox.addItem(pod.getRootName(),pod)
+
 
 #=====Button Commands====
 """
@@ -459,18 +450,20 @@ def loadFilesInDirectory():
 	This function will scan the current directory
 	of the python program to locate any pod files
 	"""
-	filesFound=[]
+	filesFound={}
 	#Traverse current folder
 	for root, dirs, files in os.walk(currentDirectory, topdown=False):
 		for name in files:
 			if name.endswith(".mp"):
-				filesFound.append(name)
+				fileDirectory=(os.path.join(root, name))
+				filesFound[name]=fileDirectory
 
 	#Create Master Pods and display them
 	for item in filesFound:
 		pod=masterPod(item)
+		pod.addDirectory(filesFound[item])
 		#Adds to listbox and removes extension
-		openMainListbox.addItem(os.path.splitext(item)[0],pod)
+		openMainListbox.addItem(pod.getRootName(),pod)
 
 #=====QUICK RUN Loaders====
 """
@@ -526,7 +519,6 @@ def beginEdit(displayViewList):
 		#Change states of Entry
 		for sectionTitle in display.sectionDict:
 			display.sectionDict[sectionTitle].enableDataSource()
-
 
 def cancelEdit(displayViewList):
 	"""
@@ -715,12 +707,15 @@ mainMenu.add_cascade(label="File",menu=fileMenu)
 mainMenu.add_cascade(label="Edit",menu=editMenu)
 mainMenu.add_cascade(label="View",menu=viewMenu)
 
+lockScreenMenu.add_cascade(label="File",menu=lockFileMenu)
+
 #==File==
 fileMenu.add_command(label="Home",command=homeScreen.show)
 fileMenu.add_separator()
 fileMenu.add_command(label="Save Data", command=lambda: masterPod.currentMasterPod.save())
 fileMenu.add_command(label="Exit Master Pod",command=lockdown)
 
+lockFileMenu.add_command(label="Open Other",command=openOtherMasterPod)
 #==View==
 viewMenu.add_command(label="Show Log",command=lambda: logScreen.show())
 

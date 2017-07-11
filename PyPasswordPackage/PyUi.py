@@ -20,6 +20,8 @@ from tkinter import *
 from tkinter import ttk
 import random
 import datetime
+from tkinter import messagebox
+from tkinter import filedialog
 
 #Stores the main TK windos for __init__ to use in this program
 mainWindow=None
@@ -137,6 +139,48 @@ log=logClass("UI")
 
 #==================================(FUNCTIONS)=============================
 
+
+#=========Utility Functions=========
+"""
+Utility Functions are handy little
+functions that help reduce the amount
+of code needed.
+"""
+
+def askMessage(pre,message):
+	try:
+		messagebox.showinfo(pre,message)
+	except:
+		print(message)
+
+def askFirst(pre,message,command):
+	"""
+	This little function will
+	execute a certain command
+	only after the user has clicked 
+	"ok"
+	"""
+	try:
+		response=messagebox.askokcancel(pre,message)
+	except:
+		return False
+	else:
+		if response:
+			command()
+		return response
+
+def insertEntry(entry,message):
+	"""
+	Will insert data into an entry
+	and will also work with Text boxes
+	"""
+	if type(entry) == Entry:
+		entry.delete(0,END)
+		entry.insert(END,message)
+	elif type(entry) == Text:
+		entry.delete("1.0",END)
+		entry.insert("1.0",message)
+
 #==============HEX FUNCTIONS================
 
 def convertHex(value,intoDecOrHex):
@@ -213,16 +257,6 @@ def generateHexColour():
 
 #==============OTHER FUNCTIONS================
 
-def insertEntry(entry,message):
-	if type(entry) == Entry:
-		entry.delete(0,END)
-		entry.insert(END,message)
-	elif type(entry) == Text:
-		entry.delete("1.0",END)
-		entry.insert("1.0",message)
-
-
-
 def recursiveChangeColour(parent,colour,fgColour):
 	"""
 	This function will recursivly search all children
@@ -253,8 +287,6 @@ def recursiveChangeColour(parent,colour,fgColour):
 				pass
 		log.report("Change colour of",type(parent),tag="UI",system=True)
 
-
-
 def recursiveBind(parent,bindButton,bindFunction):
 	"""
 	This function is very important because python
@@ -281,6 +313,18 @@ def deleteItemFromListbox(listbox,indicator):
 		if item == indicator:
 			listbox.delete(counter,counter)
 			break
+
+def askForFile():
+
+	try:
+		directory=filedialog.askopenfilename(filetypes=(("Master Pod", "*.mp"),
+                                           ("All files", "*.*")))
+	except:
+		log.report("Error launching file dialog","(UI)",tag="Error")
+
+	else:
+		if directory != None:
+			return directory
 
 #==================================(CLASSES)=============================
 
@@ -422,8 +466,6 @@ class mainFrame(Frame):
 		to be binded with a better binding function
 		"""
 		recursiveBind(self,bindButton,bindFunction)
-
-
 
 	def colour(self,chosenColour):
 		"""

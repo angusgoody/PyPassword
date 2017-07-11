@@ -135,16 +135,21 @@ class masterPod:
 	"""
 	currentMasterPod=None
 	currentDataPod=None
-	masterPodList=[]
+	masterPodDict={}
 	def __init__(self,fileName):
 		self.fileName=fileName
 		self.location=fileName
 		self.podDict={}
 		self.masterKey=None
-		masterPod.masterPodList.append(self)
+		masterPod.masterPodDict[self.location]=self
 
 	def addKey(self,masterKey):
 		self.masterKey=masterKey
+
+	def addDirectory(self,directory):
+		self.location=directory
+		masterPod.masterPodDict.pop(self.fileName,None)
+		masterPod.masterPodDict[directory]=self
 
 	def unlock(self,attempt):
 		"""
@@ -258,8 +263,9 @@ class masterPod:
 
 #==================Testing area=================
 """
-newPod=masterPod("Luigi.mp")
-newPod.addKey("luigi")
+newPod=masterPod("Hidden.mp")
+newPod.addDirectory("/Users/angus/Documents/Hidden.mp")
+newPod.addKey("donkey")
 gog=newPod.addPod("Google")
 gog.addData("Username","angus.goody")
 gog.addData("Password","frog")
