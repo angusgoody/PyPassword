@@ -472,13 +472,11 @@ that usually run very quickly and are
 binded to keystrokes etc. They include
 search functions while the user is typing
 """
-def checkNameValid(entry,dataSource,popupInstance):
+def checkPodNameValid(entry, dataSource, popupInstance):
 	"""
-	This function takes the name currently in
-	the entry and will check the data source to see
-	if the name is taken. If it is the entry will turn
-	red and toggle the popup instance button. If not it will turn green
-	and return True
+	This function checks that the data
+	entered in the "New Pod" entry is valid
+	and is not empty or already a pod
 	"""
 	if type(dataSource) == masterPod:
 
@@ -486,7 +484,7 @@ def checkNameValid(entry,dataSource,popupInstance):
 		if len(entry.get().split()) < 1:
 			entry.config(bg="salmon")
 			popupInstance.toggle("DISABLED")
-			popupInstance.infoStringVar.set("Invalid Name")
+			popupInstance.infoStringVar.set("Invalid Name (No data)")
 			return False
 		else:
 
@@ -495,11 +493,47 @@ def checkNameValid(entry,dataSource,popupInstance):
 				if pod.upper() == entry.get().upper():
 					entry.config(bg="salmon")
 					popupInstance.toggle("DISABLED")
-					popupInstance.infoStringVar.set("Invalid Name")
+					popupInstance.infoStringVar.set("Invalid Name (Name taken)")
 					return False
 
 			else:
 				entry.config(bg="light green")
+				popupInstance.toggle("NORMAL")
+				popupInstance.infoStringVar.set("Valid Name")
+				return True
+
+def checkMasterPodDataValid(entryList,dataSource,popupInstance):
+	"""
+	Checks the validity of the user entering
+	 a new master pod name.
+	 *Note takes the new master pod name entry as index 0 in list*
+	"""
+	if type(dataSource) != None:
+		valid=True
+
+		#Check length of data first
+		for entry in entryList:
+			if len(entry.get().split()) < 1:
+				valid=False
+				for entry in entryList:
+					entry.config(bg="salmon")
+				popupInstance.toggle("DISABLED")
+				popupInstance.infoStringVar.set("Invalid Name (No data)")
+				return False
+
+		else:
+			#Check if name is taken
+			for pod in dataSource.masterPodNameDict:
+				if pod.upper() == entryList[0].get().upper():
+					valid=False
+					for entry in entryList:
+						entry.config(bg="salmon")
+					popupInstance.toggle("DISABLED")
+					popupInstance.infoStringVar.set("Invalid Name (Name taken)")
+					return False
+			else:
+				for entry in entryList:
+					entry.config(bg="light green")
 				popupInstance.toggle("NORMAL")
 				popupInstance.infoStringVar.set("Valid Name")
 				return True
@@ -648,10 +682,10 @@ def createNewPodPopup():
 		popUpSub=popUpFrame.miniFrame
 
 		mainLabel(popUpSub,text="Enter Pod Name").pack()
-		popUpEntry=Entry(popUpFrame,width=20,justify=CENTER)
+		popUpEntry=Entry(popUpSub,width=20,justify=CENTER)
 		popUpEntry.pack()
-		popUpEntry.bind("<KeyRelease>",lambda event, ds=masterPod.currentMasterPod,
-		                                      en=popUpEntry, ins=newWindow: checkNameValid(en,ds,ins))
+		popUpEntry.bind("<KeyRelease>", lambda event, ds=masterPod.currentMasterPod,
+		                                      en=popUpEntry, ins=newWindow: checkPodNameValid(en, ds, ins))
 		mainLabel(popUpSub,textvariable=popupInfoVar,font="Helvetica 10").pack(side=BOTTOM)
 		newWindow.addView(popUpSub)
 
@@ -669,8 +703,70 @@ def createNewPodPopup():
 		#Add to log
 		log.report("New popup launched","(POPUP)",tag="UI")
 
+def initiateMasterPod(popupInstance):
+	"""
+	This function will create a new matster pod
+	with the input from the user using the popup instance
+	as a parameter.
+	"""
+	data=popupInstance.gatheredData
+	if len(data) > 1:
+		podName=data[0]
+		podPassword=data[1]
+
+		#Create file name
+		fileName=str(podName)
+		if ".mp" not in fileName:
+			fileName=fileName+".mp"
+		newPod=masterPod(fileName)
+		newPod.addKey(podPassword)
+		newPod.save()
+		openMainListbox.addItem(podName,newPod)
 def createNewMasterPodPopup():
-	print("Ready to launch new pod window")
+	"""
+	This function will run to launch a new 
+	popup window to allow the user to create a new 
+	master pod
+	:return: 
+	"""
+	#Initiate a new TK window
+	popupInfoVar=StringVar()
+	newWindow=popUpWindow(window,"Create Master Pod",infoVar=popupInfoVar)
+
+	#Add the frame view and ui elements
+	popUpFrame=centerFrame(newWindow)
+	popUpFrame.pack(expand=True)
+	popUpSub=popUpFrame.miniFrame
+
+	mainLabel(popUpSub,text="Enter Master Pod Name").pack()
+	popUpEntry=Entry(popUpSub,width=20,justify=CENTER)
+	popUpEntry.pack()
+
+	mainLabel(popUpSub,text="Choose Password").pack()
+	popUpPasswordEntry=Entry(popUpSub,width=20,justify=CENTER)
+	popUpPasswordEntry.pack()
+
+	mainLabel(popUpSub,textvariable=popupInfoVar,font="Helvetica 10").pack(side=BOTTOM)
+	newWindow.addView(popUpSub)
+
+	#Add bindings
+	popUpEntry.bind("<KeyRelease>",lambda event,el=[popUpEntry,popUpPasswordEntry],
+	                                      ds=masterPod,pi=newWindow: checkMasterPodDataValid(el,ds,newWindow))
+	popUpPasswordEntry.bind("<KeyRelease>",lambda event, el=[popUpEntry,popUpPasswordEntry],
+	                                      ds=masterPod,pi=newWindow: checkMasterPodDataValid(el,ds,newWindow))
+	#Disable button by default to avoid blank names and disable resizing
+	newWindow.toggle("DISABLED")
+	newWindow.resizable(width=False, height=False)
+
+	#Add data sources and return values
+	newWindow.addDataSource([popUpEntry,popUpPasswordEntry])
+	newWindow.addCommands([initiateMasterPod],True)
+
+	#Run
+	newWindow.run()
+
+	#Add to log
+	log.report("New popup launched","(POPUP)",tag="UI")
 
 #===============================(BUTTONS)===============================
 

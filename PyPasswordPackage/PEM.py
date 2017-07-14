@@ -136,12 +136,14 @@ class masterPod:
 	currentMasterPod=None
 	currentDataPod=None
 	masterPodDict={}
+	masterPodNameDict={}
 	def __init__(self,fileName):
 		self.fileName=fileName
 		self.location=fileName
 		self.podDict={}
 		self.masterKey=None
 		masterPod.masterPodDict[self.location]=self
+		masterPod.masterPodNameDict[self.getRootName()]=self
 
 	def addKey(self,masterKey):
 		self.masterKey=masterKey
