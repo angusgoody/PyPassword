@@ -50,6 +50,9 @@ statusBar.colour("#A9F955")
 currentDirectory=os.getcwd()
 lockedScreens=[]
 defaultColour=window.cget("bg")
+
+mainGreenColour="#1BF293"
+mainRedColour="#E6607A"
 #Log
 log=logClass("Main")
 #===============================(USER INTERFACE)===============================
@@ -482,7 +485,7 @@ def checkPodNameValid(entry, dataSource, popupInstance):
 
 		#First Check for actual data
 		if len(entry.get().split()) < 1:
-			entry.config(bg="salmon")
+			popupInstance.changeEntryColour(mainRedColour)
 			popupInstance.toggle("DISABLED")
 			popupInstance.infoStringVar.set("Invalid Name (No data)")
 			return False
@@ -491,13 +494,13 @@ def checkPodNameValid(entry, dataSource, popupInstance):
 			#Check by comparing upper cases
 			for pod in dataSource.podDict:
 				if pod.upper() == entry.get().upper():
-					entry.config(bg="salmon")
+					popupInstance.changeEntryColour(mainRedColour)
 					popupInstance.toggle("DISABLED")
 					popupInstance.infoStringVar.set("Invalid Name (Name taken)")
 					return False
 
 			else:
-				entry.config(bg="light green")
+				popupInstance.changeEntryColour(mainGreenColour)
 				popupInstance.toggle("NORMAL")
 				popupInstance.infoStringVar.set("Valid Name")
 				return True
@@ -515,10 +518,9 @@ def checkMasterPodDataValid(entryList,dataSource,popupInstance):
 		for entry in entryList:
 			if len(entry.get().split()) < 1:
 				valid=False
-				for entry in entryList:
-					entry.config(bg="salmon")
+				popupInstance.changeEntryColour(mainRedColour)
 				popupInstance.toggle("DISABLED")
-				popupInstance.infoStringVar.set("Invalid Name (No data)")
+				popupInstance.infoStringVar.set("Invalid Name (Empty Entry)")
 				return False
 
 		else:
@@ -526,14 +528,12 @@ def checkMasterPodDataValid(entryList,dataSource,popupInstance):
 			for pod in dataSource.masterPodNameDict:
 				if pod.upper() == entryList[0].get().upper():
 					valid=False
-					for entry in entryList:
-						entry.config(bg="salmon")
+					popupInstance.changeEntryColour(mainRedColour)
 					popupInstance.toggle("DISABLED")
 					popupInstance.infoStringVar.set("Invalid Name (Name taken)")
 					return False
 			else:
-				for entry in entryList:
-					entry.config(bg="light green")
+				popupInstance.changeEntryColour(mainGreenColour)
 				popupInstance.toggle("NORMAL")
 				popupInstance.infoStringVar.set("Valid Name")
 				return True

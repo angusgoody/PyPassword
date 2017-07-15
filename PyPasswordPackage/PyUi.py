@@ -448,6 +448,15 @@ class advancedListbox(Listbox):
 				self.addItem(newName,listData)
 				break
 
+	def addCommand(self,commandToRun):
+		"""
+		The add command method will allow
+		a command to be added to the listbox
+		which will execute a double click
+		or right click popup menu.
+		"""
+		pass
+
 class mainFrame(Frame):
 	"""
 	The Main Frame class is a modified tkinter Frame
@@ -979,6 +988,10 @@ class popUpWindow(Toplevel):
 		self.saveButtonState=True
 
 	def addView(self,frameToShow):
+		"""
+		This method will allow you to add
+		a frame to the popup window to view
+		"""
 		self.frameToShow=frameToShow
 		frameToShow.pack(expand=True,fill=BOTH)
 
@@ -993,11 +1006,20 @@ class popUpWindow(Toplevel):
 			self.runCommandDict[item]=parameterValue
 
 	def run(self):
+		"""
+		This method starts the window
+		and makes sure the window is in focus
+		and disables the main window 
+		"""
 		self.focus_set()
 		self.grab_set()
 		self.transient(self.root)
 
 	def cancel(self):
+		"""
+		When the user clicks the "Cancel" button
+		it will destroy the window and return to main window
+		"""
 		self.grab_release()
 		self.destroy()
 
@@ -1011,7 +1033,12 @@ class popUpWindow(Toplevel):
 			self.entryList.append(entry)
 
 	def save(self):
-
+		"""
+		The save method will collect all the data
+		from the data sources and then execute the
+		correct commands when the window has been
+		destroyed
+		"""
 		#Gather data
 		if len(self.entryList) > 0:
 			for item in self.entryList:
@@ -1045,6 +1072,14 @@ class popUpWindow(Toplevel):
 		else:
 			self.saveButton.config(state=NORMAL)
 			self.saveButtonState=True
+
+	def changeEntryColour(self,colour):
+		"""
+		Will change the colour of all the data sources
+		in the popup window
+		"""
+		for entry in self.entryList:
+			entry.config(bg=colour)
 
 #==============TEST==============
 
