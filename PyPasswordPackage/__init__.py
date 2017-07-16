@@ -293,6 +293,11 @@ viewPodDeleteButton.pack()
 viewPodScreen.colour("#4B5E9C")
 #endregion
 
+#--Generate Password Screen---
+#region genPassword
+genPasswordScreen=mainScreen(window,"Generate Password",statusVar)
+
+#endregion
 #===============================(FUNCTIONS)===============================
 
 #=========Program Functions=========
@@ -722,6 +727,7 @@ def initiateMasterPod(popupInstance):
 		newPod.addKey(podPassword)
 		newPod.save()
 		openMainListbox.addItem(podName,newPod)
+
 def createNewMasterPodPopup():
 	"""
 	This function will run to launch a new 
@@ -807,6 +813,8 @@ lockScreenMenu.add_cascade(label="File",menu=lockFileMenu)
 
 #==File==
 fileMenu.add_command(label="Home",command=homeScreen.show)
+fileMenu.add_command(label="Generate Password",command=genPasswordScreen.show)
+
 fileMenu.add_separator()
 fileMenu.add_command(label="Save Data", command=lambda: masterPod.currentMasterPod.save())
 fileMenu.add_command(label="Exit Master Pod",command=lockdown)
