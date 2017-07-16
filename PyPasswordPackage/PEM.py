@@ -21,11 +21,19 @@ pip install --use-wheel --no-index --find-links=https://github.com/sfbahr/PyCryp
 from Crypto.Cipher import AES
 import pickle
 import os
-
+import random
+import string
 from PyUi import logClass
-mainWindow=None
 
+#==========VARIABLES=========
+mainWindow=None
 log=logClass("Encryption")
+letters=string.ascii_letters
+symbols=['!', '"', '#', '$', '%', '&', "'", '()',
+         '*', '+', ',', '-', '.', '/', ':', ';',
+         '<', '=', '>', '?', '@', '[', ']', '^', '_',
+         '`', '{', '|', '}', '~', "'"]
+
 #==================================(FUNCTIONS)=============================
 def addPEMWindow(window):
 	global mainWindow
@@ -82,6 +90,48 @@ def savePickle(content,fileName):
 	"""
 	pickle.dump(content, open( fileName, "wb" ) )
 	log.report("Save complete exported to",fileName,tag="File")
+
+def mash(length,letterList,symbolList,digitList):
+	"""
+	The mash function is an essential part of the
+	generate password function. It mashes together all
+	the random symbols and letters etc and returns
+	the new password itself
+	"""
+	mergedList=letterList+symbolList+digitList
+	mashedList=[]
+	for x in range(length):
+		mashedList.append(mergedList.pop(random.randint(0,len(mergedList)-1)))
+
+	return"".join(mashedList)
+
+def generatePassword(length,symbolAmount,digitAmount):
+
+	"""
+	This function is used to generate a password
+	using the given parameters. It will generate
+	the required characters then use the mash function
+	to distibute the characters randomly
+	"""
+	#Generate letters
+	charAmount=length-(symbolAmount+digitAmount)
+	charList=[]
+	for x in range(charAmount):
+		charList.append(random.choice(letters))
+
+	#Genetate symbols list
+	symbolList=[]
+	for x in range(symbolAmount):
+		symbolList.append(random.choice(symbols))
+
+	#Generate digit
+	digitList=[]
+	for x in range(digitAmount):
+		digitList.append(str(random.randint(0,9)))
+
+
+	mashed=mash(length,charList,symbolList,digitList)
+	return mashed
 #==================================(Classes)=============================
 
 class dataPod:

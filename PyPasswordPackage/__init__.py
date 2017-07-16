@@ -297,6 +297,24 @@ viewPodScreen.colour("#4B5E9C")
 #region genPassword
 genPasswordScreen=mainScreen(window,"Generate Password",statusVar)
 
+genPasswordFrame=centerFrame(genPasswordScreen)
+genPasswordFrame.pack(expand=True,fill=BOTH)
+
+genPasswordCenter=genPasswordFrame.miniFrame
+
+#Entry
+genPasswordEntry=Entry(genPasswordCenter,width=25)
+genPasswordEntry.pack()
+
+#Sliders
+genPasswordLengthSlider=ttk.Scale(genPasswordCenter,length=150)
+genPasswordLengthSlider.pack(pady=10)
+
+genPasswordSymbolSlider=ttk.Scale(genPasswordCenter,length=150)
+genPasswordSymbolSlider.pack(pady=10)
+
+genPasswordDigitSlider=ttk.Scale(genPasswordCenter,length=150)
+genPasswordDigitSlider.pack(pady=10)
 #endregion
 #===============================(FUNCTIONS)===============================
 
@@ -796,7 +814,6 @@ viewPodAdvancedWebsiteSection.addButtonCommand("Launch",lambda:launchWebsite(vie
 
 #=====STATUS BAR=====
 statusBar.addBinding("<Double-Button-1>",lambda event: goHome())
-
 #=====OPEN SCREEN=====
 openMainListbox.bind("<Double-Button-1>", lambda event: openMasterPod())
 openMainListbox.bind("<Return>", lambda event: openMasterPod())

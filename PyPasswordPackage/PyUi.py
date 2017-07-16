@@ -557,9 +557,6 @@ class mainLabel(Label):
 		else:
 			self.config(fg=getColourForBackground(currentColour))
 
-
-
-
 class titleLabel(mainLabel):
 	"""
 	The title label is a class
@@ -1081,6 +1078,15 @@ class popUpWindow(Toplevel):
 		for entry in self.entryList:
 			entry.config(bg=colour)
 
+class advancedSlider(ttk.Scale):
+	"""
+	This class is a modified scale widget.
+	It will add more customization and 
+	a label kwarg which adds a label to the widget
+	"""
+	def __init__(self,parent,label,*extra,**kwargs):
+		ttk.Scale.__init__(parent,*extra,**kwargs)
+		
 #==============TEST==============
 
 class advancedNotebook(mainFrame):
