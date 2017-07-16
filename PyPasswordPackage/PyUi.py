@@ -1078,15 +1078,31 @@ class popUpWindow(Toplevel):
 		for entry in self.entryList:
 			entry.config(bg=colour)
 
-class advancedSlider(ttk.Scale):
+class advancedSlider(mainFrame):
 	"""
 	This class is a modified scale widget.
 	It will add more customization and 
 	a label kwarg which adds a label to the widget
 	"""
-	def __init__(self,parent,label,*extra,**kwargs):
-		ttk.Scale.__init__(parent,*extra,**kwargs)
-		
+	def __init__(self,parent,text,*extra,**kwargs):
+		mainFrame.__init__(self,parent)
+		self.text=text
+		self.outputVar=StringVar()
+
+		self.label=mainLabel(self,text=self.text)
+		self.label.pack()
+
+		self.sliderContainer=mainFrame(self)
+		self.sliderContainer.pack()
+
+		self.slider=ttk.Scale(self.sliderContainer,length=150)
+		self.slider.grid(row=0,column=0)
+
+		self.outputLabel=mainLabel(self.sliderContainer,textvariable=self.outputVar)
+		self.outputLabel.grid(row=0,column=1)
+
+
+
 #==============TEST==============
 
 class advancedNotebook(mainFrame):
