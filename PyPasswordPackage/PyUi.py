@@ -23,35 +23,15 @@ import datetime
 from tkinter import messagebox
 from tkinter import filedialog
 
-#Stores the main TK windos for __init__ to use in this program
+#Variable for TK windows
 mainWindow=None
 
-def getData(dataSource):
-	"""
-	This function will get data from a number
-	of different widgets
-	"""
-	valids=[Entry,Text]
-	if type(dataSource) == Entry:
-		return dataSource.get()
-	elif type(dataSource) == Text:
-		return dataSource.get("1.0",END)
-	else:
-		log.report("Not able to get data from",dataSource)
-
-def addUIWindow(window):
-	global mainWindow
-	"""
-	Allows a tk window to be added
-	to this program
-	"""
-	mainWindow=window
-
-def addDataToClipboard(data):
-	if mainWindow != None:
-		mainWindow.clipboard_clear()
-		mainWindow.clipboard_append(data)
-		log.report("Added data to clipboard","(Func)")
+#==============Styles==============
+"""
+scaleStyle=ttk.Style()
+scaleStyle.theme_use('clam')
+scaleStyle.configure("Horizontal.TScale",background="#2B65A1")
+"""
 #==============LOG CLASS==============
 
 class logClass():
@@ -125,7 +105,6 @@ class logClass():
 		elif indicator == "Default":
 			self.defaultTree=tree
 
-
 	def addDataToTree(self,data,time,system):
 		"""
 		This method will take the time and data
@@ -185,6 +164,33 @@ def insertEntry(entry,message):
 	elif type(entry) == Text:
 		entry.delete("1.0",END)
 		entry.insert("1.0",message)
+
+def getData(dataSource):
+	"""
+	This function will get data from a number
+	of different widgets
+	"""
+	valids=[Entry,Text]
+	if type(dataSource) == Entry:
+		return dataSource.get()
+	elif type(dataSource) == Text:
+		return dataSource.get("1.0",END)
+	else:
+		log.report("Not able to get data from",dataSource)
+
+def addUIWindow(window):
+	global mainWindow
+	"""
+	Allows a tk window to be added
+	to this program
+	"""
+	mainWindow=window
+
+def addDataToClipboard(data):
+	if mainWindow != None:
+		mainWindow.clipboard_clear()
+		mainWindow.clipboard_append(data)
+		log.report("Added data to clipboard","(Func)")
 
 #==============HEX FUNCTIONS================
 
