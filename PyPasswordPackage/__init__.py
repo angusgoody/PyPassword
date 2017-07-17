@@ -328,7 +328,8 @@ genPasswordRegenerateButton=mainButton(genPasswordButtonFrame,text="Regenerate",
 genPasswordRegenerateButton.grid(row=0,column=1,padx=3)
 
 #Colour
-genPasswordScreen.colour("#285E95")
+#Closest match is #E7E7E7
+genPasswordScreen.colour("#E7E7E7")
 #endregion
 #===============================(FUNCTIONS)===============================
 
