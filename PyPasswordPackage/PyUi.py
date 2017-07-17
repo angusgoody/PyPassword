@@ -572,7 +572,8 @@ class advancedListbox(Listbox):
 
 		#Track data in listbox
 		self.listData={}
-
+		#Track item colours
+		self.colourDict={}
 		#Add a scrollbar
 		self.scrollbar=Scrollbar(self)
 		self.scrollbar.pack(side=RIGHT,fill=Y)
@@ -597,9 +598,14 @@ class advancedListbox(Listbox):
 		self.insert(END,text)
 
 		#Change colour
-		colour=generateHexColour()
-		if "colour" in kwargs:
-			colour=kwargs["colour"]
+		if text not in self.colourDict:
+			colour=generateHexColour()
+			if "colour" in kwargs:
+				colour=kwargs["colour"]
+			self.colourDict[text]=colour
+		else:
+			colour=self.colourDict[text]
+
 		self.itemconfig(END,bg=colour)
 
 		#Change FG
@@ -718,15 +724,15 @@ class searchListbox(advancedListbox):
 		The command that is executed when the user begins to type
 		in the search source
 		"""
+		#Colect data
 		target=getData(self.searchSource)
 		dataSource=self.listData
 		results=[]
+		#Check though self data
 		for item in dataSource:
 			if advancedSearch(target,item):
-				print("SUCCESS in",item,"searching for",target)
 				results.append(item)
-
-		print(results)
+		#Add results
 		self.delete(0,END)
 		self.addCertain(results)
 class titleLabel(mainLabel):
