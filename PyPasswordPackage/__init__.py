@@ -307,23 +307,24 @@ genPasswordEntry=Entry(genPasswordCenter,width=25)
 genPasswordEntry.pack()
 
 #Sliders
-genPasswordLengthSlider=advancedSlider(genPasswordCenter,"Length")
+
+genPasswordLengthSlider=advancedSlider(genPasswordCenter,"Length",from_=5,to=50,value=10)
 genPasswordLengthSlider.pack(pady=6)
 
-genPasswordSymbolSlider=advancedSlider(genPasswordCenter,"Symbols")
+genPasswordSymbolSlider=advancedSlider(genPasswordCenter,"Symbols",from_=5,to=50,value=10)
 genPasswordSymbolSlider.pack(pady=6)
 
-genPasswordDigitSlider=advancedSlider(genPasswordCenter,"Digits")
+genPasswordDigitSlider=advancedSlider(genPasswordCenter,"Digits",from_=5,to=50,value=10)
 genPasswordDigitSlider.pack(pady=6)
 
 #Buttons
 genPasswordButtonFrame=mainFrame(genPasswordCenter)
 genPasswordButtonFrame.pack(pady=15)
 
-genPasswordCopyButton=Button(genPasswordButtonFrame,text="Copy",width=12)
+genPasswordCopyButton=mainButton(genPasswordButtonFrame,text="Copy",width=12)
 genPasswordCopyButton.grid(row=0,column=0)
 
-genPasswordRegenerateButton=Button(genPasswordButtonFrame,text="Regenerate",width=12)
+genPasswordRegenerateButton=mainButton(genPasswordButtonFrame,text="Regenerate",width=12)
 genPasswordRegenerateButton.grid(row=0,column=1)
 #endregion
 #===============================(FUNCTIONS)===============================

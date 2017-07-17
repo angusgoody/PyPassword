@@ -1086,22 +1086,50 @@ class advancedSlider(mainFrame):
 	"""
 	def __init__(self,parent,text,*extra,**kwargs):
 		mainFrame.__init__(self,parent)
+
+		#Important
 		self.text=text
 		self.outputVar=StringVar()
+		self.commands=[]
 
+		#UI
 		self.label=mainLabel(self,text=self.text)
 		self.label.pack()
 
 		self.sliderContainer=mainFrame(self)
 		self.sliderContainer.pack()
 
-		self.slider=ttk.Scale(self.sliderContainer,length=150)
+		self.slider=ttk.Scale(self.sliderContainer,length=150,**kwargs)
 		self.slider.grid(row=0,column=0)
 
-		self.outputLabel=mainLabel(self.sliderContainer,textvariable=self.outputVar)
+		self.outputLabel=mainLabel(self.sliderContainer,textvariable=self.outputVar,width=5)
 		self.outputLabel.grid(row=0,column=1)
 
+		#Adds command run
+		self.slider.config(command=self.run)
+	def addCommand(self,command):
+		"""
+		Will add a command to the list to execute
+		when slider moves
+		"""
+		if command not in self.commands:
+			self.commands.append(command)
 
+	def run(self,value):
+		"""
+		THis is the method called every time the slider
+		moves
+		"""
+
+		value=round(float(value))
+		#Run the commands
+		for command in self.commands:
+			try:
+				command()
+			except:
+				log.report("Error running command","(Slider)",tag="Error",system=True)
+		#Update label
+		self.outputVar.set(value)
 
 #==============TEST==============
 
