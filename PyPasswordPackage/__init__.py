@@ -303,18 +303,18 @@ genPasswordFrame.pack(expand=True,fill=BOTH)
 genPasswordCenter=genPasswordFrame.miniFrame
 
 #Entry
-genPasswordEntry=Entry(genPasswordCenter,width=25)
+genPasswordEntry=Entry(genPasswordCenter,width=30,justify=CENTER,font="Arial 13")
 genPasswordEntry.pack()
 
 #Sliders
 
-genPasswordLengthSlider=advancedSlider(genPasswordCenter,"Length",from_=5,to=50,value=10)
+genPasswordLengthSlider=advancedSlider(genPasswordCenter,"Length",from_=5,to=50,value=random.randint(5,50))
 genPasswordLengthSlider.pack(pady=6)
 
-genPasswordSymbolSlider=advancedSlider(genPasswordCenter,"Symbols",from_=5,to=50,value=10)
+genPasswordSymbolSlider=advancedSlider(genPasswordCenter,"Symbols",from_=0,to=20,value=random.randint(0,20))
 genPasswordSymbolSlider.pack(pady=6)
 
-genPasswordDigitSlider=advancedSlider(genPasswordCenter,"Digits",from_=5,to=50,value=10)
+genPasswordDigitSlider=advancedSlider(genPasswordCenter,"Digits",from_=0,to=20,value=random.randint(0,20))
 genPasswordDigitSlider.pack(pady=6)
 
 #Buttons
@@ -322,10 +322,13 @@ genPasswordButtonFrame=mainFrame(genPasswordCenter)
 genPasswordButtonFrame.pack(pady=15)
 
 genPasswordCopyButton=mainButton(genPasswordButtonFrame,text="Copy",width=12)
-genPasswordCopyButton.grid(row=0,column=0)
+genPasswordCopyButton.grid(row=0,column=0,padx=3)
 
 genPasswordRegenerateButton=mainButton(genPasswordButtonFrame,text="Regenerate",width=12)
-genPasswordRegenerateButton.grid(row=0,column=1)
+genPasswordRegenerateButton.grid(row=0,column=1,padx=3)
+
+#Colour
+genPasswordScreen.colour("#285E95")
 #endregion
 #===============================(FUNCTIONS)===============================
 
@@ -572,6 +575,19 @@ def checkMasterPodDataValid(entryList,dataSource,popupInstance):
 				popupInstance.infoStringVar.set("Valid Name")
 				return True
 
+def genPassword():
+	"""
+	This function takes the values of all the sliders
+	and generates a password
+	"""
+	length=genPasswordLengthSlider.getValue()
+	digits=genPasswordDigitSlider.getValue()
+	symbols=genPasswordSymbolSlider.getValue()
+
+	password=generatePassword(length,symbols,digits)
+	insertEntry(genPasswordEntry,password)
+
+
 #=====Other Commands====
 
 def beginEdit(displayViewList):
@@ -669,7 +685,16 @@ def launchWebsite(url,podInstance):
 		except:
 			log.report("Error opening website",url,tag="Error")
 
-
+def copyPassword():
+	"""
+	This function will copy the password generated
+	to the clipboard
+	"""
+	if genPasswordEntry.get() != None:
+		addDataToClipboard(genPasswordEntry.get())
+		log.report("Added generated password to clipboard","(Copy)")
+	else:
+		askMessage("Empty","No password to generate")
 
 #=====POPUP COMMANDS====
 """
@@ -820,6 +845,15 @@ viewPodCancelButton.config(command=lambda:cancelEdit([viewPodBasicSection,viewPo
 viewPodSaveButton.config(command=lambda: overwritePodData([viewPodBasicSection,viewPodAdvancedSection]))
 viewPodDeleteButton.config(command=lambda: deletePod(masterPod.currentDataPod))
 viewPodAdvancedWebsiteSection.addButtonCommand("Launch",lambda:launchWebsite(viewPodAdvancedWebsiteSection.data.get(),masterPod.currentDataPod))
+#=====GEN PASSWORD SCREEN=====
+genPasswordRegenerateButton.config(command=genPassword)
+genPasswordCopyButton.config(command=copyPassword)
+#===============================(SLIDERS)===============================
+
+#=====GEN PASSWORD SCREEN=====
+genPasswordLengthSlider.addCommand(genPassword)
+genPasswordSymbolSlider.addCommand(genPassword)
+genPasswordDigitSlider.addCommand(genPassword)
 
 #===============================(BINDINGS)===============================
 
@@ -854,6 +888,7 @@ viewMenu.add_command(label="Show Log",command=lambda: logScreen.show())
 
 #===============================(INITIALISER)===============================
 loadFilesInDirectory()
+genPassword()
 #===============================(TESTING AREA)===============================
 
 #===============================(END)===============================

@@ -47,6 +47,11 @@ def addUIWindow(window):
 	"""
 	mainWindow=window
 
+def addDataToClipboard(data):
+	if mainWindow != None:
+		mainWindow.clipboard_clear()
+		mainWindow.clipboard_append(data)
+		log.report("Added data to clipboard","(Func)")
 #==============LOG CLASS==============
 
 class logClass():
@@ -901,9 +906,7 @@ class hiddenDataSection(dataSection):
 		clipboard
 		"""
 		if mainWindow != None:
-			mainWindow.clipboard_clear()
-			mainWindow.clipboard_append(self.data.get())
-			log.report("Added data to clipboard","(Hidden data entry)")
+			addDataToClipboard(self.data.get())
 
 class multiView(mainFrame):
 	"""
@@ -1085,6 +1088,7 @@ class advancedSlider(mainFrame):
 	a label kwarg which adds a label to the widget
 	"""
 	def __init__(self,parent,text,*extra,**kwargs):
+
 		mainFrame.__init__(self,parent)
 
 		#Important
@@ -1105,8 +1109,12 @@ class advancedSlider(mainFrame):
 		self.outputLabel=mainLabel(self.sliderContainer,textvariable=self.outputVar,width=5)
 		self.outputLabel.grid(row=0,column=1)
 
+		#Update label
+		self.outputVar.set(self.getValue())
+
 		#Adds command run
 		self.slider.config(command=self.run)
+
 	def addCommand(self,command):
 		"""
 		Will add a command to the list to execute
@@ -1131,6 +1139,8 @@ class advancedSlider(mainFrame):
 		#Update label
 		self.outputVar.set(value)
 
+	def getValue(self):
+		return int(float(self.slider.get()))
 #==============TEST==============
 
 class advancedNotebook(mainFrame):
