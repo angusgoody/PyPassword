@@ -198,6 +198,7 @@ homeTopFrame.pack(side=TOP,fill=BOTH)
 homeTopLabelVar=StringVar()
 homeTopLabel=topStrip(homeTopFrame,homeTopLabelVar)
 homeTopLabel.pack(side=TOP,fill=X)
+
 #Main view
 homeMainFrame=mainFrame(homeScreen)
 homeMainFrame.pack(expand=True,fill=BOTH)
@@ -305,6 +306,9 @@ genPasswordCenter=genPasswordFrame.miniFrame
 #Entry
 genPasswordEntry=Entry(genPasswordCenter,width=30,justify=CENTER,font="Arial 13")
 genPasswordEntry.pack()
+
+#Strength progress bar
+
 
 #Sliders
 

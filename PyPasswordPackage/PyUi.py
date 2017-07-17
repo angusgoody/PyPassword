@@ -353,120 +353,7 @@ class mainButton(Button):
 		Button.__init__(self,parent,kwargs)
 		self.config(relief=FLAT)
 
-class advancedListbox(Listbox):
-	"""
-	The advanced Listbox is based on
-	the listbox class and adds more functionality
-	and makes it easier to track elements
-	"""
-	def __init__(self,parent,**kwargs):
-		Listbox.__init__(self,parent,**kwargs)
 
-		#Track data in listbox
-		self.listData={}
-
-		#Add a scrollbar
-		self.scrollbar=Scrollbar(self)
-		self.scrollbar.pack(side=RIGHT,fill=Y)
-
-		self.scrollbar.config(command=self.yview)
-		self.config(yscrollcommand=self.scrollbar.set)
-
-	def addItem(self,textToDisplay,objectInstance,**kwargs):
-		"""
-		The add function allows an object
-		to be added to the listbox and display plain
-		text
-		"""
-		self.listData[textToDisplay]=objectInstance
-		self.insert(END,textToDisplay)
-
-		#Change colour
-		colour=generateHexColour()
-		if "colour" in kwargs:
-			colour=kwargs["colour"]
-		self.itemconfig(END,bg=colour)
-
-		#Change FG
-		try:
-			fgColour=getColourForBackground(colour)
-		except:
-			log.report("Error getting fg colour for",colour,tag="Error",system=True)
-		else:
-			self.itemconfig(END,fg=fgColour)
-
-	def addPodList(self,poDict):
-		"""
-		This method can add a dictionary of data
-		pods to the listbox
-		"""
-		self.fullClear()
-		for item in poDict:
-			self.addItem(item,poDict[item])
-
-	def getSelected(self):
-		"""
-		This method will attempt to return
-		the selected object
-		"""
-		index=0
-		try:
-			index =self.curselection()
-		except:
-			log.report("Method called on static listbox", "(Get Selected)", tag="error", system=True)
-		else:
-			try:
-				value=self.get(index)
-			except:
-				log.report("Error getting value from listbox", "(Get Selected)", tag="error", system=True)
-			else:
-				for item in self.listData:
-					if item == value:
-						return self.listData[item]
-
-	def fullClear(self):
-		"""
-		The clear method will delete
-		everything in the listbox and remove
-		from dictionary as well
-		"""
-		self.delete(0,END)
-		self.listData.clear()
-		log.report("Listbox has been cleared of data", "(FullClear)", system=True)
-
-	def removeItem(self,indicator,tempOrNot):
-		"""
-		This method will remove an item
-		from the listbox. The indicator is used
-		to identify the item to remove and tempOrNot 
-		determines the refrence from the dict or not.
-		"""
-		if indicator in self.listData:
-			deleteItemFromListbox(self,indicator)
-			#if not temp it removes reference from dict
-			if tempOrNot == False:
-				del self.listData[indicator]
-			log.report("Removed item from listbox",indicator)
-		else:
-			log.report("Unable to remove item from listbox not in dict",indicator)
-			print("Unable")
-
-	def updateItemLabel(self,oldName,newName):
-		for item in self.listData:
-			if item == oldName:
-				listData=self.listData[oldName]
-				self.removeItem(oldName,True)
-				self.addItem(newName,listData)
-				break
-
-	def addCommand(self,commandToRun):
-		"""
-		The add command method will allow
-		a command to be added to the listbox
-		which will execute a double click
-		or right click popup menu.
-		"""
-		pass
 
 class mainFrame(Frame):
 	"""
@@ -568,16 +455,6 @@ class mainLabel(Label):
 		else:
 			self.config(fg=getColourForBackground(currentColour))
 
-class titleLabel(mainLabel):
-	"""
-	The title label is a class
-	for displaying labels that
-	are important
-	"""
-	def __init__(self,parent,**kwargs):
-		mainLabel.__init__(self,parent,**kwargs)
-		self.config(font="Helvetica 17")
-
 class mainScreen(mainFrame):
 	"""
 	The mainScreen class is a class
@@ -623,6 +500,163 @@ class mainScreen(mainFrame):
 				self.parent.config(menu=self.mainMenu)
 			#Report to log
 			log.report("Showing screen",self.screenName,tag="Screen")
+
+#==============Non Master Classes==============
+
+class advancedListbox(Listbox):
+	"""
+	The advanced Listbox is based on
+	the listbox class and adds more functionality
+	and makes it easier to track elements
+	"""
+	def __init__(self,parent,**kwargs):
+		Listbox.__init__(self,parent,**kwargs)
+
+		#Track data in listbox
+		self.listData={}
+
+		#Add a scrollbar
+		self.scrollbar=Scrollbar(self)
+		self.scrollbar.pack(side=RIGHT,fill=Y)
+
+		self.scrollbar.config(command=self.yview)
+		self.config(yscrollcommand=self.scrollbar.set)
+
+	def addItem(self,textToDisplay,objectInstance,**kwargs):
+		"""
+		The add function allows an object
+		to be added to the listbox and display plain
+		text
+		"""
+		self.listData[textToDisplay]=objectInstance
+		self.insert(END,textToDisplay)
+
+		#Change colour
+		colour=generateHexColour()
+		if "colour" in kwargs:
+			colour=kwargs["colour"]
+		self.itemconfig(END,bg=colour)
+
+		#Change FG
+		try:
+			fgColour=getColourForBackground(colour)
+		except:
+			log.report("Error getting fg colour for",colour,tag="Error",system=True)
+		else:
+			self.itemconfig(END,fg=fgColour)
+
+	def addPodList(self,poDict):
+		"""
+		This method can add a dictionary of data
+		pods to the listbox
+		"""
+		self.fullClear()
+		for item in poDict:
+			self.addItem(item,poDict[item])
+
+	def getSelected(self):
+		"""
+		This method will attempt to return
+		the selected object
+		"""
+		index=0
+		try:
+			index =self.curselection()
+		except:
+			log.report("Method called on static listbox", "(Get Selected)", tag="error", system=True)
+		else:
+			try:
+				value=self.get(index)
+			except:
+				log.report("Error getting value from listbox", "(Get Selected)", tag="error", system=True)
+			else:
+				for item in self.listData:
+					if item == value:
+						return self.listData[item]
+
+	def fullClear(self):
+		"""
+		The clear method will delete
+		everything in the listbox and remove
+		from dictionary as well
+		"""
+		self.delete(0,END)
+		self.listData.clear()
+		log.report("Listbox has been cleared of data", "(FullClear)", system=True)
+
+	def removeItem(self,indicator,tempOrNot):
+		"""
+		This method will remove an item
+		from the listbox. The indicator is used
+		to identify the item to remove and tempOrNot
+		determines the refrence from the dict or not.
+		"""
+		if indicator in self.listData:
+			deleteItemFromListbox(self,indicator)
+			#if not temp it removes reference from dict
+			if tempOrNot == False:
+				del self.listData[indicator]
+			log.report("Removed item from listbox",indicator)
+		else:
+			log.report("Unable to remove item from listbox not in dict",indicator)
+			print("Unable")
+
+	def updateItemLabel(self,oldName,newName):
+		for item in self.listData:
+			if item == oldName:
+				listData=self.listData[oldName]
+				self.removeItem(oldName,True)
+				self.addItem(newName,listData)
+				break
+
+	def addCommand(self,commandToRun):
+		"""
+		The add command method will allow
+		a command to be added to the listbox
+		which will execute a double click
+		or right click popup menu.
+		"""
+		pass
+
+	def getSelf(self):
+		return self
+
+class searchListbox(advancedListbox):
+	"""
+	This class will be a modified advancedListbox
+	that will have a built in search bar that will
+	search through its own data source and return results
+	to itself
+	"""
+	def __init__(self,parent,**kwargs):
+		advancedListbox.__init__(self,parent,**kwargs)
+		self.searchSource=None
+
+	def addSearchWidget(self,widget):
+		"""
+		This function will allow a search
+		entry to be added to the class which
+		will control all of the searching functions
+		"""
+		self.searchSource=widget
+		widget.bind("<KeyRelease>",lambda event:self.search())
+		log.report("Added a search source to widget","(Search Listbox)")
+
+	def search(self):
+		"""
+		The command that is executed when the user begins to type
+		in the search source
+		"""
+		dataToFind=getData(self.searchSource)
+class titleLabel(mainLabel):
+	"""
+	The title label is a class
+	for displaying labels that
+	are important
+	"""
+	def __init__(self,parent,**kwargs):
+		mainLabel.__init__(self,parent,**kwargs)
+		self.config(font="Helvetica 17")
 
 class displayView(mainFrame):
 	"""
