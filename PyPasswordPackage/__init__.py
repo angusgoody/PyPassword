@@ -199,11 +199,18 @@ homeTopLabelVar=StringVar()
 homeTopLabel=topStrip(homeTopFrame,homeTopLabelVar)
 homeTopLabel.pack(side=TOP,fill=X)
 
+#Search Frame
+homeSearchFrame=mainFrame(homeTopFrame)
+homeSearchFrame.pack(fill=X)
+
+homeSearchEntry=Entry(homeSearchFrame,justify=CENTER)
+homeSearchEntry.pack(fill=X)
 #Main view
 homeMainFrame=mainFrame(homeScreen)
 homeMainFrame.pack(expand=True,fill=BOTH)
 
-homePodListbox=advancedListbox(homeMainFrame,font="Arial 18")
+homePodListbox=searchListbox(homeMainFrame,font="Arial 18")
+homePodListbox.addSearchWidget(homeSearchEntry)
 homePodListbox.pack(expand=True,fill=BOTH)
 
 #Bottom View
@@ -424,7 +431,7 @@ def openOtherMasterPod():
 			pod=masterPod(os.path.basename(directory))
 			pod.addDirectory(directory)
 			#Adds to listbox and removes extension
-			openMainListbox.addItem(pod.getRootName(),pod)
+			openMainListbox.addObject(pod.getRootName(), pod)
 
 
 #=====Button Commands====
@@ -508,7 +515,7 @@ def loadFilesInDirectory():
 		pod=masterPod(item)
 		pod.addDirectory(filesFound[item])
 		#Adds to listbox and removes extension
-		openMainListbox.addItem(pod.getRootName(),pod)
+		openMainListbox.addObject(pod.getRootName(), pod)
 
 #=====QUICK RUN Loaders====
 """
@@ -720,7 +727,7 @@ def initiatePod(popupInstance):
 		#Create pod with that name
 		pd=masterPod.currentMasterPod.addPod(single)
 		#Add to listbox
-		homePodListbox.addItem(single,pd)
+		homePodListbox.addObject(single, pd)
 		#Save data
 		masterPod.currentMasterPod.save()
 		#Display the screen
@@ -785,7 +792,7 @@ def initiateMasterPod(popupInstance):
 		newPod=masterPod(fileName)
 		newPod.addKey(podPassword)
 		newPod.save()
-		openMainListbox.addItem(podName,newPod)
+		openMainListbox.addObject(podName, newPod)
 
 def createNewMasterPodPopup():
 	"""

@@ -22,7 +22,6 @@ import random
 import datetime
 from tkinter import messagebox
 from tkinter import filedialog
-
 #Variable for TK windows
 mainWindow=None
 
@@ -52,7 +51,7 @@ class logClass():
 		self.defaultTree=None
 		self.systemTree=None
 
-	def report(self,message,variable,*extra,**kwargs):
+	def report(self,message,*extra,**kwargs):
 		"""
 		The report method is the main
 		method that is called to report
@@ -62,7 +61,6 @@ class logClass():
 		"""
 		#Gether message
 		message=message+" "
-		message+=str(variable)
 		system=False
 		if len(extra) > 0:
 			for item in extra:
@@ -120,6 +118,7 @@ class logClass():
 
 log=logClass("UI")
 
+import PEM
 
 #==================================(FUNCTIONS)=============================
 
@@ -337,6 +336,65 @@ def askForFile():
 		if directory != None:
 			return directory
 
+def advancedSearch(target, dataToSearch):
+	"""
+	This function is the actual search
+	function and will recursivley search and return
+	True or False
+	"""
+	#Setup
+	target=str(target)
+	target=target.upper()
+
+	#If string passed to function convert to array
+	if type(dataToSearch) == str:
+		dataToSearch=[dataToSearch]
+
+
+	#Iterate through all data
+	for item in dataToSearch:
+
+		#If data source is dictionary
+		if type(dataToSearch) == dict:
+			if advancedSearch(target,dataToSearch[item]):
+				return True
+
+		#Get data type
+		try:
+			dataType=type(item)
+		except:
+			log.report("Error converting data type to search",tag="error",system=True)
+		else:
+
+			#If data is number or float
+			if dataType == int or dataType == float:
+				item=str(item)
+				dataType=type(item)
+
+			#If data is simple string
+			if dataType == str:
+				if target in item.upper():
+					return True
+			#If data is list
+			elif dataType == list:
+				for section in item:
+					if advancedSearch(target, [section]):
+						return True
+			#If data is dictionary
+			elif dataType == dict:
+				for section in item:
+					if advancedSearch(target, section):
+						return True
+					dataInSection=item[section]
+					if advancedSearch(target, [dataInSection]):
+						return True
+			#If data is a student class
+			elif dataType == PEM.dataPod:
+				data=item.getInfo()
+				if advancedSearch(target, data):
+					return True
+
+	return False
 #==================================(CLASSES)=============================
 
 
@@ -522,14 +580,21 @@ class advancedListbox(Listbox):
 		self.scrollbar.config(command=self.yview)
 		self.config(yscrollcommand=self.scrollbar.set)
 
-	def addItem(self,textToDisplay,objectInstance,**kwargs):
+	def addObject(self, textToDisplay, objectInstance, **kwargs):
 		"""
 		The add function allows an object
 		to be added to the listbox and display plain
 		text
 		"""
 		self.listData[textToDisplay]=objectInstance
-		self.insert(END,textToDisplay)
+		self.addItem(textToDisplay,**kwargs)
+
+	def addItem(self,text,**kwargs):
+		"""
+		The method that actuall adds the data
+		to the UI and generates a colour
+		"""
+		self.insert(END,text)
 
 		#Change colour
 		colour=generateHexColour()
@@ -552,7 +617,7 @@ class advancedListbox(Listbox):
 		"""
 		self.fullClear()
 		for item in poDict:
-			self.addItem(item,poDict[item])
+			self.addObject(item, poDict[item])
 
 	def getSelected(self):
 		"""
@@ -606,20 +671,26 @@ class advancedListbox(Listbox):
 			if item == oldName:
 				listData=self.listData[oldName]
 				self.removeItem(oldName,True)
-				self.addItem(newName,listData)
+				self.addObject(newName, listData)
 				break
 
-	def addCommand(self,commandToRun):
+	def addCertain(self,listToAdd):
 		"""
-		The add command method will allow
-		a command to be added to the listbox
-		which will execute a double click
-		or right click popup menu.
+		This method will take a list of text
+		and if the text is a valid indicator it will add it back
 		"""
-		pass
+		for item in listToAdd:
+			if item in self.listData:
+				self.addItem(item)
 
-	def getSelf(self):
-		return self
+	def restore(self):
+		"""
+		Will restore all the data that was in 
+		the pod list to the UI
+		"""
+		self.delete(0,END)
+		for item in self.listData:
+			self.insert(END,item)
 
 class searchListbox(advancedListbox):
 	"""
@@ -647,7 +718,17 @@ class searchListbox(advancedListbox):
 		The command that is executed when the user begins to type
 		in the search source
 		"""
-		dataToFind=getData(self.searchSource)
+		target=getData(self.searchSource)
+		dataSource=self.listData
+		results=[]
+		for item in dataSource:
+			if advancedSearch(target,item):
+				print("SUCCESS in",item,"searching for",target)
+				results.append(item)
+
+		print(results)
+		self.delete(0,END)
+		self.addCertain(results)
 class titleLabel(mainLabel):
 	"""
 	The title label is a class
