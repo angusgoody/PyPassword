@@ -21,7 +21,7 @@ from PEM import *
 #===============================(WINDOW SETUP)===============================
 window=Tk()
 window.title("PyPassword 2")
-window.geometry("400x300")
+window.geometry("500x400")
 addUIWindow(window)
 addPEMWindow(window)
 
@@ -352,6 +352,15 @@ genPasswordRegenerateButton.grid(row=0,column=1,padx=3)
 
 #--GenPassword Report---
 genPasswordReportFrame=mainFrame(genPasswordNotebook)
+
+genPasswordReportLabel=titleLabel(genPasswordReportFrame,text="Password Report")
+genPasswordReportLabel.pack(pady=5)
+
+genPasswordReportEntry=labelEntry(genPasswordReportFrame,width=30)
+genPasswordReportEntry.pack(pady=5)
+
+genPasswordReportTree=advancedTree(genPasswordReportFrame)
+genPasswordReportTree.pack(expand=True,fill=BOTH)
 
 #Add to notebook
 genPasswordNotebook.addView(genPasswordFrame,"Generate")

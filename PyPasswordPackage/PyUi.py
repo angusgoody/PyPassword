@@ -1367,7 +1367,7 @@ class advancedNotebook(mainFrame):
 		self.topBar=centerFrame(self)
 		self.topSub=self.topBar.miniFrame
 		self.topBar.pack(side=TOP,fill=X)
-		self.topBar.colour("#B9BEBD")
+		self.topBar.colour("#C5CDCD")
 
 		self.views={}
 		self.labelDict={}
@@ -1450,4 +1450,19 @@ class advancedNotebook(mainFrame):
 				currentLabel.unbind("<Enter>")
 				currentLabel.unbind("<Leave>")
 
+class advancedTree(ttk.Treeview):
+	"""
+	This is a modified tree view
+	which will make it easier to do
+	the basic operations and auto add
+	scroll bar etc.
+	"""
+	def __init__(self,parent,**kwargs):
+		ttk.Treeview.__init__(self,parent)
 
+		#Add the scrollbar
+		self.scroll=Scrollbar(self)
+		self.scroll.pack(side=RIGHT,fill=Y)
+
+		self.scroll.config(command=self.yview)
+		self.config(yscrollcommand=self.scroll.set)
