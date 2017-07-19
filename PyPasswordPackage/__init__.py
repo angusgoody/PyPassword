@@ -698,6 +698,33 @@ def genPassword():
 		genPasswordEntry.updateLabel("Weak Password")
 	#Add the password to entry
 	insertEntry(genPasswordEntry,password)
+	#Review the password
+	insertEntry(genPasswordReportEntry,password)
+	reviewPassword()
+
+def reviewPassword():
+	"""
+	This function is used to review a password
+	using the strength function and give feedback to the user
+	"""
+	#Collect data
+	data=genPasswordReportEntry.get()
+	strength=calculatePasswordStrength(data)
+	#Clear tree
+	genPasswordReportTree.delete(*genPasswordReportTree.get_children())
+	resultDict={True:"Incomplete",False:"Complete"}
+	#Add data to tree
+	for item in strength[3]:
+		value=strength[3][item]
+		#If good or bad
+		tag="Fail"
+		if value:
+			tag="Fail"
+		else:
+			tag="Pass"
+		genPasswordReportTree.insertData((item,resultDict[value]),(tag))
+	#Update label
+	genPasswordReportEntry.updateLabel(str(strength[0])+"/"+str(strength[2])+" complete")
 
 
 #=====Other Commands====
@@ -808,27 +835,7 @@ def copyPassword():
 	else:
 		askMessage("Empty","No password to generate")
 
-def reviewPassword():
-	"""
-	This function is used to review a password
-	using the strength function and give feedback to the user
-	"""
-	#Collect data
-	data=genPasswordReportEntry.get()
-	strength=calculatePasswordStrength(data)
-	#Clear tree
-	genPasswordReportTree.delete(*genPasswordReportTree.get_children())
-	resultDict={True:"Incomplete",False:"Complete"}
-	#Add data
-	for item in strength[3]:
-		value=strength[3][item]
-		#If good or bad
-		tag="Fail"
-		if value:
-			tag="Fail"
-		else:
-			tag="Pass"
-		genPasswordReportTree.insertData((item,resultDict[value]),(tag))
+
 #=====POPUP COMMANDS====
 """
 Popup commands are all the commands associated

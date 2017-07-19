@@ -1336,7 +1336,7 @@ class labelEntry(mainFrame):
 
 		#Create label
 		self.dataVar=StringVar()
-		self.dataLabel=mainLabel(self,textvariable=self.dataVar,font="Helvetica 9")
+		self.dataLabel=mainLabel(self,textvariable=self.dataVar,font="Helvetica 10")
 		self.dataLabel.pack()
 
 	def insert(self,data):
