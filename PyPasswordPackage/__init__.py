@@ -372,7 +372,7 @@ genPasswordReportBottomFrame=centerFrame(genPasswordReportFrame)
 genPasswordReportBottomFrame.pack(side=BOTTOM,fill=X)
 genPasswordReportBottomSub=genPasswordReportBottomFrame.miniFrame
 
-genPasswordReportCopyButton=Button(genPasswordReportBottomSub,text="Copy",width=15)
+genPasswordReportCopyButton=mainButton(genPasswordReportBottomSub,text="Copy",width=15)
 genPasswordReportCopyButton.pack()
 
 #Add to notebook
