@@ -708,6 +708,7 @@ class searchListbox(advancedListbox):
 	def __init__(self,parent,**kwargs):
 		advancedListbox.__init__(self,parent,**kwargs)
 		self.searchSource=None
+		self.searchNumber=0
 
 	def addSearchWidget(self,widget):
 		"""
@@ -732,9 +733,14 @@ class searchListbox(advancedListbox):
 		for item in dataSource:
 			if advancedSearch(target,item):
 				results.append(item)
-		#Add results
-		self.delete(0,END)
-		self.addCertain(results)
+
+		#This if statement makes sure same data is reloaded
+		if len(results) != self.searchNumber:
+			if len(results) > 0:
+				self.searchNumber=len(results)
+				#Add results
+				self.delete(0,END)
+				self.addCertain(results)
 class titleLabel(mainLabel):
 	"""
 	The title label is a class
