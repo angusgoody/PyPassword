@@ -353,7 +353,7 @@ genPasswordRegenerateButton.grid(row=0,column=1,padx=3)
 #--GenPassword Report---
 genPasswordReportFrame=mainFrame(genPasswordNotebook)
 
-genPasswordReportLabel=titleLabel(genPasswordReportFrame,text="Password Report")
+genPasswordReportLabel=titleLabel(genPasswordReportFrame,text="Password Review")
 genPasswordReportLabel.pack(pady=5)
 
 genPasswordReportEntry=labelEntry(genPasswordReportFrame,width=30,justify=CENTER)
@@ -1015,6 +1015,7 @@ openMainListbox.bind("<Return>", lambda event: openMasterPod())
 openMasterEntry.bind("<Return>", lambda event: unlockMasterPod())
 #=====HOME SCREEN=====
 homePodListbox.bind("<Double-Button-1>", lambda event: getSelectedDataPod())
+
 #=====GEN PASSWORD SCREEN=====
 genPasswordReportEntry.entry.bind("<KeyRelease>",lambda event: reviewPassword())
 #===============================(MENU CASCADES)===============================

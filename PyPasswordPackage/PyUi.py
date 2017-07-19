@@ -557,6 +557,9 @@ class mainScreen(mainFrame):
 		#Get menu to use with screen
 		self.mainMenu=kwargs.get("menu")
 
+		#Store commands
+		self.commands=[]
+
 	def show(self):
 		"""
 		The show method that will display
@@ -577,8 +580,24 @@ class mainScreen(mainFrame):
 			#Update menu
 			if self.mainMenu != None:
 				self.parent.config(menu=self.mainMenu)
+
 			#Report to log
 			log.report("Showing screen",self.screenName,tag="Screen")
+			#Run commands
+			for item in self.commands:
+				try:
+					item()
+				except:
+					log.report("Error running screen command",tag="Error")
+					try:
+						item
+					except:
+						pass
+
+
+
+	def addCommand(self,command):
+		self.commands.append(command)
 
 #==============Non Master Classes==============
 
