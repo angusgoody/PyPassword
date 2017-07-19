@@ -163,7 +163,8 @@ def insertEntry(entry,message):
 	elif type(entry) == Text:
 		entry.delete("1.0",END)
 		entry.insert("1.0",message)
-
+	elif type(entry) == labelEntry:
+		insertEntry(entry.entry,message)
 def getData(dataSource):
 	"""
 	This function will get data from a number
@@ -284,7 +285,7 @@ def recursiveChangeColour(parent,colour,fgColour):
 		else:
 			try:
 				#Certain widgets need diffrent attention
-				if parent.winfo_class() in widgetArray:
+				if parentClass in widgetArray:
 						parent.config(highlightbackground=colour)
 				else:
 
@@ -298,7 +299,7 @@ def recursiveChangeColour(parent,colour,fgColour):
 						parent.config(bg=colour)
 
 				#Update labels so they show up on certain colours
-				if parent.winfo_class() == "Label":
+				if parentClass == "Label":
 					parent.changeColour(getColourForBackground(colour))
 
 			except:
@@ -1309,6 +1310,47 @@ class advancedSlider(mainFrame):
 
 	def getValue(self):
 		return int(float(self.slider.get()))
+
+class labelEntry(mainFrame):
+	"""
+	This class will be an entry with a built in
+	label underneath to display a certain value
+	"""
+	def __init__(self,parent,**kwargs):
+
+		#Get title for object
+		self.title=None
+		if "title" in kwargs:
+			self.title=kwargs["title"]
+			kwargs.pop("title")
+		#Init
+		mainFrame.__init__(self,parent)
+
+		if self.title != None:
+			#Title label
+			self.titleLabel=titleLabel(self,text=self.title)
+			self.titleLabel.pack()
+
+		#Create entry
+		self.entry=Entry(self,**kwargs)
+		self.entry.pack()
+
+		#Create label
+		self.dataVar=StringVar()
+		self.dataLabel=mainLabel(self,textvariable=self.dataVar,font="Helvetica 9")
+		self.dataLabel.pack()
+
+	def insert(self,data):
+		insertEntry(self.entry,data)
+
+	def updateLabel(self,data):
+		self.dataVar.set(data)
+
+	def get(self):
+		return self.entry.get()
+
+	def changeColour(self,colour):
+		self.entry.config(bg=colour)
 #==============TEST==============
 
 class advancedNotebook(mainFrame):

@@ -320,7 +320,7 @@ genPasswordFrame.pack(expand=True,fill=BOTH)
 genPasswordCenter=genPasswordFrame.miniFrame
 
 #Entry
-genPasswordEntry=Entry(genPasswordCenter,width=30,justify=CENTER,font="Arial 13",text="Hi")
+genPasswordEntry=labelEntry(genPasswordCenter,width=30,justify=CENTER,font="Arial 13")
 genPasswordEntry.pack()
 
 #Sliders
@@ -660,11 +660,14 @@ def genPassword():
 	#Calculate password strength
 	strength=calculatePasswordStrength(password)
 	if strength[0] == strength[2]:
-		genPasswordEntry.config(bg="#A3EEA4")
+		genPasswordEntry.changeColour("#A3EEA4")
+		genPasswordEntry.updateLabel("Strong Password")
 	elif (strength[0]/strength[2])*100 > 50:
-		genPasswordEntry.config(bg="#ECD06D")
+		genPasswordEntry.changeColour("#ECD06D")
+		genPasswordEntry.updateLabel("Medium Password")
 	else:
-		genPasswordEntry.config(bg="#EC95A7")
+		genPasswordEntry.changeColour("#EC95A7")
+		genPasswordEntry.updateLabel("Weak Password")
 	#Add the password to entry
 	insertEntry(genPasswordEntry,password)
 
@@ -972,6 +975,5 @@ loadFilesInDirectory()
 genPassword()
 #===============================(TESTING AREA)===============================
 
-print(calculatePasswordStrength("""uZKZz0jyIAkslv[dbaa/n"}YQcMjqF<FPOmlITwU8Wg'H+L"""))
 #===============================(END)===============================
 window.mainloop()
