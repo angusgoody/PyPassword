@@ -175,6 +175,10 @@ def getData(dataSource):
 		return dataSource.get()
 	elif type(dataSource) == Text:
 		return dataSource.get("1.0",END)
+
+	#Custom
+	elif type(dataSource) == labelEntry:
+		return dataSource.entry.get()
 	else:
 		log.report("Not able to get data from",dataSource)
 

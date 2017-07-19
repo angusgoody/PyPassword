@@ -368,6 +368,12 @@ genPasswordReportTree.addSection("Report")
 genPasswordReportTree.addTag("Pass","#66CD84")
 genPasswordReportTree.addTag("Fail","#CD426C")
 
+genPasswordReportBottomFrame=centerFrame(genPasswordReportFrame)
+genPasswordReportBottomFrame.pack(side=BOTTOM,fill=X)
+genPasswordReportBottomSub=genPasswordReportBottomFrame.miniFrame
+
+genPasswordReportCopyButton=Button(genPasswordReportBottomSub,text="Copy",width=15)
+genPasswordReportCopyButton.pack()
 
 #Add to notebook
 genPasswordNotebook.addView(genPasswordFrame,"Generate")
@@ -824,16 +830,17 @@ def launchWebsite(url,podInstance):
 		except:
 			log.report("Error opening website",url,tag="Error")
 
-def copyPassword():
+def copyPassword(entry):
 	"""
 	This function will copy the password generated
 	to the clipboard
 	"""
-	if genPasswordEntry.get() != None:
-		addDataToClipboard(genPasswordEntry.get())
-		log.report("Added generated password to clipboard","(Copy)")
+	data=getData(entry)
+	if data != None:
+		addDataToClipboard(data)
+		log.report("Added data to clipboard","(Copy)")
 	else:
-		askMessage("Empty","No password to generate")
+		askMessage("Empty","No data to copy")
 
 
 #=====POPUP COMMANDS====
@@ -987,7 +994,9 @@ viewPodDeleteButton.config(command=lambda: deletePod(masterPod.currentDataPod))
 viewPodAdvancedWebsiteSection.addButtonCommand("Launch",lambda:launchWebsite(viewPodAdvancedWebsiteSection.data.get(),masterPod.currentDataPod))
 #=====GEN PASSWORD SCREEN=====
 genPasswordRegenerateButton.config(command=genPassword)
-genPasswordCopyButton.config(command=copyPassword)
+genPasswordCopyButton.config(command=lambda e=genPasswordEntry:copyPassword(e))
+genPasswordReportCopyButton.config(command=lambda e=genPasswordReportEntry:copyPassword(e))
+
 #===============================(SLIDERS)===============================
 
 #=====GEN PASSWORD SCREEN=====
