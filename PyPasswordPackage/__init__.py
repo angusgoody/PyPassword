@@ -311,10 +311,15 @@ viewPodScreen.colour("#4B5E9C")
 #endregion
 
 #--Generate Password Screen---
+
 #region genPassword
 genPasswordScreen=mainScreen(window,"Generate Password",statusVar)
 
-genPasswordFrame=centerFrame(genPasswordScreen)
+genPasswordNotebook=advancedNotebook(genPasswordScreen,select="#DA2E63")
+genPasswordNotebook.pack(expand=True,fill=BOTH)
+
+#--GenPassword Main---
+genPasswordFrame=centerFrame(genPasswordNotebook)
 genPasswordFrame.pack(expand=True,fill=BOTH)
 
 genPasswordCenter=genPasswordFrame.miniFrame
@@ -344,9 +349,16 @@ genPasswordCopyButton.grid(row=0,column=0,padx=3)
 genPasswordRegenerateButton=mainButton(genPasswordButtonFrame,text="Regenerate",width=12)
 genPasswordRegenerateButton.grid(row=0,column=1,padx=3)
 
-#Colour
+
+#--GenPassword Report---
+genPasswordReportFrame=mainFrame(genPasswordNotebook)
+
+#Add to notebook
+genPasswordNotebook.addView(genPasswordFrame,"Generate")
+genPasswordNotebook.addView(genPasswordReportFrame,"Review")
+
 #Closest match is #E7E7E7
-genPasswordScreen.colour("#E7E7E7")
+genPasswordFrame.colour("#E7E7E7")
 #endregion
 #===============================(FUNCTIONS)===============================
 

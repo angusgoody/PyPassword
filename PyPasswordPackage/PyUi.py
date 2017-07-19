@@ -768,15 +768,14 @@ class searchListbox(advancedListbox):
 
 		#This if statement makes sure same data is reloaded
 		if len(results) != self.searchNumber:
-			if len(results) > 0:
-				self.searchNumber=len(results)
-				#Add results to self
-				self.delete(0,END)
-				self.addCertain(results)
-				#Update label
-				if len(self.resultList) > 0:
-					for item in self.resultList:
-						item.set("Results: "+str(len(results)))
+			self.searchNumber=len(results)
+			#Add results to self
+			self.delete(0,END)
+			self.addCertain(results)
+			#Update label
+			if len(self.resultList) > 0:
+				for item in self.resultList:
+					item.set("Results: "+str(len(results)))
 class titleLabel(mainLabel):
 	"""
 	The title label is a class
@@ -1379,7 +1378,9 @@ class advancedNotebook(mainFrame):
 		#Colour variables
 		self.selectColour="#FFFFFF"
 		self.selectFG="#000000"
+
 		self.notSelected="#98A5AA"
+		self.notSelectedFG=getColourForBackground(self.notSelected)
 		self.notSelectedHover="#AFBCC2"
 
 		#Get a select colour from kwargs
@@ -1430,7 +1431,8 @@ class advancedNotebook(mainFrame):
 					#Hide frame
 					self.views[currentViewName].pack_forget()
 					#Update label
-					self.labelDict[currentViewName].config(bg=self.notSelected)
+					self.labelDict[currentViewName].config(bg=self.notSelected,fg=self.notSelectedFG)
+
 					#Remove old bindings
 					currentLabel=self.labelDict[currentViewName]
 					currentLabel.bind("<Enter>",lambda event,lab=currentLabel: lab.config(bg=self.notSelectedHover))
