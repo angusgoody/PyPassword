@@ -603,6 +603,7 @@ def calculatePasswordStrength(password):
 		1 symbol or more
 		1 uppercase letter or more
 		1 lowercase letter or more
+	a false result means it passed
 	"""
 
 	# calculating the length
@@ -623,14 +624,27 @@ def calculatePasswordStrength(password):
 	# overall result
 	overall = not ( length_error or digit_error or uppercase_error or lowercase_error or symbol_error )
 
-	return {
-		'Overall Password' : overall,
+	results={
 		'Length Error' : length_error,
 		'Digit Error' : digit_error,
 		'UppperCase Error' : uppercase_error,
 		'Lowercase Error' : lowercase_error,
 		'Symbol Error' : symbol_error,
 	}
+
+	#Track number of fails and pass
+	fails=0
+	success=0
+	fields=len(results)
+	for item in results:
+		if results[item]:
+			fails+=1
+		else:
+			success+=1
+	#Return results
+
+	return success,fails,fields,results
+
 
 def genPassword():
 	"""
@@ -645,7 +659,12 @@ def genPassword():
 	password=generatePassword(length,symbols,digits)
 	#Calculate password strength
 	strength=calculatePasswordStrength(password)
-
+	if strength[0] == strength[2]:
+		genPasswordEntry.config(bg="#A3EEA4")
+	elif (strength[0]/strength[2])*100 > 50:
+		genPasswordEntry.config(bg="#ECD06D")
+	else:
+		genPasswordEntry.config(bg="#EC95A7")
 	#Add the password to entry
 	insertEntry(genPasswordEntry,password)
 
