@@ -164,7 +164,7 @@ openMasterMainFrame=centerFrame(openMasterDisplay)
 openMasterSub=openMasterMainFrame.miniFrame
 
 mainLabel(openMasterSub,text="Enter password").pack()
-openMasterEntry=Entry(openMasterSub,show="•",justify=CENTER)
+openMasterEntry=Entry(openMasterSub,show="•",justify=CENTER,width=25)
 openMasterEntry.pack()
 
 #--Bottom Section--
@@ -534,6 +534,7 @@ def addBasicPodDataToScreen(podInstance, displayList):
 				if item in podVault:
 					#Add to the correct entry
 					display.sectionDict[item].addData(podVault[item])
+
 
 #=====Initialiser Commands====
 

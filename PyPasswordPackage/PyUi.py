@@ -614,6 +614,12 @@ class advancedListbox(Listbox):
 		self.listData={}
 		#Track item colours
 		self.colourDict={}
+
+		#Track number of items in listbox
+		self.numberOfItems=0
+		#Keep status vars
+		self.labelVarList=[]
+
 		#Add a scrollbar
 		self.scrollbar=Scrollbar(self)
 		self.scrollbar.pack(side=RIGHT,fill=Y)
@@ -656,6 +662,10 @@ class advancedListbox(Listbox):
 		else:
 			self.itemconfig(END,fg=fgColour)
 
+		#Update the label
+		self.updateVars("Results: "+str(len(self.get(0,END))))
+
+
 	def addPodList(self,poDict):
 		"""
 		This method can add a dictionary of data
@@ -684,6 +694,10 @@ class advancedListbox(Listbox):
 				for item in self.listData:
 					if item == value:
 						return self.listData[item]
+
+	def updateVars(self,data):
+		for item in self.labelVarList:
+			item.set(data)
 
 	def fullClear(self):
 		"""
@@ -738,6 +752,13 @@ class advancedListbox(Listbox):
 		for item in self.listData:
 			self.insert(END,item)
 
+	def clear(self):
+		self.delete(0,END)
+
+	def addLabelVar(self,source):
+		if source not in self.labelVarList:
+			self.labelVarList.append(source)
+
 class searchListbox(advancedListbox):
 	"""
 	This class will be a modified advancedListbox
@@ -748,9 +769,8 @@ class searchListbox(advancedListbox):
 	def __init__(self,parent,**kwargs):
 		advancedListbox.__init__(self,parent,**kwargs)
 		self.searchSource=None
-		#Stores variables that need to store search #
-		self.resultList=[]
-		self.searchNumber=0
+		#Stores number of search results (-1 so it cant be same as empty search)
+		self.searchNumber=-1
 
 	def addSearchWidget(self,widget,**kwargs):
 		"""
@@ -767,11 +787,10 @@ class searchListbox(advancedListbox):
 		#Add a binding to self
 		widget.bind("<KeyRelease>",lambda event:self.search())
 
-		#Add the result string variables to obect
+		#Add the result string variables to object
 		if "resultVar" in kwargs:
 			resultVar=kwargs["resultVar"]
-			if resultVar not in self.resultList:
-				self.resultList.append(resultVar)
+			self.addLabelVar(resultVar)
 		#Report
 		log.report("Added a search source to widget","(Search Listbox)")
 
@@ -792,13 +811,15 @@ class searchListbox(advancedListbox):
 		#This if statement makes sure same data is reloaded
 		if len(results) != self.searchNumber:
 			self.searchNumber=len(results)
-			#Add results to self
-			self.delete(0,END)
-			self.addCertain(results)
-			#Update label
-			if len(self.resultList) > 0:
-				for item in self.resultList:
-					item.set("Results: "+str(len(results)))
+			self.addSearchResults(results)
+
+	def addSearchResults(self,results):
+
+		#Add results
+		self.clear()
+		self.addCertain(results)
+		#Update label
+		self.updateVars("Results: "+str(len(results)))
 class titleLabel(mainLabel):
 	"""
 	The title label is a class
