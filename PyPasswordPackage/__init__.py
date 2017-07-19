@@ -356,11 +356,18 @@ genPasswordReportFrame=mainFrame(genPasswordNotebook)
 genPasswordReportLabel=titleLabel(genPasswordReportFrame,text="Password Report")
 genPasswordReportLabel.pack(pady=5)
 
-genPasswordReportEntry=labelEntry(genPasswordReportFrame,width=30)
+genPasswordReportEntry=labelEntry(genPasswordReportFrame,width=30,justify=CENTER)
 genPasswordReportEntry.pack(pady=5)
 
-genPasswordReportTree=advancedTree(genPasswordReportFrame)
+genPasswordReportTree=advancedTree(genPasswordReportFrame,["Field","Report"])
 genPasswordReportTree.pack(expand=True,fill=BOTH)
+
+genPasswordReportTree.addSection("Field")
+genPasswordReportTree.addSection("Report")
+
+genPasswordReportTree.addTag("Pass","#66CD84")
+genPasswordReportTree.addTag("Fail","#CD426C")
+
 
 #Add to notebook
 genPasswordNotebook.addView(genPasswordFrame,"Generate")
@@ -640,17 +647,17 @@ def calculatePasswordStrength(password):
 	lowercase_error = re.search(r"[a-z]", password) is None
 
 	# searching for symbols
-	symbol_error = re.search(r"[ !#$%&'()*+,-./[\\\]^_`{|}~"+r'"]', password) is None
+	symbol_error = re.search(r"[ !#$%&'(@)*+,-./[\\\]^_`{|}~"+r'"]', password) is None
 
 	# overall result
 	overall = not ( length_error or digit_error or uppercase_error or lowercase_error or symbol_error )
 
 	results={
-		'Length Error' : length_error,
-		'Digit Error' : digit_error,
-		'UppperCase Error' : uppercase_error,
-		'Lowercase Error' : lowercase_error,
-		'Symbol Error' : symbol_error,
+		'At least 12 characters' : length_error,
+		'At least 1 digit' : digit_error,
+		'At least 1 Uppercase' : uppercase_error,
+		'At least 1 lowecase' : lowercase_error,
+		'At least 1 symbol' : symbol_error,
 	}
 
 	#Track number of fails and pass
@@ -801,6 +808,27 @@ def copyPassword():
 	else:
 		askMessage("Empty","No password to generate")
 
+def reviewPassword():
+	"""
+	This function is used to review a password
+	using the strength function and give feedback to the user
+	"""
+	#Collect data
+	data=genPasswordReportEntry.get()
+	strength=calculatePasswordStrength(data)
+	#Clear tree
+	genPasswordReportTree.delete(*genPasswordReportTree.get_children())
+	resultDict={True:"Incomplete",False:"Complete"}
+	#Add data
+	for item in strength[3]:
+		value=strength[3][item]
+		#If good or bad
+		tag="Fail"
+		if value:
+			tag="Fail"
+		else:
+			tag="Pass"
+		genPasswordReportTree.insertData((item,resultDict[value]),(tag))
 #=====POPUP COMMANDS====
 """
 Popup commands are all the commands associated
@@ -971,6 +999,8 @@ openMainListbox.bind("<Return>", lambda event: openMasterPod())
 openMasterEntry.bind("<Return>", lambda event: unlockMasterPod())
 #=====HOME SCREEN=====
 homePodListbox.bind("<Double-Button-1>", lambda event: getSelectedDataPod())
+#=====GEN PASSWORD SCREEN=====
+genPasswordReportEntry.entry.bind("<KeyRelease>",lambda event: reviewPassword())
 #===============================(MENU CASCADES)===============================
 mainMenu.add_cascade(label="File",menu=fileMenu)
 mainMenu.add_cascade(label="Edit",menu=editMenu)

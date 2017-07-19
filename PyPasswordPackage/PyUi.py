@@ -1340,15 +1340,19 @@ class labelEntry(mainFrame):
 		self.dataLabel.pack()
 
 	def insert(self,data):
+		#Add data to the entry
 		insertEntry(self.entry,data)
 
 	def updateLabel(self,data):
+		#Update the label with a value
 		self.dataVar.set(data)
 
 	def get(self):
+		#Return value in the entry
 		return self.entry.get()
 
 	def changeColour(self,colour):
+		#Change entry colour
 		self.entry.config(bg=colour)
 #==============TEST==============
 
@@ -1457,8 +1461,9 @@ class advancedTree(ttk.Treeview):
 	the basic operations and auto add
 	scroll bar etc.
 	"""
-	def __init__(self,parent,**kwargs):
-		ttk.Treeview.__init__(self,parent)
+	def __init__(self,parent,columns,**kwargs):
+		ttk.Treeview.__init__(self,parent,show="headings",columns=columns)
+		self.columns=columns
 
 		#Add the scrollbar
 		self.scroll=Scrollbar(self)
@@ -1466,3 +1471,20 @@ class advancedTree(ttk.Treeview):
 
 		self.scroll.config(command=self.yview)
 		self.config(yscrollcommand=self.scroll.set)
+
+	def addSection(self,sectionName):
+		"""
+		Add a section to the tree
+		"""
+		self.column(sectionName,width=10,minwidth=45)
+		self.heading(sectionName,text=sectionName)
+
+
+	def insertData(self,values,tags):
+		"""
+		Method to insert data into the treeview
+		"""
+		self.insert("" , 0,values=values,tags=tags)
+
+	def addTag(self,tag,colour):
+		self.tag_configure(tag,background=colour)
