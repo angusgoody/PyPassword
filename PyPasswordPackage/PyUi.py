@@ -287,11 +287,17 @@ def recursiveChangeColour(parent,colour,fgColour):
 				if parent.winfo_class() in widgetArray:
 						parent.config(highlightbackground=colour)
 				else:
-					parent.config(bg=colour)
+					if type(parent) == mainLabel:
+						if parent in mainLabel.nonColours:
+							print(parent.labelData.get())
+						else:
+							parent.config(bg=colour)
+					else:
+						parent.config(bg=colour)
 
 				#Update labels so they show up on certain colours
 				if parent.winfo_class() == "Label":
-						parent.changeColour(getColourForBackground(colour))
+					parent.changeColour(getColourForBackground(colour))
 
 			except:
 				pass
@@ -453,13 +459,21 @@ class mainLabel(Label):
 	which makes it easier to change colours and fonts
 	and also hover bindings etc.
 	"""
+	nonColours=[]
 	def __init__(self,parent,**kwargs):
-		if "hover" in kwargs:
-			kwargs.pop("hover")
-			hover=True
-		else:
-			hover=False
 
+		#Custom kwargs
+		hover=False
+		if "hover" in kwargs:
+			if kwargs["hover"]:
+				kwargs.pop("hover")
+				hover=True
+
+		if "nonColour" in kwargs:
+			if kwargs["nonColour"]:
+				mainLabel.nonColours.append(self)
+				kwargs.pop("nonColour")
+				log.report("Non colour widget added")
 		Label.__init__(self,parent,**kwargs)
 		self.labelData=StringVar()
 		self.textVar=None

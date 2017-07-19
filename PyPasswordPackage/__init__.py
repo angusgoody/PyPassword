@@ -319,12 +319,12 @@ genPasswordFrame.pack(expand=True,fill=BOTH)
 genPasswordCenter=genPasswordFrame.miniFrame
 
 #Entry
-genPasswordEntry=Entry(genPasswordCenter,width=30,justify=CENTER,font="Arial 13")
+genPasswordEntry=Entry(genPasswordCenter,width=30,justify=CENTER,font="Arial 13",text="Hi")
 genPasswordEntry.pack()
 
 #Strength progress bar
-
-
+genPasswordStrengthLabel=mainLabel(genPasswordCenter,text="Hello",nonColour=True,bg="red")
+genPasswordStrengthLabel.pack()
 #Sliders
 
 genPasswordLengthSlider=advancedSlider(genPasswordCenter,"Length",from_=5,to=50,value=random.randint(5,50))
