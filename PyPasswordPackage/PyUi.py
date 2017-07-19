@@ -287,6 +287,8 @@ def recursiveChangeColour(parent,colour,fgColour):
 				if parent.winfo_class() in widgetArray:
 						parent.config(highlightbackground=colour)
 				else:
+
+					#Some labels dont need colour updating
 					if type(parent) == mainLabel:
 						if parent in mainLabel.nonColours:
 							print(parent.labelData.get())

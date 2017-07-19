@@ -12,6 +12,7 @@ from tkinter import *
 from tkinter import messagebox
 import random
 import os
+import re
 import webbrowser
 
 from PyUi import *
@@ -322,9 +323,6 @@ genPasswordCenter=genPasswordFrame.miniFrame
 genPasswordEntry=Entry(genPasswordCenter,width=30,justify=CENTER,font="Arial 13",text="Hi")
 genPasswordEntry.pack()
 
-#Strength progress bar
-genPasswordStrengthLabel=mainLabel(genPasswordCenter,text="Hello",nonColour=True,bg="red")
-genPasswordStrengthLabel.pack()
 #Sliders
 
 genPasswordLengthSlider=advancedSlider(genPasswordCenter,"Length",from_=5,to=50,value=random.randint(5,50))
@@ -595,16 +593,60 @@ def checkMasterPodDataValid(entryList,dataSource,popupInstance):
 				popupInstance.infoStringVar.set("Valid Name")
 				return True
 
+def calculatePasswordStrength(password):
+	"""
+	Verify the strength of 'password'
+	Returns a dict indicating the wrong criteria
+	A password is considered strong if:
+		12 characters length or more
+		1 digit or more
+		1 symbol or more
+		1 uppercase letter or more
+		1 lowercase letter or more
+	"""
+
+	# calculating the length
+	length_error = len(password) < 11
+
+	# searching for digits
+	digit_error = re.search(r"\d", password) is None
+
+	# searching for uppercase
+	uppercase_error = re.search(r"[A-Z]", password) is None
+
+	# searching for lowercase
+	lowercase_error = re.search(r"[a-z]", password) is None
+
+	# searching for symbols
+	symbol_error = re.search(r"[ !#$%&'()*+,-./[\\\]^_`{|}~"+r'"]', password) is None
+
+	# overall result
+	overall = not ( length_error or digit_error or uppercase_error or lowercase_error or symbol_error )
+
+	return {
+		'Overall Password' : overall,
+		'Length Error' : length_error,
+		'Digit Error' : digit_error,
+		'UppperCase Error' : uppercase_error,
+		'Lowercase Error' : lowercase_error,
+		'Symbol Error' : symbol_error,
+	}
+
 def genPassword():
 	"""
 	This function takes the values of all the sliders
 	and generates a password
 	"""
+	#Collect the data
 	length=genPasswordLengthSlider.getValue()
 	digits=genPasswordDigitSlider.getValue()
 	symbols=genPasswordSymbolSlider.getValue()
-
+	#Generate the password
 	password=generatePassword(length,symbols,digits)
+	#Calculate password strength
+	strength=calculatePasswordStrength(password)
+
+	#Add the password to entry
 	insertEntry(genPasswordEntry,password)
 
 
@@ -911,5 +953,6 @@ loadFilesInDirectory()
 genPassword()
 #===============================(TESTING AREA)===============================
 
+print(calculatePasswordStrength("""uZKZz0jyIAkslv[dbaa/n"}YQcMjqF<FPOmlITwU8Wg'H+L"""))
 #===============================(END)===============================
 window.mainloop()
