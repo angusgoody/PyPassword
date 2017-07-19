@@ -192,7 +192,9 @@ openMasterBottomFrame.colour("#1A86FB")
 #----Home screen-----
 #region home screen
 homeScreen=mainScreen(window,"Home",statusVar,menu=mainMenu)
+
 #Top view
+
 homeTopFrame=centerFrame(homeScreen)
 homeTopFrame.pack(side=TOP,fill=BOTH)
 homeTopLabelVar=StringVar()
@@ -205,12 +207,18 @@ homeSearchFrame.pack(fill=X)
 
 homeSearchEntry=Entry(homeSearchFrame,justify=CENTER)
 homeSearchEntry.pack(fill=X)
+
+homeSearchVar=StringVar()
+homeSearchVar.set("Results: 0")
+homeSearchLabel=mainLabel(homeSearchFrame,textvariable=homeSearchVar,font="Helvetica 11")
+homeSearchLabel.pack(padx=2)
+
 #Main view
 homeMainFrame=mainFrame(homeScreen)
 homeMainFrame.pack(expand=True,fill=BOTH)
 
 homePodListbox=searchListbox(homeMainFrame,font="Arial 18")
-homePodListbox.addSearchWidget(homeSearchEntry)
+homePodListbox.addSearchWidget(homeSearchEntry,resultVar=homeSearchVar)
 homePodListbox.pack(expand=True,fill=BOTH)
 
 #Bottom View

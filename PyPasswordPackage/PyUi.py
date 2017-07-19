@@ -708,16 +708,31 @@ class searchListbox(advancedListbox):
 	def __init__(self,parent,**kwargs):
 		advancedListbox.__init__(self,parent,**kwargs)
 		self.searchSource=None
+		#Stores variables that need to store search #
+		self.resultList=[]
 		self.searchNumber=0
 
-	def addSearchWidget(self,widget):
+	def addSearchWidget(self,widget,**kwargs):
 		"""
 		This function will allow a search
 		entry to be added to the class which
 		will control all of the searching functions
+		
+		The result variables are string variables 
+		that will update with the number of results
+		the search returned
 		"""
+		#Add the widget to obejct
 		self.searchSource=widget
+		#Add a binding to self
 		widget.bind("<KeyRelease>",lambda event:self.search())
+
+		#Add the result string variables to obect
+		if "resultVar" in kwargs:
+			resultVar=kwargs["resultVar"]
+			if resultVar not in self.resultList:
+				self.resultList.append(resultVar)
+		#Report
 		log.report("Added a search source to widget","(Search Listbox)")
 
 	def search(self):
@@ -738,9 +753,13 @@ class searchListbox(advancedListbox):
 		if len(results) != self.searchNumber:
 			if len(results) > 0:
 				self.searchNumber=len(results)
-				#Add results
+				#Add results to self
 				self.delete(0,END)
 				self.addCertain(results)
+				#Update label
+				if len(self.resultList) > 0:
+					for item in self.resultList:
+						item.set("Results: "+str(len(results)))
 class titleLabel(mainLabel):
 	"""
 	The title label is a class
