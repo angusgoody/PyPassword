@@ -860,6 +860,15 @@ class passwordTemplate:
 		newSection=hiddenDataSection(self,title)
 		self.advancedData[title]=newSection
 
+	def createBulkSections(self,basicList,advancedList):
+		"""
+		This method will quickly create templates using
+		just names for basic and advanced sections
+		"""
+		for name in basicList:
+			self.addBasicSection(name)
+		for name in advancedList:
+			self.addAdvancedSection(name)
 
 
 class displayView(mainFrame):
@@ -904,6 +913,36 @@ class passwordDisplayView(displayView):
 		displayView.__init__(self,parent)
 		#The section dict stores hiddenData sections with key of name
 		self.sectionDict={}
+		#Store the password templates
+		self.templates={}
+		#Store if display view is basic or advanced
+		self.basicOrAdvanced="Basic"
+
+	def addTemplate(self,templateName,passTemplate):
+
+		#Add template to object
+		if passTemplate not in passTemplate:
+			self.templates[templateName]=passTemplate
+
+	def loadTemplate(self,indicator):
+		if indicator in self.templates:
+			#Clear the screen first
+			self.clear()
+			#Clear the dict
+			for item in self.sectionDict:
+				self.sectionDict.pop(item)
+			#Load the template
+			if self.basicOrAdvanced == "Basic":
+				templateDict=self.templates[indicator].basicData
+				for item in templateDict:
+					section=templateDict[item]
+					self.addPasswordSection(section)
+
+			elif self.basicOrAdvanced == "Advanced":
+				templateDict=self.templates[indicator].advancedData
+				for item in templateDict:
+					section=templateDict[item]
+					self.addPasswordSection(section)
 
 	def addPasswordSection(self,hiddenSection,**kwargs):
 		"""

@@ -258,6 +258,7 @@ viewPodBasicSection.showSections()
 
 #Advanced info
 viewPodAdvancedSection=passwordDisplayView(viewPodNotebook)
+viewPodAdvancedSection.basicOrAdvanced="Advanced"
 
 viewPodAdvancedWebsiteSection=hiddenDataSection(viewPodAdvancedSection,"Website")
 viewPodAdvancedWebsiteSection.addButton("Launch")
