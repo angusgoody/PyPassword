@@ -433,7 +433,8 @@ def loadDataPod(selectedPod):
 	addBasicPodDataToScreen(selectedPod, [viewPodBasicSection,viewPodAdvancedSection])
 	#Make sure data is hidden
 	passwordSection=viewPodBasicSection.getSection("Password")
-	passwordSection.hideData()
+	if passwordSection != None:
+		passwordSection.hideData()
 	#Make sure right tab is loaded
 	viewPodNotebook.showView("Basic")
 	#Report to log
@@ -536,7 +537,7 @@ def addBasicPodDataToScreen(podInstance, displayList):
 			#Add all the data in the vault to screen
 			if titleFound == False:
 				#If the vault itself does not contain title it uses the pod title
-				if "Title" not in podVault:
+				if "Title" not in podVault and "Title" in display.sectionDict:
 					display.sectionDict["Title"].addData(podTitle)
 				titleFound=True
 
