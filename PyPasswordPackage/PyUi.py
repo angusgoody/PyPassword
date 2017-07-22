@@ -820,6 +820,7 @@ class searchListbox(advancedListbox):
 		self.addCertain(results)
 		#Update label
 		self.updateVars("Results: "+str(len(results)))
+
 class titleLabel(mainLabel):
 	"""
 	The title label is a class
@@ -829,6 +830,37 @@ class titleLabel(mainLabel):
 	def __init__(self,parent,**kwargs):
 		mainLabel.__init__(self,parent,**kwargs)
 		self.config(font="Helvetica 17")
+
+class passwordTemplate:
+	"""
+	The password Template class
+	will be used for categorising
+	passwords. Diffrent password types
+	will have diffrent templates.
+	For example notes,passwords,email etc
+	"""
+	"""
+	Store preset configurations
+	for certain types of data pod
+	for example a login will contain all
+	the data name,password website etc
+	whereas a secure note will only need
+	the note section
+	"""
+
+	def __init__(self,name):
+		self.name=name
+		#Store section data
+		self.basicData={}
+		self.advancedData={}
+	def addBasicSection(self,title):
+		newSection=hiddenDataSection(self,title)
+		self.basicData[title]=newSection
+	def addAdvancedSection(self,title):
+		newSection=hiddenDataSection(self,title)
+		self.advancedData[title]=newSection
+
+
 
 class displayView(mainFrame):
 	"""
@@ -862,12 +894,12 @@ class displayView(mainFrame):
 		for item in self.sections:
 			item.pack(expand=True,fill=BOTH)
 
-
 class passwordDisplayView(displayView):
 	"""
 	This class is a modified display view
 	that holds passwords and usernames etc
 	"""
+
 	def __init__(self,parent):
 		displayView.__init__(self,parent)
 		#The section dict stores hiddenData sections with key of name

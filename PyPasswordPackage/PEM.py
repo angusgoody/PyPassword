@@ -140,6 +140,7 @@ class dataPod:
 	that stores all the information
 	about a account
 	"""
+
 	def __init__(self,master,podTitle):
 		#Master pod var
 		self.master=master
