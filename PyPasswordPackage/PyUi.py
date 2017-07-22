@@ -844,13 +844,24 @@ class displayView(mainFrame):
 		self.sections=[]
 
 	def addSection(self,frameToShow,**kwargs):
-		self.sections.append(frameToShow)
-		if "colour" in kwargs:
-			frameToShow.colour(kwargs["colour"])
+		if frameToShow not in self.sections:
+			self.sections.append(frameToShow)
+			if "colour" in kwargs:
+				frameToShow.colour(kwargs["colour"])
+
+	def clear(self):
+		"""
+		Will clear all the sections
+		from the screen
+		"""
+		for item in self.sections:
+			item.pack_forget()
 
 	def showSections(self):
+		self.clear()
 		for item in self.sections:
 			item.pack(expand=True,fill=BOTH)
+
 
 class passwordDisplayView(displayView):
 	"""
@@ -862,14 +873,14 @@ class passwordDisplayView(displayView):
 		#The section dict stores hiddenData sections with key of name
 		self.sectionDict={}
 
-	def addPasswordSection(self,hiddenDataSection,**kwargs):
+	def addPasswordSection(self,hiddenSection,**kwargs):
 		"""
 		Overides the default add section method
 		because title needs to be stored in the
 		object
 		"""
-		self.addSection(hiddenDataSection,**kwargs)
-		self.sectionDict[hiddenDataSection.title]=hiddenDataSection
+		self.addSection(hiddenSection,**kwargs)
+		self.sectionDict[hiddenSection.title]=hiddenSection
 
 	def createSections(self,titleList,colourList):
 		"""
@@ -892,12 +903,25 @@ class passwordDisplayView(displayView):
 			#Remove refrence
 			self.sectionDict[item].clear()
 
-	def addCustomScreen(self,frameToShow,dataSource,title):
+	def getSection(self,indicator):
 		"""
-		The add custom screen allows a custom frame
-		to be added to the password display view
+		Will return the section
+		in the display view
 		"""
-		self.addSection(frameToShow)
+		if indicator in self.sectionDict:
+			return self.sectionDict[indicator]
+
+	def hideSection(self,indicator):
+		"""
+		This method will hide a section
+		of the display view
+		"""
+		print(self.sectionDict)
+		if indicator in self.sectionDict:
+			#Get the frame to hide
+			frameToHide=self.sectionDict[indicator]
+			#Hide it
+			frameToHide.pack_forget()
 
 class topStrip(mainFrame):
 	"""
@@ -1052,8 +1076,9 @@ class hiddenDataSection(dataSection):
 		self.buttonFrame=mainFrame(self.centerFrame)
 		self.buttonFrame.grid(row=0,column=2,padx=7)
 
-		#Edit variables
+		#If data is hidden or not
 		self.hiddenVar=False
+		#If data is in edit mode or not
 		self.editMode=False
 
 		#Store Buttons
@@ -1072,19 +1097,53 @@ class hiddenDataSection(dataSection):
 		whether the data in the entry
 		is hidden or revealed
 		"""
-		if self.hiddenVar == False:
-			self.dataEntry.config(show="•")
-			self.buttonDict["Hide"].config(text="Show")
-			self.disableDataSource()
-			self.hiddenVar=True
+		if self.hiddenVar == False and self.editMode == False:
+			self.hideData()
 		else:
-			self.dataEntry.config(show="")
-			self.buttonDict["Hide"].config(text="Hide")
-			self.hiddenVar=False
-			if self.editMode == False:
-				self.disableDataSource()
-			else:
-				self.enableDataSource()
+			self.showData()
+
+	def enterEditMode(self):
+		"""
+		When in edit mode
+		:return: 
+		"""
+		#Ensure data is visible first
+		self.showData()
+		#Disable hide button
+		self.buttonDict["Hide"].config(state=DISABLED)
+		#Make data editable
+		self.enableDataSource()
+
+	def leaveEditMode(self):
+		"""
+		Exit edit mode
+		"""
+		#Enable hide button
+		self.buttonDict["Hide"].config(state=NORMAL)
+		#Make data editable
+		self.disableDataSource()
+
+	def hideData(self):
+		"""
+		Method will hide data in the entry
+		"""
+		self.dataEntry.config(show="•")
+		self.buttonDict["Hide"].config(text="Show")
+		self.disableDataSource()
+		self.hiddenVar=True
+
+	def showData(self):
+		"""
+		Method will show data in the entry
+		"""
+		self.dataEntry.config(show="")
+		self.buttonDict["Hide"].config(text="Hide")
+		self.hiddenVar=False
+		#If in edit mode or not
+		if self.editMode == False:
+			self.disableDataSource()
+		else:
+			self.enableDataSource()
 
 	def addButton(self,buttonText):
 		"""
@@ -1438,8 +1497,6 @@ class advancedNotebook(mainFrame):
 		if "topColour" in kwargs:
 			self.topBar.colour(kwargs["topColour"])
 
-
-
 	def addView(self,frame,name):
 		"""
 		This method will add a frame to the notebook
@@ -1473,7 +1530,7 @@ class advancedNotebook(mainFrame):
 			currentViewName=self.currentView
 			frameToLoad=self.views[name]
 
-			#Ensure same frame isnt loaded
+			#Ensure same frame isn't loaded
 			if currentViewName != name:
 				if currentViewName != None:
 					#Hide frame
@@ -1497,7 +1554,15 @@ class advancedNotebook(mainFrame):
 				#Unbind because when selected tab has no bindings
 				currentLabel.unbind("<Enter>")
 				currentLabel.unbind("<Leave>")
-
+		else:
+			log.report("Invalid view loaded by notebook")
+	def hideTab(self,name):
+		"""
+		This method will hide one of the tabs
+		in the notebook 
+		"""
+		if name in self.labelDict:
+			self.labelDict[name].grid_forget()
 class advancedTree(ttk.Treeview):
 	"""
 	This is a modified tree view

@@ -311,11 +311,10 @@ viewPodScreen.colour("#4B5E9C")
 #endregion
 
 #--Generate Password Screen---
-
 #region genPassword
 genPasswordScreen=mainScreen(window,"Generate Password",statusVar)
 
-genPasswordNotebook=advancedNotebook(genPasswordScreen,select="#DA2E63")
+genPasswordNotebook=advancedNotebook(genPasswordScreen,select="#CCEE2B")
 genPasswordNotebook.pack(expand=True,fill=BOTH)
 
 #--GenPassword Main---
@@ -350,37 +349,41 @@ genPasswordRegenerateButton=mainButton(genPasswordButtonFrame,text="Regenerate",
 genPasswordRegenerateButton.grid(row=0,column=1,padx=3)
 
 
-#--GenPassword Report---
-genPasswordReportFrame=mainFrame(genPasswordNotebook)
+#--GenPassword Review---
+genPasswordReviewFrame=mainFrame(genPasswordNotebook)
 
-genPasswordReportLabel=titleLabel(genPasswordReportFrame,text="Password Review")
-genPasswordReportLabel.pack(pady=5)
+genPasswordReviewLabel=titleLabel(genPasswordReviewFrame, text="Password Review")
+genPasswordReviewLabel.pack(pady=5)
 
-genPasswordReportEntry=labelEntry(genPasswordReportFrame,width=30,justify=CENTER)
-genPasswordReportEntry.pack(pady=5)
+genPasswordReviewEntry=labelEntry(genPasswordReviewFrame, width=30, justify=CENTER)
+genPasswordReviewEntry.pack(pady=5)
 
-genPasswordReportTree=advancedTree(genPasswordReportFrame,["Field","Report"])
-genPasswordReportTree.pack(expand=True,fill=BOTH)
 
-genPasswordReportTree.addSection("Field")
-genPasswordReportTree.addSection("Report")
+genPasswordReviewTree=advancedTree(genPasswordReviewFrame, ["Field", "Report"])
+genPasswordReviewTree.pack(expand=True, fill=BOTH)
 
-genPasswordReportTree.addTag("Pass","#66CD84")
-genPasswordReportTree.addTag("Fail","#CD426C")
+genPasswordReviewTree.addSection("Field")
+genPasswordReviewTree.addSection("Report")
 
-genPasswordReportBottomFrame=centerFrame(genPasswordReportFrame)
-genPasswordReportBottomFrame.pack(side=BOTTOM,fill=X)
-genPasswordReportBottomSub=genPasswordReportBottomFrame.miniFrame
+genPasswordReviewTree.addTag("Pass", "#66CD84")
+genPasswordReviewTree.addTag("Fail", "#CD426C")
 
-genPasswordReportCopyButton=mainButton(genPasswordReportBottomSub,text="Copy",width=15)
-genPasswordReportCopyButton.pack()
+genPasswordReviewBottomFrame=centerFrame(genPasswordReviewFrame)
+genPasswordReviewBottomFrame.pack(side=BOTTOM, fill=X)
+genPasswordReviewBottomSub=genPasswordReviewBottomFrame.miniFrame
+
+genPasswordReviewCopyButton=mainButton(genPasswordReviewBottomSub, text="Copy", width=15)
+genPasswordReviewCopyButton.pack()
 
 #Add to notebook
 genPasswordNotebook.addView(genPasswordFrame,"Generate")
-genPasswordNotebook.addView(genPasswordReportFrame,"Review")
+genPasswordNotebook.addView(genPasswordReviewFrame, "Review")
+
+#Colour Frames
 
 #Closest match is #E7E7E7
 genPasswordFrame.colour("#E7E7E7")
+genPasswordReviewFrame.colour("#213380")
 #endregion
 #===============================(FUNCTIONS)===============================
 
@@ -427,6 +430,13 @@ def loadDataPod(selectedPod):
 	masterPod.currentDataPod=selectedPod
 	#Add data to screen
 	addBasicPodDataToScreen(selectedPod, [viewPodBasicSection,viewPodAdvancedSection])
+	#Make sure data is hidden
+	passwordSection=viewPodBasicSection.getSection("Password")
+	passwordSection.hideData()
+	#Make sure right tab is loaded
+	viewPodNotebook.showView("Basic")
+	#Report to log
+	log.report("Data pod opened")
 
 def getSelectedDataPod():
 	"""
@@ -663,7 +673,7 @@ def calculatePasswordStrength(password):
 		'At least 12 characters' : length_error,
 		'At least 1 digit' : digit_error,
 		'At least 1 Uppercase' : uppercase_error,
-		'At least 1 lowecase' : lowercase_error,
+		'At least 1 lowercase' : lowercase_error,
 		'At least 1 symbol' : symbol_error,
 	}
 
@@ -706,7 +716,7 @@ def genPassword():
 	#Add the password to entry
 	insertEntry(genPasswordEntry,password)
 	#Review the password
-	insertEntry(genPasswordReportEntry,password)
+	insertEntry(genPasswordReviewEntry, password)
 	reviewPassword()
 
 def reviewPassword():
@@ -715,10 +725,10 @@ def reviewPassword():
 	using the strength function and give feedback to the user
 	"""
 	#Collect data
-	data=genPasswordReportEntry.get()
+	data=genPasswordReviewEntry.get()
 	strength=calculatePasswordStrength(data)
 	#Clear tree
-	genPasswordReportTree.delete(*genPasswordReportTree.get_children())
+	genPasswordReviewTree.delete(*genPasswordReviewTree.get_children())
 	resultDict={True:"Incomplete",False:"Complete"}
 	#Add data to tree
 	for item in strength[3]:
@@ -729,9 +739,9 @@ def reviewPassword():
 			tag="Fail"
 		else:
 			tag="Pass"
-		genPasswordReportTree.insertData((item,resultDict[value]),(tag))
+		genPasswordReviewTree.insertData((item, resultDict[value]), (tag))
 	#Update label
-	genPasswordReportEntry.updateLabel(str(strength[0])+"/"+str(strength[2])+" complete")
+	genPasswordReviewEntry.updateLabel(str(strength[0]) + "/" + str(strength[2]) + " complete")
 
 
 #=====Other Commands====
@@ -748,7 +758,14 @@ def beginEdit(displayViewList):
 	for display in displayViewList:
 		#Change states of Entry
 		for sectionTitle in display.sectionDict:
-			display.sectionDict[sectionTitle].enableDataSource()
+
+			#Diffent methods for diffrent widgets
+			widget=display.sectionDict[sectionTitle]
+			if type(widget) == hiddenDataSection:
+				widget.enterEditMode()
+			else:
+				widget.enableDataSource()
+
 
 def cancelEdit(displayViewList):
 	"""
@@ -768,7 +785,11 @@ def cancelEdit(displayViewList):
 			if hiddenSection.getData() != hiddenSection.data.get():
 				#Change back to original
 				hiddenSection.restoreData()
-			hiddenSection.disableDataSource()
+			#Disable diffrent data types
+			if type(hiddenSection) == hiddenDataSection:
+				hiddenSection.leaveEditMode()
+			else:
+				hiddenSection.disableDataSource()
 
 def overwritePodData(displayViewList):
 	"""
@@ -868,6 +889,8 @@ def initiatePod(popupInstance):
 		masterPod.currentMasterPod.save()
 		#Display the screen
 		loadDataPod(pd)
+		#Start edit mode
+		beginEdit([viewPodBasicSection,viewPodAdvancedSection])
 
 def createNewPodPopup():
 	"""
@@ -912,7 +935,7 @@ def createNewPodPopup():
 
 def initiateMasterPod(popupInstance):
 	"""
-	This function will create a new matster pod
+	This function will create a new master pod
 	with the input from the user using the popup instance
 	as a parameter.
 	"""
@@ -996,7 +1019,7 @@ viewPodAdvancedWebsiteSection.addButtonCommand("Launch",lambda:launchWebsite(vie
 #=====GEN PASSWORD SCREEN=====
 genPasswordRegenerateButton.config(command=genPassword)
 genPasswordCopyButton.config(command=lambda e=genPasswordEntry:copyPassword(e))
-genPasswordReportCopyButton.config(command=lambda e=genPasswordReportEntry:copyPassword(e))
+genPasswordReviewCopyButton.config(command=lambda e=genPasswordReviewEntry:copyPassword(e))
 
 #===============================(SLIDERS)===============================
 
@@ -1018,7 +1041,7 @@ openMasterEntry.bind("<Return>", lambda event: unlockMasterPod())
 homePodListbox.bind("<Double-Button-1>", lambda event: getSelectedDataPod())
 
 #=====GEN PASSWORD SCREEN=====
-genPasswordReportEntry.entry.bind("<KeyRelease>",lambda event: reviewPassword())
+genPasswordReviewEntry.entry.bind("<KeyRelease>", lambda event: reviewPassword())
 #===============================(MENU CASCADES)===============================
 mainMenu.add_cascade(label="File",menu=fileMenu)
 mainMenu.add_cascade(label="Edit",menu=editMenu)

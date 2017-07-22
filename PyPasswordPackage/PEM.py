@@ -141,14 +141,17 @@ class dataPod:
 	about a account
 	"""
 	def __init__(self,master,podTitle):
+		#Master pod var
 		self.master=master
+		#Name of pod
 		self.podName=podTitle
+		#Stores the data
 		self.podVault={}
-		self.edited=False
+		#Stores tags
+		self.tags=[]
 
 	def addData(self,name,info):
 		self.podVault[name]=info
-		self.edited=True
 
 	def getVault(self):
 		return self.podVault
@@ -175,7 +178,13 @@ class dataPod:
 			self.podVault[name]=newInfo
 			log.report("New section added to pod",name,tag="File",system=True)
 
-		self.edited=True
+	def addTag(self,tagName):
+		"""
+		This allows the pod to have a tag
+		added to it
+		"""
+		if tagName not in self.tags:
+			self.tags.append(tagName)
 
 class masterPod:
 	"""
