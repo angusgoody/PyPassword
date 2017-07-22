@@ -56,6 +56,13 @@ mainGreenColour="#1BF293"
 mainRedColour="#E6607A"
 #Log
 log=logClass("Main")
+
+#===============================(Password Templates)===============================
+
+#===Normal Login===
+loginTemplate=passwordTemplate("Login")
+loginTemplate.createBulk(["Title","Username","Password"],"Basic")
+
 #===============================(USER INTERFACE)===============================
 
 #-----Log Screen----
@@ -253,7 +260,8 @@ viewPodNotebook.pack(expand=True,fill=BOTH)
 
 #Basic info
 viewPodBasicSection=passwordDisplayView(viewPodNotebook)
-viewPodBasicSection.createSections(["Title","Username","Password"],["#1188D7","#0F74B7","#0D68A4","#2B6198"])
+#viewPodBasicSection.createSections(["Title","Username","Password"],["#1188D7","#0F74B7","#0D68A4","#2B6198"])
+
 viewPodBasicSection.showSections()
 
 #Advanced info

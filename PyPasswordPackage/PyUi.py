@@ -853,22 +853,29 @@ class passwordTemplate:
 		#Store section data
 		self.basicData={}
 		self.advancedData={}
-	def addBasicSection(self,title):
-		newSection=hiddenDataSection(self,title)
+	def addBasicSection(self,title,dataType):
+		if dataType == hiddenDataSection:
+			newSection=hiddenDataSection(self,title)
+		else:
+			newSection=dataSection(self,title)
 		self.basicData[title]=newSection
-	def addAdvancedSection(self,title):
-		newSection=hiddenDataSection(self,title)
+	def addAdvancedSection(self,title,dataType):
+		if dataType == hiddenDataSection:
+			newSection=hiddenDataSection(self,title)
+		else:
+			newSection=dataSection(self,title)
 		self.advancedData[title]=newSection
 
-	def createBulkSections(self,basicList,advancedList):
+	def createBulk(self,nameList,basicOrAdvanced):
 		"""
 		This method will quickly create templates using
 		just names for basic and advanced sections
 		"""
-		for name in basicList:
-			self.addBasicSection(name)
-		for name in advancedList:
-			self.addAdvancedSection(name)
+		for name in nameList:
+			if basicOrAdvanced == "Basic":
+				self.addBasicSection(name,hiddenDataSection)
+			else:
+				self.addAdvancedSection(name,hiddenDataSection)
 
 
 class displayView(mainFrame):
