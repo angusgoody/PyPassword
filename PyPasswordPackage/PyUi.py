@@ -411,6 +411,11 @@ def advancedSearch(target, dataToSearch):
 	return False
 #==================================(CLASSES)=============================
 
+#==============Classes==============
+
+
+
+
 
 #==============Master TK Classes==============
 
@@ -1612,34 +1617,22 @@ class passwordNotebook(advancedNotebook):
 	def __init__(self,parent,**kwargs):
 		advancedNotebook.__init__(self,parent,**kwargs)
 
-		#Add the Basic and Advanced Sections
-		self.basicFrame=mainFrame(self)
-		self.advancedFrame=mainFrame(self)
-		self.addView(self.basicFrame,"Basic")
-		self.addView(self.advancedFrame,"Advanced")
+		#Create the two basic tabs
+		self.addTab("Basic")
+		self.addTab("Advanced")
 
-		#Create the dislpay views
-		self.basicDisplay=passwordDisplayView(self)
-		self.advancedDisplay=passwordDisplayView(self)
+		#Store the basic and advanced sections
+		self.basicSections=[]
+		self.advancedSections=[]
 
-		#Store the sections in order
-		self.sectionOrder=[]
-
-	def addSegment(self,title,indicator):
+	def addTab(self,tabName):
 		"""
-		Add segment method and indicator indicates
-		basic or advanced display should be used
+		This method will add a tab to the notebook
+		and create the frame etc
 		"""
-		if title not in self.sectionOrder:
+		newTabFrame=mainFrame(self)
+		self.addView(newTabFrame,tabName)
 
-			if indicator == "Basic":
-				newSegment=hiddenDataSection(self.basicDisplay,title)
-				self.basicDisplay.addSection(newSegment)
-			else:
-				newSegment=hiddenDataSection(self.advancedDisplay,title)
-				self.advancedDisplay.addSection(newSegment)
-
-			self.sectionOrder.append(title)
 
 #==============Other Classes==============
 

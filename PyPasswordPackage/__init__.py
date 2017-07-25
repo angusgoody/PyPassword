@@ -255,8 +255,10 @@ viewPodTopFrame.pack(side=TOP,fill=X)
 #--Main Notebook--
 viewPodNotebookFrame=mainFrame(viewPodScreen)
 viewPodNotebookFrame.pack(expand=True,fill=BOTH)
+
 viewPodNotebook=advancedNotebook(viewPodNotebookFrame,select="#C1E600",topColour="#263260")
 viewPodNotebook.pack(expand=True,fill=BOTH)
+
 
 #Basic info
 viewPodBasicSection=passwordDisplayView(viewPodNotebook)
