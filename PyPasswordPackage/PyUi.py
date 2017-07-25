@@ -165,6 +165,7 @@ def insertEntry(entry,message):
 		entry.insert("1.0",message)
 	elif type(entry) == labelEntry:
 		insertEntry(entry.entry,message)
+
 def getData(dataSource):
 	"""
 	This function will get data from a number
@@ -411,7 +412,7 @@ def advancedSearch(target, dataToSearch):
 #==================================(CLASSES)=============================
 
 
-#==============Master Classes==============
+#==============Master TK Classes==============
 
 class mainButton(Button):
 	"""
@@ -423,8 +424,6 @@ class mainButton(Button):
 	def __init__(self,parent,*args,**kwargs):
 		Button.__init__(self,parent,kwargs)
 		self.config(relief=FLAT)
-
-
 
 class mainFrame(Frame):
 	"""
@@ -599,8 +598,6 @@ class mainScreen(mainFrame):
 	def addCommand(self,command):
 		self.commands.append(command)
 
-#==============Non Master Classes==============
-
 class advancedListbox(Listbox):
 	"""
 	The advanced Listbox is based on
@@ -759,6 +756,417 @@ class advancedListbox(Listbox):
 		if source not in self.labelVarList:
 			self.labelVarList.append(source)
 
+class advancedTree(ttk.Treeview):
+	"""
+	This is a modified tree view
+	which will make it easier to do
+	the basic operations and auto add
+	scroll bar etc.
+	"""
+	def __init__(self,parent,columns,**kwargs):
+		ttk.Treeview.__init__(self,parent,show="headings",columns=columns)
+		self.columns=columns
+
+		#Add the scrollbar
+		self.scroll=Scrollbar(self)
+		self.scroll.pack(side=RIGHT,fill=Y)
+
+		self.scroll.config(command=self.yview)
+		self.config(yscrollcommand=self.scroll.set)
+
+	def addSection(self,sectionName):
+		"""
+		Add a section to the tree
+		"""
+		self.column(sectionName,width=10,minwidth=45)
+		self.heading(sectionName,text=sectionName)
+
+
+	def insertData(self,values,tags):
+		"""
+		Method to insert data into the treeview
+		"""
+		self.insert("" , 0,values=values,tags=tags)
+
+	def addTag(self,tag,colour):
+		self.tag_configure(tag,background=colour)
+
+class popUpWindow(Toplevel):
+	"""
+	The popUpWindow Class is a class that
+	will display a pop up window to the user
+	and disable the main window.
+	"""
+	def __init__(self,root,name,**extra):
+		Toplevel.__init__(self,root)
+		self.name=name
+		self.frameToShow=None
+		self.root=root
+		self.infoStringVar=StringVar()
+
+		if "infoVar" in extra:
+			self.infoStringVar=extra["infoVar"]
+
+		#Setup
+		self.title(self.name)
+		self.geometry("200x200")
+
+		#Initiate any entrys the window will have that needs to store data
+		self.entryList=[]
+		self.runCommandDict={}
+		self.gatheredData=[]
+
+		#Add Buttons to bottom of screen
+		self.buttonStrip=centerFrame(self)
+		self.buttonStrip.pack(side=BOTTOM,fill=X)
+		self.buttonStripSub=self.buttonStrip.miniFrame
+
+		self.cancelButton=mainButton(self.buttonStripSub,text="Cancel",width=8,command=self.cancel)
+		self.cancelButton.grid(row=0,column=0)
+
+		self.saveButton=mainButton(self.buttonStripSub,text="Save",width=8,command=self.save)
+		self.saveButton.grid(row=0,column=1)
+
+		self.buttonStrip.colour(generateHexColour())
+
+		#Add menu items
+		self.menu=Menu(self)
+		self.config(menu=self.menu)
+
+		#Variables
+		self.saveButtonState=True
+
+	def addView(self,frameToShow):
+		"""
+		This method will allow you to add
+		a frame to the popup window to view
+		"""
+		self.frameToShow=frameToShow
+		frameToShow.pack(expand=True,fill=BOTH)
+
+	def addCommands(self,runCommandList,parameterValue):
+		"""
+		This method allows a command to be added to the object
+		so when the user clicks "Save" a certain command is executed
+		the parameterValue determines whether the commands need to
+		be given a paramter of the object or not.
+		"""
+		for item in runCommandList:
+			self.runCommandDict[item]=parameterValue
+
+	def run(self):
+		"""
+		This method starts the window
+		and makes sure the window is in focus
+		and disables the main window 
+		"""
+		self.focus_set()
+		self.grab_set()
+		self.transient(self.root)
+
+	def cancel(self):
+		"""
+		When the user clicks the "Cancel" button
+		it will destroy the window and return to main window
+		"""
+		self.grab_release()
+		self.destroy()
+
+	def addDataSource(self,entryList):
+		"""
+		Allows the user to add refrences to widgets
+		that collect data from the user, to it can
+		be returned when the "Save" button is run
+		"""
+		for entry in entryList:
+			self.entryList.append(entry)
+
+	def save(self):
+		"""
+		The save method will collect all the data
+		from the data sources and then execute the
+		correct commands when the window has been
+		destroyed
+		"""
+		#Gather data
+		if len(self.entryList) > 0:
+			for item in self.entryList:
+				if type(item) == Entry:
+					self.gatheredData.append(item.get())
+				else:
+					log.report("Invalid data source used in popup",item,tag="Error",system=True)
+		else:
+			log.report("The popup window was not given any data sources and has not returned any data","(UI)",tag="UI")
+
+		#Kill window
+		self.cancel()
+		#Execute commands
+		if len(self.runCommandDict) > 0:
+			for command in self.runCommandDict:
+				if self.runCommandDict[command]:
+					try:
+						command(self)
+					except:
+						log.report("Encountered error when running popup window commands",self.name,tag="Error")
+				else:
+					try:
+						command()
+					except:
+						log.report("Encountered error when running popup window commands",self.name,tag="Error")
+
+	def toggle(self,state):
+		if state == "DISABLED":
+			self.saveButton.config(state=DISABLED)
+			self.saveButtonState=False
+		else:
+			self.saveButton.config(state=NORMAL)
+			self.saveButtonState=True
+
+	def changeEntryColour(self,colour):
+		"""
+		Will change the colour of all the data sources
+		in the popup window
+		"""
+		for entry in self.entryList:
+			entry.config(bg=colour)
+
+#==============Master Custom Classes==============
+
+class displayView(mainFrame):
+	"""
+	This display View class is a class
+	that allows multiple frames
+	to be shown together in a nice
+	format. It evenly spreads each frame
+	out and takes care of colouring etc
+	"""
+
+	def __init__(self,parent):
+		mainFrame.__init__(self,parent)
+		self.sections=[]
+
+	def addSection(self,frameToShow,**kwargs):
+		if frameToShow not in self.sections:
+			self.sections.append(frameToShow)
+			if "colour" in kwargs:
+				frameToShow.colour(kwargs["colour"])
+
+	def clear(self):
+		"""
+		Will clear all the sections
+		from the screen
+		"""
+		for item in self.sections:
+			item.pack_forget()
+
+	def showSections(self):
+		self.clear()
+		for item in self.sections:
+			item.pack(expand=True,fill=BOTH)
+
+class advancedNotebook(mainFrame):
+	"""
+	The advanced Notebook is
+	a custom notebook class that will look
+	better and do more than the standard notebook
+	class
+	"""
+	def __init__(self,parent,**kwargs):
+		mainFrame.__init__(self,parent,**kwargs)
+
+
+		#Top view
+		self.topBar=centerFrame(self)
+		self.topSub=self.topBar.miniFrame
+		self.topBar.pack(side=TOP,fill=X)
+		self.topBar.colour("#C5CDCD")
+
+		self.views={}
+		self.labelDict={}
+		self.currentView=None
+
+		self.viewCount=0
+
+		#Colour variables
+		self.selectColour="#FFFFFF"
+		self.selectFG="#000000"
+
+		self.notSelected="#98A5AA"
+		self.notSelectedFG=getColourForBackground(self.notSelected)
+		self.notSelectedHover="#AFBCC2"
+
+		#Get a select colour from kwargs
+		if "select" in kwargs:
+			self.selectColour=kwargs["select"]
+			self.selectFG=getColourForBackground(kwargs["select"])
+		if "topColour" in kwargs:
+			self.topBar.colour(kwargs["topColour"])
+
+	def addView(self,frame,name):
+		"""
+		This method will add a frame to the notebook
+		view and create a label to nagivate with
+		"""
+		#Add to dictionary
+		self.views[name]=frame
+		#Add to top bar
+		newLabel=mainLabel(self.topSub,text=name,width=10,bg=self.notSelected)
+		newLabel.grid(row=0,column=self.viewCount)
+		#Add binding
+		newLabel.bind("<Button-1>",lambda event, s=self,n=name: s.showView(n))
+		newLabel.bind("<Enter>",lambda event,lab=newLabel: lab.config(bg=self.notSelectedHover))
+		newLabel.bind("<Leave>",lambda event,lab=newLabel: lab.config(bg=self.notSelected))
+		#Add label to dictionary
+		self.labelDict[name]=newLabel
+		self.viewCount+=1
+
+		#Show view
+		if self.viewCount == 1:
+			self.showView(name)
+
+	def showView(self,name):
+		"""
+		This method is run when a screen
+		needs to be shown. It will hide and
+		show relevant screens and update label
+		colours etc.
+		"""
+		if name in self.views:
+			currentViewName=self.currentView
+			frameToLoad=self.views[name]
+
+			#Ensure same frame isn't loaded
+			if currentViewName != name:
+				if currentViewName != None:
+					#Hide frame
+					self.views[currentViewName].pack_forget()
+					#Update label
+					self.labelDict[currentViewName].config(bg=self.notSelected,fg=self.notSelectedFG)
+
+					#Remove old bindings
+					currentLabel=self.labelDict[currentViewName]
+					currentLabel.bind("<Enter>",lambda event,lab=currentLabel: lab.config(bg=self.notSelectedHover))
+					currentLabel.bind("<Leave>",lambda event,lab=currentLabel: lab.config(bg=self.notSelected))
+
+				#Display the new frame
+				frameToLoad.pack(expand=True,fill=BOTH,side=BOTTOM)
+
+				#Update new label
+				currentLabel=self.labelDict[name]
+				currentLabel.config(bg=self.selectColour)
+				currentLabel.config(fg=self.selectFG)
+				self.currentView=name
+				#Unbind because when selected tab has no bindings
+				currentLabel.unbind("<Enter>")
+				currentLabel.unbind("<Leave>")
+		else:
+			log.report("Invalid view loaded by notebook")
+
+	def hideTab(self,name):
+		"""
+		This method will hide one of the tabs
+		in the notebook 
+		"""
+		if name in self.labelDict:
+			self.labelDict[name].grid_forget()
+
+class advancedSlider(mainFrame):
+	"""
+	This class is a modified scale widget.
+	It will add more customization and 
+	a label kwarg which adds a label to the widget
+	"""
+	def __init__(self,parent,text,*extra,**kwargs):
+
+		mainFrame.__init__(self,parent)
+
+		#Important
+		self.text=text
+		self.outputVar=StringVar()
+		self.commands=[]
+
+		#UI
+		self.label=mainLabel(self,text=self.text)
+		self.label.pack()
+
+		self.sliderContainer=mainFrame(self)
+		self.sliderContainer.pack()
+
+		self.slider=ttk.Scale(self.sliderContainer,length=150,**kwargs)
+		self.slider.grid(row=0,column=0)
+
+		self.outputLabel=mainLabel(self.sliderContainer,textvariable=self.outputVar,width=5)
+		self.outputLabel.grid(row=0,column=1)
+
+		#Update label
+		self.outputVar.set(self.getValue())
+
+		#Adds command run
+		self.slider.config(command=self.run)
+
+	def addCommand(self,command):
+		"""
+		Will add a command to the list to execute
+		when slider moves
+		"""
+		if command not in self.commands:
+			self.commands.append(command)
+
+	def run(self,value):
+		"""
+		THis is the method called every time the slider
+		moves
+		"""
+
+		value=round(float(value))
+		#Run the commands
+		for command in self.commands:
+			try:
+				command()
+			except:
+				log.report("Error running command","(Slider)",tag="Error",system=True)
+		#Update label
+		self.outputVar.set(value)
+
+	def getValue(self):
+		return int(float(self.slider.get()))
+
+class multiView(mainFrame):
+	"""
+	The multiview class is a class that allows
+	multiple frames to be viewed in the same place
+	by changing frames with simple methods
+	"""
+	def __init__(self,parent,**kwargs):
+		mainFrame.__init__(self,parent,**kwargs)
+
+		#Stores the views
+		self.views=[]
+
+		self.lastView=None
+		self.currentView=None
+
+	def addView(self,frameToShow):
+		#Add a certain frame to the dictionary
+		if frameToShow not in self.views:
+			self.views.append(frameToShow)
+
+	def showView(self,frameToShow):
+		"""
+		The show view method when called will show
+		a certain frame in the dictionary. This value
+		is referenced using an indicator string
+		"""
+		if frameToShow in self.views:
+			if frameToShow != self.lastView:
+				for item in self.views:
+					item.pack_forget()
+				frameToShow.pack(expand=True,fill=BOTH)
+		else:
+			log.report("Non registered frame attempted to be show",frameToShow,tag="Error",system=True)
+
+#==============Secondary Master Classes==============
+
 class searchListbox(advancedListbox):
 	"""
 	This class will be a modified advancedListbox
@@ -831,84 +1239,79 @@ class titleLabel(mainLabel):
 		mainLabel.__init__(self,parent,**kwargs)
 		self.config(font="Helvetica 17")
 
-class passwordTemplate:
+class topStrip(mainFrame):
 	"""
-	The password Template class
-	will be used for categorising
-	passwords. Diffrent password types
-	will have diffrent templates.
-	For example notes,passwords,email etc
+	The stopStrip class is a class
+	that is used to go at the top of
+	a screen to display information
 	"""
-	"""
-	Store preset configurations
-	for certain types of data pod
-	for example a login will contain all
-	the data name,password website etc
-	whereas a secure note will only need
-	the note section
-	"""
-
-	def __init__(self,name):
-		self.name=name
-		#Store section data
-		self.basicData={}
-		self.advancedData={}
-	def addBasicSection(self,title,dataType):
-		if dataType == hiddenDataSection:
-			newSection=hiddenDataSection(self,title)
-		else:
-			newSection=dataSection(self,title)
-		self.basicData[title]=newSection
-	def addAdvancedSection(self,title,dataType):
-		if dataType == hiddenDataSection:
-			newSection=hiddenDataSection(self,title)
-		else:
-			newSection=dataSection(self,title)
-		self.advancedData[title]=newSection
-
-	def createBulk(self,nameList,basicOrAdvanced):
-		"""
-		This method will quickly create templates using
-		just names for basic and advanced sections
-		"""
-		for name in nameList:
-			if basicOrAdvanced == "Basic":
-				self.addBasicSection(name,hiddenDataSection)
-			else:
-				self.addAdvancedSection(name,hiddenDataSection)
-
-
-class displayView(mainFrame):
-	"""
-	This display View class is a class
-	that allows multiple frames
-	to be shown together in a nice
-	format. It evenly spreads each frame
-	out and takes care of colouring etc
-	"""
-
-	def __init__(self,parent):
+	def __init__(self,parent,textVar):
 		mainFrame.__init__(self,parent)
-		self.sections=[]
+		self.textVar=textVar
 
-	def addSection(self,frameToShow,**kwargs):
-		if frameToShow not in self.sections:
-			self.sections.append(frameToShow)
-			if "colour" in kwargs:
-				frameToShow.colour(kwargs["colour"])
+		#Label
+		self.labelView=titleLabel(self,textvariable=self.textVar)
+		self.labelView.pack(expand=True)
 
-	def clear(self):
-		"""
-		Will clear all the sections
-		from the screen
-		"""
-		for item in self.sections:
-			item.pack_forget()
+class centerFrame(mainFrame):
+	"""
+	A center frame is a frame that
+	automatically creates a sub frame
+	that will be in the center of the
+	screen
+	"""
+	def __init__(self,parent,**kwargs):
+		mainFrame.__init__(self,parent,**kwargs)
 
-	def showSections(self):
-		self.clear()
-		for item in self.sections:
-			item.pack(expand=True,fill=BOTH)
+		self.miniFrame=mainFrame(self)
+		self.miniFrame.pack(expand=True)
+
+class labelEntry(mainFrame):
+	"""
+	This class will be an entry with a built in
+	label underneath to display a certain value
+	"""
+	def __init__(self,parent,**kwargs):
+
+		#Get title for object
+		self.title=None
+		if "title" in kwargs:
+			self.title=kwargs["title"]
+			kwargs.pop("title")
+		#Init
+		mainFrame.__init__(self,parent)
+
+		if self.title != None:
+			#Title label
+			self.titleLabel=titleLabel(self,text=self.title)
+			self.titleLabel.pack()
+
+		#Create entry
+		self.entry=Entry(self,**kwargs)
+		self.entry.pack()
+
+		#Create label
+		self.dataVar=StringVar()
+		self.dataLabel=mainLabel(self,textvariable=self.dataVar,font="Helvetica 10")
+		self.dataLabel.pack()
+
+	def insert(self,data):
+		#Add data to the entry
+		insertEntry(self.entry,data)
+
+	def updateLabel(self,data):
+		#Update the label with a value
+		self.dataVar.set(data)
+
+	def get(self):
+		#Return value in the entry
+		return self.entry.get()
+
+	def changeColour(self,colour):
+		#Change entry colour
+		self.entry.config(bg=colour)
+
+#==============Password Widget Classes==============
 
 class passwordDisplayView(displayView):
 	"""
@@ -920,36 +1323,6 @@ class passwordDisplayView(displayView):
 		displayView.__init__(self,parent)
 		#The section dict stores hiddenData sections with key of name
 		self.sectionDict={}
-		#Store the password templates
-		self.templates={}
-		#Store if display view is basic or advanced
-		self.basicOrAdvanced="Basic"
-
-	def addTemplate(self,templateName,passTemplate):
-
-		#Add template to object
-		if passTemplate not in passTemplate:
-			self.templates[templateName]=passTemplate
-
-	def loadTemplate(self,indicator):
-		if indicator in self.templates:
-			#Clear the screen first
-			self.clear()
-			#Clear the dict
-			for item in self.sectionDict:
-				self.sectionDict.pop(item)
-			#Load the template
-			if self.basicOrAdvanced == "Basic":
-				templateDict=self.templates[indicator].basicData
-				for item in templateDict:
-					section=templateDict[item]
-					self.addPasswordSection(section)
-
-			elif self.basicOrAdvanced == "Advanced":
-				templateDict=self.templates[indicator].advancedData
-				for item in templateDict:
-					section=templateDict[item]
-					self.addPasswordSection(section)
 
 	def addPasswordSection(self,hiddenSection,**kwargs):
 		"""
@@ -1001,33 +1374,6 @@ class passwordDisplayView(displayView):
 			#Hide it
 			frameToHide.pack_forget()
 
-class topStrip(mainFrame):
-	"""
-	The stopStrip class is a class
-	that is used to go at the top of
-	a screen to display information
-	"""
-	def __init__(self,parent,textVar):
-		mainFrame.__init__(self,parent)
-		self.textVar=textVar
-
-		#Label
-		self.labelView=titleLabel(self,textvariable=self.textVar)
-		self.labelView.pack(expand=True)
-
-class centerFrame(mainFrame):
-	"""
-	A center frame is a frame that
-	automatically creates a sub frame
-	that will be in the center of the
-	screen
-	"""
-	def __init__(self,parent,**kwargs):
-		mainFrame.__init__(self,parent,**kwargs)
-
-		self.miniFrame=mainFrame(self)
-		self.miniFrame.pack(expand=True)
-
 class dataSection(centerFrame):
 	"""
 	This class is a mainFrame that wil be able
@@ -1044,7 +1390,6 @@ class dataSection(centerFrame):
 		#Key variables
 		self.editData=False
 		self.data=StringVar()
-
 
 	def addDataSource(self,dataSource):
 		self.dataSource=dataSource
@@ -1257,421 +1602,45 @@ class hiddenDataSection(dataSection):
 		if mainWindow != None:
 			addDataToClipboard(self.data.get())
 
-class multiView(mainFrame):
+class passwordNotebook(advancedNotebook):
 	"""
-	The multiview class is a class that allows
-	multiple frames to be viewed in the same place
-	by changing frames with simple methods
+	Modified notebook used specifically
+	for the view pod screen.
 	"""
+
+	templates=[]
 	def __init__(self,parent,**kwargs):
-		mainFrame.__init__(self,parent,**kwargs)
+		advancedNotebook.__init__(self,parent,**kwargs)
 
-		#Stores the views
-		self.views=[]
+		#Add the Basic and Advanced Sections
+		self.basicFrame=mainFrame(self)
+		self.advancedFrame=mainFrame(self)
+		self.addView(self.basicFrame,"Basic")
+		self.addView(self.advancedFrame,"Advanced")
 
-		self.lastView=None
-		self.currentView=None
+		#Create the dislpay views
+		self.basicDisplay=passwordDisplayView(self)
+		self.advancedDisplay=passwordDisplayView(self)
 
-	def addView(self,frameToShow):
-		#Add a certain frame to the dictionary
-		if frameToShow not in self.views:
-			self.views.append(frameToShow)
+		#Store the sections in order
+		self.sectionOrder=[]
 
-	def showView(self,frameToShow):
+	def addSegment(self,title,indicator):
 		"""
-		The show view method when called will show
-		a certain frame in the dictionary. This value
-		is referenced using an indicator string
+		Add segment method and indicator indicates
+		basic or advanced display should be used
 		"""
-		if frameToShow in self.views:
-			if frameToShow != self.lastView:
-				for item in self.views:
-					item.pack_forget()
-				frameToShow.pack(expand=True,fill=BOTH)
-		else:
-			log.report("Non registered frame attempted to be show",frameToShow,tag="Error",system=True)
+		if title not in self.sectionOrder:
 
-class popUpWindow(Toplevel):
-	"""
-	The popUpWindow Class is a class that
-	will display a pop up window to the user
-	and disable the main window.
-	"""
-	def __init__(self,root,name,**extra):
-		Toplevel.__init__(self,root)
-		self.name=name
-		self.frameToShow=None
-		self.root=root
-		self.infoStringVar=StringVar()
+			if indicator == "Basic":
+				newSegment=hiddenDataSection(self.basicDisplay,title)
+				self.basicDisplay.addSection(newSegment)
+			else:
+				newSegment=hiddenDataSection(self.advancedDisplay,title)
+				self.advancedDisplay.addSection(newSegment)
 
-		if "infoVar" in extra:
-			self.infoStringVar=extra["infoVar"]
+			self.sectionOrder.append(title)
 
-		#Setup
-		self.title(self.name)
-		self.geometry("200x200")
-
-		#Initiate any entrys the window will have that needs to store data
-		self.entryList=[]
-		self.runCommandDict={}
-		self.gatheredData=[]
-
-		#Add Buttons to bottom of screen
-		self.buttonStrip=centerFrame(self)
-		self.buttonStrip.pack(side=BOTTOM,fill=X)
-		self.buttonStripSub=self.buttonStrip.miniFrame
-
-		self.cancelButton=mainButton(self.buttonStripSub,text="Cancel",width=8,command=self.cancel)
-		self.cancelButton.grid(row=0,column=0)
-
-		self.saveButton=mainButton(self.buttonStripSub,text="Save",width=8,command=self.save)
-		self.saveButton.grid(row=0,column=1)
-
-		self.buttonStrip.colour(generateHexColour())
-
-		#Add menu items
-		self.menu=Menu(self)
-		self.config(menu=self.menu)
-
-		#Variables
-		self.saveButtonState=True
-
-	def addView(self,frameToShow):
-		"""
-		This method will allow you to add
-		a frame to the popup window to view
-		"""
-		self.frameToShow=frameToShow
-		frameToShow.pack(expand=True,fill=BOTH)
-
-	def addCommands(self,runCommandList,parameterValue):
-		"""
-		This method allows a command to be added to the object
-		so when the user clicks "Save" a certain command is executed
-		the parameterValue determines whether the commands need to
-		be given a paramter of the object or not.
-		"""
-		for item in runCommandList:
-			self.runCommandDict[item]=parameterValue
-
-	def run(self):
-		"""
-		This method starts the window
-		and makes sure the window is in focus
-		and disables the main window 
-		"""
-		self.focus_set()
-		self.grab_set()
-		self.transient(self.root)
-
-	def cancel(self):
-		"""
-		When the user clicks the "Cancel" button
-		it will destroy the window and return to main window
-		"""
-		self.grab_release()
-		self.destroy()
-
-	def addDataSource(self,entryList):
-		"""
-		Allows the user to add refrences to widgets
-		that collect data from the user, to it can
-		be returned when the "Save" button is run
-		"""
-		for entry in entryList:
-			self.entryList.append(entry)
-
-	def save(self):
-		"""
-		The save method will collect all the data
-		from the data sources and then execute the
-		correct commands when the window has been
-		destroyed
-		"""
-		#Gather data
-		if len(self.entryList) > 0:
-			for item in self.entryList:
-				if type(item) == Entry:
-					self.gatheredData.append(item.get())
-				else:
-					log.report("Invalid data source used in popup",item,tag="Error",system=True)
-		else:
-			log.report("The popup window was not given any data sources and has not returned any data","(UI)",tag="UI")
-
-		#Kill window
-		self.cancel()
-		#Execute commands
-		if len(self.runCommandDict) > 0:
-			for command in self.runCommandDict:
-				if self.runCommandDict[command]:
-					try:
-						command(self)
-					except:
-						log.report("Encountered error when running popup window commands",self.name,tag="Error")
-				else:
-					try:
-						command()
-					except:
-						log.report("Encountered error when running popup window commands",self.name,tag="Error")
-
-	def toggle(self,state):
-		if state == "DISABLED":
-			self.saveButton.config(state=DISABLED)
-			self.saveButtonState=False
-		else:
-			self.saveButton.config(state=NORMAL)
-			self.saveButtonState=True
-
-	def changeEntryColour(self,colour):
-		"""
-		Will change the colour of all the data sources
-		in the popup window
-		"""
-		for entry in self.entryList:
-			entry.config(bg=colour)
-
-class advancedSlider(mainFrame):
-	"""
-	This class is a modified scale widget.
-	It will add more customization and 
-	a label kwarg which adds a label to the widget
-	"""
-	def __init__(self,parent,text,*extra,**kwargs):
-
-		mainFrame.__init__(self,parent)
-
-		#Important
-		self.text=text
-		self.outputVar=StringVar()
-		self.commands=[]
-
-		#UI
-		self.label=mainLabel(self,text=self.text)
-		self.label.pack()
-
-		self.sliderContainer=mainFrame(self)
-		self.sliderContainer.pack()
-
-		self.slider=ttk.Scale(self.sliderContainer,length=150,**kwargs)
-		self.slider.grid(row=0,column=0)
-
-		self.outputLabel=mainLabel(self.sliderContainer,textvariable=self.outputVar,width=5)
-		self.outputLabel.grid(row=0,column=1)
-
-		#Update label
-		self.outputVar.set(self.getValue())
-
-		#Adds command run
-		self.slider.config(command=self.run)
-
-	def addCommand(self,command):
-		"""
-		Will add a command to the list to execute
-		when slider moves
-		"""
-		if command not in self.commands:
-			self.commands.append(command)
-
-	def run(self,value):
-		"""
-		THis is the method called every time the slider
-		moves
-		"""
-
-		value=round(float(value))
-		#Run the commands
-		for command in self.commands:
-			try:
-				command()
-			except:
-				log.report("Error running command","(Slider)",tag="Error",system=True)
-		#Update label
-		self.outputVar.set(value)
-
-	def getValue(self):
-		return int(float(self.slider.get()))
-
-class labelEntry(mainFrame):
-	"""
-	This class will be an entry with a built in
-	label underneath to display a certain value
-	"""
-	def __init__(self,parent,**kwargs):
-
-		#Get title for object
-		self.title=None
-		if "title" in kwargs:
-			self.title=kwargs["title"]
-			kwargs.pop("title")
-		#Init
-		mainFrame.__init__(self,parent)
-
-		if self.title != None:
-			#Title label
-			self.titleLabel=titleLabel(self,text=self.title)
-			self.titleLabel.pack()
-
-		#Create entry
-		self.entry=Entry(self,**kwargs)
-		self.entry.pack()
-
-		#Create label
-		self.dataVar=StringVar()
-		self.dataLabel=mainLabel(self,textvariable=self.dataVar,font="Helvetica 10")
-		self.dataLabel.pack()
-
-	def insert(self,data):
-		#Add data to the entry
-		insertEntry(self.entry,data)
-
-	def updateLabel(self,data):
-		#Update the label with a value
-		self.dataVar.set(data)
-
-	def get(self):
-		#Return value in the entry
-		return self.entry.get()
-
-	def changeColour(self,colour):
-		#Change entry colour
-		self.entry.config(bg=colour)
-#==============TEST==============
-
-class advancedNotebook(mainFrame):
-	"""
-	The advanced Notebook is
-	a custom notebook class that will look
-	better and do more than the standard notebook
-	class
-	"""
-	def __init__(self,parent,**kwargs):
-		mainFrame.__init__(self,parent,**kwargs)
+#==============Other Classes==============
 
 
-		#Top view
-		self.topBar=centerFrame(self)
-		self.topSub=self.topBar.miniFrame
-		self.topBar.pack(side=TOP,fill=X)
-		self.topBar.colour("#C5CDCD")
-
-		self.views={}
-		self.labelDict={}
-		self.currentView=None
-
-		self.viewCount=0
-
-		#Colour variables
-		self.selectColour="#FFFFFF"
-		self.selectFG="#000000"
-
-		self.notSelected="#98A5AA"
-		self.notSelectedFG=getColourForBackground(self.notSelected)
-		self.notSelectedHover="#AFBCC2"
-
-		#Get a select colour from kwargs
-		if "select" in kwargs:
-			self.selectColour=kwargs["select"]
-			self.selectFG=getColourForBackground(kwargs["select"])
-		if "topColour" in kwargs:
-			self.topBar.colour(kwargs["topColour"])
-
-	def addView(self,frame,name):
-		"""
-		This method will add a frame to the notebook
-		view and create a label to nagivate with
-		"""
-		#Add to dictionary
-		self.views[name]=frame
-		#Add to top bar
-		newLabel=mainLabel(self.topSub,text=name,width=10,bg=self.notSelected)
-		newLabel.grid(row=0,column=self.viewCount)
-		#Add binding
-		newLabel.bind("<Button-1>",lambda event, s=self,n=name: s.showView(n))
-		newLabel.bind("<Enter>",lambda event,lab=newLabel: lab.config(bg=self.notSelectedHover))
-		newLabel.bind("<Leave>",lambda event,lab=newLabel: lab.config(bg=self.notSelected))
-		#Add label to dictionary
-		self.labelDict[name]=newLabel
-		self.viewCount+=1
-
-		#Show view
-		if self.viewCount == 1:
-			self.showView(name)
-
-	def showView(self,name):
-		"""
-		This method is run when a screen
-		needs to be shown. It will hide and
-		show relevant screens and update label
-		colours etc.
-		"""
-		if name in self.views:
-			currentViewName=self.currentView
-			frameToLoad=self.views[name]
-
-			#Ensure same frame isn't loaded
-			if currentViewName != name:
-				if currentViewName != None:
-					#Hide frame
-					self.views[currentViewName].pack_forget()
-					#Update label
-					self.labelDict[currentViewName].config(bg=self.notSelected,fg=self.notSelectedFG)
-
-					#Remove old bindings
-					currentLabel=self.labelDict[currentViewName]
-					currentLabel.bind("<Enter>",lambda event,lab=currentLabel: lab.config(bg=self.notSelectedHover))
-					currentLabel.bind("<Leave>",lambda event,lab=currentLabel: lab.config(bg=self.notSelected))
-
-				#Display the new frame
-				frameToLoad.pack(expand=True,fill=BOTH,side=BOTTOM)
-
-				#Update new label
-				currentLabel=self.labelDict[name]
-				currentLabel.config(bg=self.selectColour)
-				currentLabel.config(fg=self.selectFG)
-				self.currentView=name
-				#Unbind because when selected tab has no bindings
-				currentLabel.unbind("<Enter>")
-				currentLabel.unbind("<Leave>")
-		else:
-			log.report("Invalid view loaded by notebook")
-	def hideTab(self,name):
-		"""
-		This method will hide one of the tabs
-		in the notebook 
-		"""
-		if name in self.labelDict:
-			self.labelDict[name].grid_forget()
-class advancedTree(ttk.Treeview):
-	"""
-	This is a modified tree view
-	which will make it easier to do
-	the basic operations and auto add
-	scroll bar etc.
-	"""
-	def __init__(self,parent,columns,**kwargs):
-		ttk.Treeview.__init__(self,parent,show="headings",columns=columns)
-		self.columns=columns
-
-		#Add the scrollbar
-		self.scroll=Scrollbar(self)
-		self.scroll.pack(side=RIGHT,fill=Y)
-
-		self.scroll.config(command=self.yview)
-		self.config(yscrollcommand=self.scroll.set)
-
-	def addSection(self,sectionName):
-		"""
-		Add a section to the tree
-		"""
-		self.column(sectionName,width=10,minwidth=45)
-		self.heading(sectionName,text=sectionName)
-
-
-	def insertData(self,values,tags):
-		"""
-		Method to insert data into the treeview
-		"""
-		self.insert("" , 0,values=values,tags=tags)
-
-	def addTag(self,tag,colour):
-		self.tag_configure(tag,background=colour)

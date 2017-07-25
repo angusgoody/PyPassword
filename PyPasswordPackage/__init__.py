@@ -60,9 +60,10 @@ log=logClass("Main")
 #===============================(Password Templates)===============================
 
 #===Normal Login===
+"""
 loginTemplate=passwordTemplate("Login")
 loginTemplate.createBulk(["Title","Username","Password"],"Basic")
-
+"""
 #===============================(USER INTERFACE)===============================
 
 #-----Log Screen----
@@ -243,7 +244,6 @@ homeNewPodButton.pack(pady=5)
 #Colour Section
 homeScreen.colour("#9C2553")
 #endregion
-
 #---View Pod Screen---
 #region viewPod screen
 viewPodScreen=mainScreen(window,"Pod Info",statusVar)
@@ -260,8 +260,7 @@ viewPodNotebook.pack(expand=True,fill=BOTH)
 
 #Basic info
 viewPodBasicSection=passwordDisplayView(viewPodNotebook)
-#viewPodBasicSection.createSections(["Title","Username","Password"],["#1188D7","#0F74B7","#0D68A4","#2B6198"])
-
+viewPodBasicSection.createSections(["Title","Username","Password"],["#1188D7","#0F74B7","#0D68A4","#2B6198"])
 viewPodBasicSection.showSections()
 
 #Advanced info
