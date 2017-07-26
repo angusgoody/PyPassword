@@ -22,6 +22,8 @@ import random
 import datetime
 from tkinter import messagebox
 from tkinter import filedialog
+import webbrowser
+
 #Variable for TK windows
 mainWindow=None
 
@@ -1344,6 +1346,34 @@ class labelEntry(mainFrame):
 
 #==============Password Widget Classes==============
 
+class passwordDisplayView(displayView):
+	"""
+	This class is a modified display view
+	and will contain special methods to add batter
+	security.
+	"""
+	def __init__(self,parent):
+		displayView.__init__(self,parent)
+
+class passwordNotebook(advancedNotebook):
+	"""
+	This class will be used on the view pod
+	screen and will display the data from a pod
+	"""
+	def __init__(self,parent,**kwargs):
+		advancedNotebook.__init__(self,parent,**kwargs)
+
+		#Key = tabName Value = displayView
+		self.tabDict={}
+
+	def addNewDisplayTab(self,tabName):
+		"""
+		This method will create a new display view
+		and create a new tab for it
+		"""
+		if tabName not in self.tabDict:
+			#Create the display view
+			pass
 
 
 

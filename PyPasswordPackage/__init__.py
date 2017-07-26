@@ -13,7 +13,6 @@ from tkinter import messagebox
 import random
 import os
 import re
-import webbrowser
 
 from PyUi import *
 from PEM import *
