@@ -244,6 +244,7 @@ homeNewPodButton.pack(pady=5)
 #Colour Section
 homeScreen.colour("#9C2553")
 #endregion
+
 #---View Pod Screen---
 #region viewPod screen
 viewPodScreen=mainScreen(window,"Pod Info",statusVar)
@@ -256,36 +257,8 @@ viewPodTopFrame.pack(side=TOP,fill=X)
 viewPodNotebookFrame=mainFrame(viewPodScreen)
 viewPodNotebookFrame.pack(expand=True,fill=BOTH)
 
-viewPodNotebook=advancedNotebook(viewPodNotebookFrame,select="#C1E600",topColour="#263260")
-viewPodNotebook.pack(expand=True,fill=BOTH)
 
 
-#Basic info
-viewPodBasicSection=passwordDisplayView(viewPodNotebook)
-viewPodBasicSection.createSections(["Title","Username","Password"],["#1188D7","#0F74B7","#0D68A4","#2B6198"])
-viewPodBasicSection.showSections()
-
-#Advanced info
-viewPodAdvancedSection=passwordDisplayView(viewPodNotebook)
-viewPodAdvancedSection.basicOrAdvanced="Advanced"
-
-viewPodAdvancedWebsiteSection=hiddenDataSection(viewPodAdvancedSection,"Website")
-viewPodAdvancedWebsiteSection.addButton("Launch")
-viewPodAdvancedSection.addPasswordSection(viewPodAdvancedWebsiteSection,colour="#4CC885")
-
-viewPodAdvancedNoteSection=dataSection(viewPodAdvancedSection,"Notes")
-viewPodAdvancedNoteSub=viewPodAdvancedNoteSection.miniFrame
-mainLabel(viewPodAdvancedNoteSub,text="Notes").pack()
-viewPodAdvancedNotes=Text(viewPodAdvancedNoteSub,height=5,wrap=WORD,font="Arial 13")
-viewPodAdvancedNoteSection.addDataSource(viewPodAdvancedNotes)
-viewPodAdvancedNotes.pack()
-viewPodAdvancedSection.addPasswordSection(viewPodAdvancedNoteSection,colour="#4DB585")
-
-viewPodAdvancedSection.showSections()
-
-#Add pages
-viewPodNotebook.addView(viewPodBasicSection,"Basic")
-viewPodNotebook.addView(viewPodAdvancedSection,"Advanced")
 
 #--Bottom section--
 viewPodBottomFrame=centerFrame(viewPodScreen)
@@ -395,17 +368,14 @@ genPasswordNotebook.addView(genPasswordReviewFrame, "Review")
 genPasswordFrame.colour("#E7E7E7")
 genPasswordReviewFrame.colour("#213380")
 #endregion
+
+
 #===============================(FUNCTIONS)===============================
 
-#=========Program Functions=========
+#=========Screen Specific Functions=========
+#region Screen Specific Functions
 
-
-#=====Screen Loaders====
-"""
-These functions will load different screens
-when they run. They will execute different commands
-as well as load screens
-"""
+#=====MENU COMMANDS====
 
 def goHome():
 	"""
@@ -427,6 +397,8 @@ def lockdown():
 	homePodListbox.fullClear()
 	openMasterScreen.show()
 
+#=====VIEW POD=========
+
 def loadDataPod(selectedPod):
 	"""
 	The actual function that
@@ -439,30 +411,14 @@ def loadDataPod(selectedPod):
 	#Set Variable
 	masterPod.currentDataPod=selectedPod
 	#Add data to screen
-	addBasicPodDataToScreen(selectedPod, [viewPodBasicSection,viewPodAdvancedSection])
+	# todo add data to screen
 	#Make sure data is hidden
-	passwordSection=viewPodBasicSection.getSection("Password")
-	if passwordSection != None:
-		passwordSection.hideData()
 	#Make sure right tab is loaded
-	viewPodNotebook.showView("Basic")
 	#Report to log
 	log.report("Data pod opened")
 
-def getSelectedDataPod():
-	"""
-	This is the function that runs when a data pod
-	needs to be displayed onto the screen. It will
-	show the screen and then add the pod data to it
-	and updates any variables.
-	"""
 
-	#Find the pod the user selected
-	selectedPod=homePodListbox.getSelected()
-	#Checks if a pod has actually been selected
-	if selectedPod != None and selectedPod != False:
-		loadDataPod(selectedPod)
-
+#=====OPEN SCREEN=======
 def openMasterPod():
 	"""
 	This function is for when the user
@@ -494,12 +450,74 @@ def openOtherMasterPod():
 			#Adds to listbox and removes extension
 			openMainListbox.addObject(pod.getRootName(), pod)
 
+def createNewMasterPodPopup():
+	"""
+	This function will run to launch a new 
+	popup window to allow the user to create a new 
+	master pod
+	:return: 
+	"""
+	#Initiate a new TK window
+	popupInfoVar=StringVar()
+	newWindow=popUpWindow(window,"Create Master Pod",infoVar=popupInfoVar)
 
-#=====Button Commands====
-"""
-These commands are functions 
-that are linked to a button pressed
-"""
+	#Add the frame view and ui elements
+	popUpFrame=centerFrame(newWindow)
+	popUpFrame.pack(expand=True)
+	popUpSub=popUpFrame.miniFrame
+
+	mainLabel(popUpSub,text="Enter Master Pod Name").pack()
+	popUpEntry=Entry(popUpSub,width=20,justify=CENTER)
+	popUpEntry.pack()
+
+	mainLabel(popUpSub,text="Choose Password").pack()
+	popUpPasswordEntry=Entry(popUpSub,width=20,justify=CENTER)
+	popUpPasswordEntry.pack()
+
+	mainLabel(popUpSub,textvariable=popupInfoVar,font="Helvetica 10").pack(side=BOTTOM)
+	newWindow.addView(popUpSub)
+
+	#Add bindings
+	popUpEntry.bind("<KeyRelease>",lambda event,el=[popUpEntry,popUpPasswordEntry],
+	                                      ds=masterPod,pi=newWindow: checkMasterPodDataValid(el,ds,newWindow))
+	popUpPasswordEntry.bind("<KeyRelease>",lambda event, el=[popUpEntry,popUpPasswordEntry],
+	                                      ds=masterPod,pi=newWindow: checkMasterPodDataValid(el,ds,newWindow))
+	#Disable button by default to avoid blank names and disable resizing
+	newWindow.toggle("DISABLED")
+	newWindow.resizable(width=False, height=False)
+
+	#Add data sources and return values
+	newWindow.addDataSource([popUpEntry,popUpPasswordEntry])
+	newWindow.addCommands([initiateMasterPod],True)
+
+	#Run
+	newWindow.run()
+
+	#Add to log
+	log.report("New popup launched","(POPUP)",tag="UI")
+
+def initiateMasterPod(popupInstance):
+	"""
+	This function will create a new master pod
+	with the input from the user using the popup instance
+	as a parameter.
+	"""
+	data=popupInstance.gatheredData
+	if len(data) > 1:
+		podName=data[0]
+		podPassword=data[1]
+
+		#Create file name
+		fileName=str(podName)
+		if ".mp" not in fileName:
+			fileName=fileName+".mp"
+		newPod=masterPod(fileName)
+		newPod.addKey(podPassword)
+		newPod.save()
+		openMainListbox.addObject(podName, newPod)
+
+#=====MASTER PASSWORD=======
+
 def unlockMasterPod():
 	attempt=openMasterEntry.get()
 	if len(attempt.split()) > 0:
@@ -509,7 +527,7 @@ def unlockMasterPod():
 		response=currentMasterPod.unlock(attempt)
 		if response != None and response != False:
 			log.report("Unlock success","(Unlock)",tag="Login")
-			
+
 			#Load screen
 			homeScreen.show()
 			#Show Pods
@@ -520,44 +538,200 @@ def unlockMasterPod():
 			masterPod.currentMasterPod=currentMasterPod
 		else:
 			askMessage("Incorrect","Password Incorrect")
+
 	else:
 		askMessage("Blank","Please Enter Something")
 
 	#Clear entry
 	insertEntry(openMasterEntry,"")
 
-def addBasicPodDataToScreen(podInstance, displayList):
+#=====HOME SCREEN=======
+
+def loadSelectedDataPod():
 	"""
-	This function will take a pod and display
-	the data on screen.
+	This is the function that runs when a data pod
+	needs to be displayed onto the screen. It will
+	show the screen and then add the pod data to it
+	and updates any variables.
 	"""
-	titleFound=False
-	for display in displayList:
 
-		if type(display) == passwordDisplayView:
+	#Find the pod the user selected
+	selectedPod=homePodListbox.getSelected()
+	#Checks if a pod has actually been selected
+	if selectedPod != None and selectedPod != False:
+		loadDataPod(selectedPod)
 
-			#Clear screen first
-			display.clearScreen()
+def initiatePod(popupInstance):
+	"""
+	This is the function that runs
+	when the user clicks the "Save" button
+	on the popup screen when choosing a name
+	"""
+	data=popupInstance.gatheredData
 
-			#Get basic pod info
-			podVault=podInstance.getVault()
-			podTitle=podInstance.podName
+	if len(data) > 0:
+		single=data[0]
+		#Create pod with that name
+		pd=masterPod.currentMasterPod.addPod(single)
+		#Add to listbox
+		homePodListbox.addObject(single, pd)
+		#Save data
+		masterPod.currentMasterPod.save()
+		#Display the screen
+		loadDataPod(pd)
 
-			#Add all the data in the vault to screen
-			if titleFound == False:
-				#If the vault itself does not contain title it uses the pod title
-				if "Title" not in podVault and "Title" in display.sectionDict:
-					display.sectionDict["Title"].addData(podTitle)
-				titleFound=True
+def createNewPodPopup():
+	"""
+	This function creates a popup window
+	that allows the user to enter a name
+	for the pod
+	"""
 
-			#Iterate through all data in the pod
-			for item in display.sectionDict:
-				if item in podVault:
-					#Add to the correct entry
-					display.sectionDict[item].addData(podVault[item])
+	#Will only run if a master pod has been loaded
+	if masterPod.currentMasterPod != None:
+
+		#Initiate a new TK window
+		popupInfoVar=StringVar()
+		newWindow=popUpWindow(window,"Create Pod",infoVar=popupInfoVar)
+
+		#Add the frame view and ui elements
+		popUpFrame=centerFrame(newWindow)
+		popUpFrame.pack(expand=True)
+		popUpSub=popUpFrame.miniFrame
+
+		mainLabel(popUpSub,text="Enter Pod Name").pack()
+		popUpEntry=Entry(popUpSub,width=20,justify=CENTER)
+		popUpEntry.pack()
+		popUpEntry.bind("<KeyRelease>", lambda event, ds=masterPod.currentMasterPod,
+		                                      en=popUpEntry, ins=newWindow: checkPodNameValid(en, ds, ins))
+		mainLabel(popUpSub,textvariable=popupInfoVar,font="Helvetica 10").pack(side=BOTTOM)
+		newWindow.addView(popUpSub)
+
+		#Disable button by default to avoid blank names and disable resizing
+		newWindow.toggle("DISABLED")
+		newWindow.resizable(width=False, height=False)
+
+		#Add data sources and return values
+		newWindow.addDataSource([popUpEntry])
+		newWindow.addCommands([initiatePod],True)
+
+		#Run
+		newWindow.run()
+
+		#Add to log
+		log.report("New popup launched","(POPUP)",tag="UI")
+
+#=====GENERATE PASSWORD=======
+
+def calculatePasswordStrength(password):
+	"""
+	Verify the strength of 'password'
+	Returns a dict indicating the wrong criteria
+	A password is considered strong if:
+		12 characters length or more
+		1 digit or more
+		1 symbol or more
+		1 uppercase letter or more
+		1 lowercase letter or more
+	a false result means it passed
+	"""
+
+	# calculating the length
+	length_error = len(password) < 11
+
+	# searching for digits
+	digit_error = re.search(r"\d", password) is None
+
+	# searching for uppercase
+	uppercase_error = re.search(r"[A-Z]", password) is None
+
+	# searching for lowercase
+	lowercase_error = re.search(r"[a-z]", password) is None
+
+	# searching for symbols
+	symbol_error = re.search(r"[ !#$%&'(@)*+,-./[\\\]^_`{|}~"+r'"]', password) is None
+
+	# overall result
+	overall = not ( length_error or digit_error or uppercase_error or lowercase_error or symbol_error )
+
+	results={
+		'At least 12 characters' : length_error,
+		'At least 1 digit' : digit_error,
+		'At least 1 Uppercase' : uppercase_error,
+		'At least 1 lowercase' : lowercase_error,
+		'At least 1 symbol' : symbol_error,
+	}
+
+	#Track number of fails and pass
+	fails=0
+	success=0
+	fields=len(results)
+	for item in results:
+		if results[item]:
+			fails+=1
+		else:
+			success+=1
+	#Return results
+
+	return success,fails,fields,results
+
+def genPassword():
+	"""
+	This function takes the values of all the sliders
+	and generates a password
+	"""
+	#Collect the data
+	length=genPasswordLengthSlider.getValue()
+	digits=genPasswordDigitSlider.getValue()
+	symbols=genPasswordSymbolSlider.getValue()
+	#Generate the password
+	password=generatePassword(length,symbols,digits)
+	#Calculate password strength
+	strength=calculatePasswordStrength(password)
+	if strength[0] == strength[2]:
+		genPasswordEntry.changeColour("#A3EEA4")
+		genPasswordEntry.updateLabel("Strong Password")
+	elif (strength[0]/strength[2])*100 > 50:
+		genPasswordEntry.changeColour("#ECD06D")
+		genPasswordEntry.updateLabel("Medium Password")
+	else:
+		genPasswordEntry.changeColour("#EC95A7")
+		genPasswordEntry.updateLabel("Weak Password")
+	#Add the password to entry
+	insertEntry(genPasswordEntry,password)
+	#Review the password
+	insertEntry(genPasswordReviewEntry, password)
+	reviewPassword()
+
+def reviewPassword():
+	"""
+	This function is used to review a password
+	using the strength function and give feedback to the user
+	"""
+	#Collect data
+	data=genPasswordReviewEntry.get()
+	strength=calculatePasswordStrength(data)
+	#Clear tree
+	genPasswordReviewTree.delete(*genPasswordReviewTree.get_children())
+	resultDict={True:"Incomplete",False:"Complete"}
+	#Add data to tree
+	for item in strength[3]:
+		value=strength[3][item]
+		#If good or bad
+		tag="Fail"
+		if value:
+			tag="Fail"
+		else:
+			tag="Pass"
+		genPasswordReviewTree.insertData((item, resultDict[value]), (tag))
+	#Update label
+	genPasswordReviewEntry.updateLabel(str(strength[0]) + "/" + str(strength[2]) + " complete")
 
 
-#=====Initialiser Commands====
+#endregion
+
+#=========Non Screen Specific Functions=========
+#region Non Screen Specific
 
 def loadFilesInDirectory():
 	"""
@@ -579,13 +753,6 @@ def loadFilesInDirectory():
 		#Adds to listbox and removes extension
 		openMainListbox.addObject(pod.getRootName(), pod)
 
-#=====QUICK RUN Loaders====
-"""
-Quick run commands are commands
-that usually run very quickly and are 
-binded to keystrokes etc. They include
-search functions while the user is typing
-"""
 def checkPodNameValid(entry, dataSource, popupInstance):
 	"""
 	This function checks that the data
@@ -649,366 +816,9 @@ def checkMasterPodDataValid(entryList,dataSource,popupInstance):
 				popupInstance.infoStringVar.set("Valid Name")
 				return True
 
-def calculatePasswordStrength(password):
-	"""
-	Verify the strength of 'password'
-	Returns a dict indicating the wrong criteria
-	A password is considered strong if:
-		12 characters length or more
-		1 digit or more
-		1 symbol or more
-		1 uppercase letter or more
-		1 lowercase letter or more
-	a false result means it passed
-	"""
 
-	# calculating the length
-	length_error = len(password) < 11
+#endregion
 
-	# searching for digits
-	digit_error = re.search(r"\d", password) is None
-
-	# searching for uppercase
-	uppercase_error = re.search(r"[A-Z]", password) is None
-
-	# searching for lowercase
-	lowercase_error = re.search(r"[a-z]", password) is None
-
-	# searching for symbols
-	symbol_error = re.search(r"[ !#$%&'(@)*+,-./[\\\]^_`{|}~"+r'"]', password) is None
-
-	# overall result
-	overall = not ( length_error or digit_error or uppercase_error or lowercase_error or symbol_error )
-
-	results={
-		'At least 12 characters' : length_error,
-		'At least 1 digit' : digit_error,
-		'At least 1 Uppercase' : uppercase_error,
-		'At least 1 lowercase' : lowercase_error,
-		'At least 1 symbol' : symbol_error,
-	}
-
-	#Track number of fails and pass
-	fails=0
-	success=0
-	fields=len(results)
-	for item in results:
-		if results[item]:
-			fails+=1
-		else:
-			success+=1
-	#Return results
-
-	return success,fails,fields,results
-
-
-def genPassword():
-	"""
-	This function takes the values of all the sliders
-	and generates a password
-	"""
-	#Collect the data
-	length=genPasswordLengthSlider.getValue()
-	digits=genPasswordDigitSlider.getValue()
-	symbols=genPasswordSymbolSlider.getValue()
-	#Generate the password
-	password=generatePassword(length,symbols,digits)
-	#Calculate password strength
-	strength=calculatePasswordStrength(password)
-	if strength[0] == strength[2]:
-		genPasswordEntry.changeColour("#A3EEA4")
-		genPasswordEntry.updateLabel("Strong Password")
-	elif (strength[0]/strength[2])*100 > 50:
-		genPasswordEntry.changeColour("#ECD06D")
-		genPasswordEntry.updateLabel("Medium Password")
-	else:
-		genPasswordEntry.changeColour("#EC95A7")
-		genPasswordEntry.updateLabel("Weak Password")
-	#Add the password to entry
-	insertEntry(genPasswordEntry,password)
-	#Review the password
-	insertEntry(genPasswordReviewEntry, password)
-	reviewPassword()
-
-def reviewPassword():
-	"""
-	This function is used to review a password
-	using the strength function and give feedback to the user
-	"""
-	#Collect data
-	data=genPasswordReviewEntry.get()
-	strength=calculatePasswordStrength(data)
-	#Clear tree
-	genPasswordReviewTree.delete(*genPasswordReviewTree.get_children())
-	resultDict={True:"Incomplete",False:"Complete"}
-	#Add data to tree
-	for item in strength[3]:
-		value=strength[3][item]
-		#If good or bad
-		tag="Fail"
-		if value:
-			tag="Fail"
-		else:
-			tag="Pass"
-		genPasswordReviewTree.insertData((item, resultDict[value]), (tag))
-	#Update label
-	genPasswordReviewEntry.updateLabel(str(strength[0]) + "/" + str(strength[2]) + " complete")
-
-
-#=====Other Commands====
-
-def beginEdit(displayViewList):
-	"""
-	The begin Edit function is called
-	when the user selects to Edit the data
-	in the data pod
-	"""
-	#Show correct view
-	viewPodChangeController.showView(viewPodCancelEditSection)
-
-	for display in displayViewList:
-		#Change states of Entry
-		for sectionTitle in display.sectionDict:
-
-			#Diffent methods for diffrent widgets
-			widget=display.sectionDict[sectionTitle]
-			if type(widget) == hiddenDataSection:
-				widget.enterEditMode()
-			else:
-				widget.enableDataSource()
-
-
-def cancelEdit(displayViewList):
-	"""
-	The begin Edit function is called
-	if the user decides to cancel ediing
-	the pod data
-	"""
-	#Show correct view
-	viewPodChangeController.showView(viewPodEditFrame)
-
-	for display in displayViewList:
-
-		#Change states of Entry
-		for sectionTitle in display.sectionDict:
-			hiddenSection=display.sectionDict[sectionTitle]
-			#Check to see if data has been modified
-			if hiddenSection.getData() != hiddenSection.data.get():
-				#Change back to original
-				hiddenSection.restoreData()
-			#Disable diffrent data types
-			if type(hiddenSection) == hiddenDataSection:
-				hiddenSection.leaveEditMode()
-			else:
-				hiddenSection.disableDataSource()
-
-def overwritePodData(displayViewList):
-	"""
-	This function will take the data from the
-	pods on screen and update the old data
-	then save the data to file.
-	
-	It takes parameter of display view to
-	get the data from screen
-	"""
-	updated=False
-	for display in displayViewList:
-		for section in display.sectionDict:
-			hiddenSection=display.sectionDict[section]
-			#Compares saved data to data on screen
-			oldData=hiddenSection.data.get()
-			newData=hiddenSection.getData()
-			if oldData != newData:
-				sectionTitle=hiddenSection.title
-				#Update the stored data for the display
-				hiddenSection.updateData()
-				#Update the pod data
-				masterPod.currentDataPod.updateVault(sectionTitle,newData)
-				if sectionTitle == "Title":
-					#Update listbox
-					homePodListbox.updateItemLabel(oldData,newData)
-					#Update the label at top of screen
-					viewPodTopNameVar.set(str(masterPod.currentMasterPod.getRootName())+" / "+newData)
-
-				#Update Var
-				updated=True
-
-	if updated == False:
-		askMessage("No changes","No data was changed")
-	else:
-		log.report("Saved data successfully","(Saved)")
-		#Save to file
-		masterPod.currentMasterPod.save()
-		#Return to original screen
-		cancelEdit(displayViewList)
-
-def deletePod(podInstance):
-	rsp=askFirst("Sure","Are you sure you wish to delete this pod?",lambda: masterPod.currentMasterPod.deletePod(podInstance.podName,True))
-	#Carry out other tasks such as changing screen and removing from listbox
-	if rsp:
-		viewPodBasicSection.clearScreen()
-		homePodListbox.removeItem(podInstance.podName,False)
-		homeScreen.show()
-
-def launchWebsite(url,podInstance):
-	"""
-	This function will launch the website in the default
-	webbrowser
-	"""
-	if url:
-		try:
-			if "http://" not in url:
-				url="http://"+url
-			webbrowser.open_new(url)
-		except:
-			log.report("Error opening website",url,tag="Error")
-
-def copyPassword(entry):
-	"""
-	This function will copy the password generated
-	to the clipboard
-	"""
-	data=getData(entry)
-	if data != None:
-		addDataToClipboard(data)
-		log.report("Added data to clipboard","(Copy)")
-	else:
-		askMessage("Empty","No data to copy")
-
-
-#=====POPUP COMMANDS====
-"""
-Popup commands are all the commands associated
-with the popup windows and the functions that are run when the
-user clicks "Save" etc
-"""
-def initiatePod(popupInstance):
-	"""
-	This is the function that runs
-	when the user clicks the "Save" button
-	on the popup screen when choosing a name
-	"""
-	data=popupInstance.gatheredData
-
-	if len(data) > 0:
-		single=data[0]
-		#Create pod with that name
-		pd=masterPod.currentMasterPod.addPod(single)
-		#Add to listbox
-		homePodListbox.addObject(single, pd)
-		#Save data
-		masterPod.currentMasterPod.save()
-		#Display the screen
-		loadDataPod(pd)
-		#Start edit mode
-		beginEdit([viewPodBasicSection,viewPodAdvancedSection])
-
-def createNewPodPopup():
-	"""
-	This function creates a popup window
-	that allows the user to enter a name
-	for the pod
-	"""
-
-	#Will only run if a master pod has been loaded
-	if masterPod.currentMasterPod != None:
-
-		#Initiate a new TK window
-		popupInfoVar=StringVar()
-		newWindow=popUpWindow(window,"Create Pod",infoVar=popupInfoVar)
-
-		#Add the frame view and ui elements
-		popUpFrame=centerFrame(newWindow)
-		popUpFrame.pack(expand=True)
-		popUpSub=popUpFrame.miniFrame
-
-		mainLabel(popUpSub,text="Enter Pod Name").pack()
-		popUpEntry=Entry(popUpSub,width=20,justify=CENTER)
-		popUpEntry.pack()
-		popUpEntry.bind("<KeyRelease>", lambda event, ds=masterPod.currentMasterPod,
-		                                      en=popUpEntry, ins=newWindow: checkPodNameValid(en, ds, ins))
-		mainLabel(popUpSub,textvariable=popupInfoVar,font="Helvetica 10").pack(side=BOTTOM)
-		newWindow.addView(popUpSub)
-
-		#Disable button by default to avoid blank names and disable resizing
-		newWindow.toggle("DISABLED")
-		newWindow.resizable(width=False, height=False)
-
-		#Add data sources and return values
-		newWindow.addDataSource([popUpEntry])
-		newWindow.addCommands([initiatePod],True)
-
-		#Run
-		newWindow.run()
-
-		#Add to log
-		log.report("New popup launched","(POPUP)",tag="UI")
-
-def initiateMasterPod(popupInstance):
-	"""
-	This function will create a new master pod
-	with the input from the user using the popup instance
-	as a parameter.
-	"""
-	data=popupInstance.gatheredData
-	if len(data) > 1:
-		podName=data[0]
-		podPassword=data[1]
-
-		#Create file name
-		fileName=str(podName)
-		if ".mp" not in fileName:
-			fileName=fileName+".mp"
-		newPod=masterPod(fileName)
-		newPod.addKey(podPassword)
-		newPod.save()
-		openMainListbox.addObject(podName, newPod)
-
-def createNewMasterPodPopup():
-	"""
-	This function will run to launch a new 
-	popup window to allow the user to create a new 
-	master pod
-	:return: 
-	"""
-	#Initiate a new TK window
-	popupInfoVar=StringVar()
-	newWindow=popUpWindow(window,"Create Master Pod",infoVar=popupInfoVar)
-
-	#Add the frame view and ui elements
-	popUpFrame=centerFrame(newWindow)
-	popUpFrame.pack(expand=True)
-	popUpSub=popUpFrame.miniFrame
-
-	mainLabel(popUpSub,text="Enter Master Pod Name").pack()
-	popUpEntry=Entry(popUpSub,width=20,justify=CENTER)
-	popUpEntry.pack()
-
-	mainLabel(popUpSub,text="Choose Password").pack()
-	popUpPasswordEntry=Entry(popUpSub,width=20,justify=CENTER)
-	popUpPasswordEntry.pack()
-
-	mainLabel(popUpSub,textvariable=popupInfoVar,font="Helvetica 10").pack(side=BOTTOM)
-	newWindow.addView(popUpSub)
-
-	#Add bindings
-	popUpEntry.bind("<KeyRelease>",lambda event,el=[popUpEntry,popUpPasswordEntry],
-	                                      ds=masterPod,pi=newWindow: checkMasterPodDataValid(el,ds,newWindow))
-	popUpPasswordEntry.bind("<KeyRelease>",lambda event, el=[popUpEntry,popUpPasswordEntry],
-	                                      ds=masterPod,pi=newWindow: checkMasterPodDataValid(el,ds,newWindow))
-	#Disable button by default to avoid blank names and disable resizing
-	newWindow.toggle("DISABLED")
-	newWindow.resizable(width=False, height=False)
-
-	#Add data sources and return values
-	newWindow.addDataSource([popUpEntry,popUpPasswordEntry])
-	newWindow.addCommands([initiateMasterPod],True)
-
-	#Run
-	newWindow.run()
-
-	#Add to log
-	log.report("New popup launched","(POPUP)",tag="UI")
 
 #===============================(BUTTONS)===============================
 
@@ -1019,18 +829,14 @@ openCreateFileButton.config(command=createNewMasterPodPopup)
 openMasterUnlockButton.config(command=unlockMasterPod)
 openMasterCancelButton.config(command=lambda: openScreen.show())
 #=====HOME SCREEN=====
-homeOpenPodButton.config(command=getSelectedDataPod)
+homeOpenPodButton.config(command=loadSelectedDataPod)
 homeNewPodButton.config(command=createNewPodPopup)
 #=====VIEW POD=====
-viewPodEditButton.config(command=lambda:beginEdit([viewPodBasicSection,viewPodAdvancedSection]))
-viewPodCancelButton.config(command=lambda:cancelEdit([viewPodBasicSection,viewPodAdvancedSection]))
-viewPodSaveButton.config(command=lambda: overwritePodData([viewPodBasicSection,viewPodAdvancedSection]))
-viewPodDeleteButton.config(command=lambda: deletePod(masterPod.currentDataPod))
-viewPodAdvancedWebsiteSection.addButtonCommand("Launch",lambda:launchWebsite(viewPodAdvancedWebsiteSection.data.get(),masterPod.currentDataPod))
+#todo add view pod button commands here
 #=====GEN PASSWORD SCREEN=====
 genPasswordRegenerateButton.config(command=genPassword)
-genPasswordCopyButton.config(command=lambda e=genPasswordEntry:copyPassword(e))
-genPasswordReviewCopyButton.config(command=lambda e=genPasswordReviewEntry:copyPassword(e))
+genPasswordCopyButton.config(command=lambda e=genPasswordEntry:copyDataFromEntry(e))
+genPasswordReviewCopyButton.config(command=lambda e=genPasswordReviewEntry:copyDataFromEntry(e))
 
 #===============================(SLIDERS)===============================
 
@@ -1049,7 +855,7 @@ openMainListbox.bind("<Return>", lambda event: openMasterPod())
 #=====MASTER SCREEN=====
 openMasterEntry.bind("<Return>", lambda event: unlockMasterPod())
 #=====HOME SCREEN=====
-homePodListbox.bind("<Double-Button-1>", lambda event: getSelectedDataPod())
+homePodListbox.bind("<Double-Button-1>", lambda event: loadSelectedDataPod())
 
 #=====GEN PASSWORD SCREEN=====
 genPasswordReviewEntry.entry.bind("<KeyRelease>", lambda event: reviewPassword())

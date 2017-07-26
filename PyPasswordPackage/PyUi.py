@@ -130,6 +130,19 @@ functions that help reduce the amount
 of code needed.
 """
 
+def launchWebsite(url):
+	"""
+	This function will launch the website in the default
+	webbrowser
+	"""
+	if url:
+		try:
+			if "http://" not in url:
+				url="http://"+url
+			webbrowser.open_new(url)
+		except:
+			log.report("Error opening website",url,tag="Error")
+
 def askMessage(pre,message):
 	try:
 		messagebox.showinfo(pre,message)
@@ -196,6 +209,19 @@ def addDataToClipboard(data):
 		mainWindow.clipboard_clear()
 		mainWindow.clipboard_append(data)
 		log.report("Added data to clipboard","(Func)")
+
+def copyDataFromEntry(entry):
+	"""
+	This function will copy the password generated
+	to the clipboard
+	"""
+	data=getData(entry)
+	if data != None:
+		addDataToClipboard(data)
+		log.report("Added data to clipboard","(Copy)")
+	else:
+		askMessage("Empty","No data to copy")
+
 
 #==============HEX FUNCTIONS================
 
@@ -1318,320 +1344,10 @@ class labelEntry(mainFrame):
 
 #==============Password Widget Classes==============
 
-class passwordDisplayView(displayView):
-	"""
-	This class is a modified display view
-	that holds passwords and usernames etc
-	"""
 
-	def __init__(self,parent):
-		displayView.__init__(self,parent)
-		#The section dict stores hiddenData sections with key of name
-		self.sectionDict={}
 
-	def addPasswordSection(self,hiddenSection,**kwargs):
-		"""
-		Overides the default add section method
-		because title needs to be stored in the
-		object
-		"""
-		self.addSection(hiddenSection,**kwargs)
-		self.sectionDict[hiddenSection.title]=hiddenSection
 
-	def createSections(self,titleList,colourList):
-		"""
-		This method bulk creates sections in the displayView
-		"""
-		for title in titleList:
-			newSection=hiddenDataSection(self,title)
-			try:
-				newSection.colour(colourList[titleList.index(title)])
-			except:
-				pass
-			self.addPasswordSection(newSection)
 
-	def clearScreen(self):
-		"""
-		This method will wipe all data from the
-		screen and dictionary
-		"""
-		for item in self.sectionDict:
-			#Remove refrence
-			self.sectionDict[item].clear()
-
-	def getSection(self,indicator):
-		"""
-		Will return the section
-		in the display view
-		"""
-		if indicator in self.sectionDict:
-			return self.sectionDict[indicator]
-
-	def hideSection(self,indicator):
-		"""
-		This method will hide a section
-		of the display view
-		"""
-		print(self.sectionDict)
-		if indicator in self.sectionDict:
-			#Get the frame to hide
-			frameToHide=self.sectionDict[indicator]
-			#Hide it
-			frameToHide.pack_forget()
-
-class dataSection(centerFrame):
-	"""
-	This class is a mainFrame that wil be able
-	to store data and display a title. It will
-	be used for custom password sections that require
-	more than the standard hidden data section.
-	"""
-	def __init__(self,parent,title,**kwargs):
-		centerFrame.__init__(self,parent,**kwargs)
-
-		self.title=title
-		self.dataSource=None
-
-		#Key variables
-		self.editData=False
-		self.data=StringVar()
-
-	def addDataSource(self,dataSource):
-		self.dataSource=dataSource
-
-	def getData(self):
-		"""
-		This method will get data for a number
-		of diffrent widgets and return the data
-		"""
-		if self.dataSource != None:
-			return getData(self.dataSource)
-
-	def insertData(self,dataToAdd):
-		"""
-		The method that adds data to the range
-		of data sources that this class will have
-		"""
-		if self.dataSource != None:
-			self.enableDataSource()
-			insertEntry(self.dataSource,dataToAdd)
-			if self.editData == False:
-				self.disableDataSource()
-
-	def clear(self):
-		"""
-		This method removes all data from the object
-		so it can be used by another pod
-		"""
-		if self.dataSource != None:
-			self.insertData("")
-		self.data.set("")
-
-	def disableDataSource(self):
-		"""
-		This method will disable the objects data source
-		so the user is unable to edit it
-		"""
-		self.editMode=False
-		if self.dataSource != None:
-			self.dataSource.config(state=DISABLED)
-			#Text boxes are hard to tell if disabled or not
-			if type(self.dataSource) == Text:
-				self.dataSource.config(fg="#919591")
-
-	def enableDataSource(self):
-		"""
-		This method will make the data source
-		available to edit again
-		"""
-		self.editMode=True
-		if self.dataSource != None:
-			self.dataSource.config(state=NORMAL)
-			#Text boxes are hard to tell if disabled or not
-			if type(self.dataSource) == Text:
-				self.dataSource.config(fg="#000000")
-
-	def addData(self,dataToAdd):
-		"""
-		This method will add data to the section
-		by inserting the data into the entry and
-		updting the string variable
-		"""
-		if self.dataSource != None:
-			self.enableDataSource()
-			self.insertData(dataToAdd)
-			self.data.set(dataToAdd)
-			if self.editMode == False:
-				self.dataSource.config(state=DISABLED)
-
-	def restoreData(self):
-		"""
-		This method will restore the original
-		data to the entry if it is edited by
-		user
-		"""
-		self.addData(self.data.get())
-
-	def updateData(self):
-		"""
-		This method will get the data
-		from the entry and then update the data
-		"""
-		if self.dataSource != None:
-			newData=self.getData()
-			self.data.set(newData)
-
-class hiddenDataSection(dataSection):
-	"""
-	This class is used to display sensitive
-	information such as password or username
-	"""
-	def __init__(self,parent,title):
-		dataSection.__init__(self,parent,title)
-
-		self.title=title
-		self.data=StringVar()
-
-		self.centerFrame=self.miniFrame
-
-		self.titleLabel=mainLabel(self.centerFrame,text=self.title+":",width=10,hover=True)
-		self.titleLabel.grid(row=0,column=0)
-
-		self.dataEntry=Entry(self.centerFrame,state=DISABLED)
-		self.dataEntry.grid(row=0,column=1)
-		self.addDataSource(self.dataEntry)
-
-		self.buttonFrame=mainFrame(self.centerFrame)
-		self.buttonFrame.grid(row=0,column=2,padx=7)
-
-		#If data is hidden or not
-		self.hiddenVar=False
-		#If data is in edit mode or not
-		self.editMode=False
-
-		#Store Buttons
-		self.buttonDict={}
-		self.buttonCounter=0
-
-		#Create preset buttons (Array used because order matters)
-		initButtons=[["Hide",lambda s=self:s.toggleHide()],["Copy",lambda s=self: s.copyData()]]
-		for but in initButtons:
-			self.addButton(but[0])
-			self.addButtonCommand(but[0],but[1])
-
-	def toggleHide(self):
-		"""
-		This method is used to toggle
-		whether the data in the entry
-		is hidden or revealed
-		"""
-		if self.hiddenVar == False and self.editMode == False:
-			self.hideData()
-		else:
-			self.showData()
-
-	def enterEditMode(self):
-		"""
-		When in edit mode
-		:return: 
-		"""
-		#Ensure data is visible first
-		self.showData()
-		#Disable hide button
-		self.buttonDict["Hide"].config(state=DISABLED)
-		#Make data editable
-		self.enableDataSource()
-
-	def leaveEditMode(self):
-		"""
-		Exit edit mode
-		"""
-		#Enable hide button
-		self.buttonDict["Hide"].config(state=NORMAL)
-		#Make data editable
-		self.disableDataSource()
-
-	def hideData(self):
-		"""
-		Method will hide data in the entry
-		"""
-		self.dataEntry.config(show="•")
-		self.buttonDict["Hide"].config(text="Show")
-		self.disableDataSource()
-		self.hiddenVar=True
-
-	def showData(self):
-		"""
-		Method will show data in the entry
-		"""
-		self.dataEntry.config(show="")
-		self.buttonDict["Hide"].config(text="Hide")
-		self.hiddenVar=False
-		#If in edit mode or not
-		if self.editMode == False:
-			self.disableDataSource()
-		else:
-			self.enableDataSource()
-
-	def addButton(self,buttonText):
-		"""
-		This method will add a button
-		to the frame and commands can be
-		added later
-		"""
-
-		#Create button
-		newButton=mainButton(self.buttonFrame,text=buttonText,width=7)
-		newButton.grid(row=0,column=self.buttonCounter)
-		self.buttonCounter+=1
-
-		#Add to list
-		self.buttonDict[buttonText]=newButton
-
-		#Return button
-		return newButton
-
-	def addButtonCommand(self,buttonName,command):
-		"""
-		This method will add a command to one of the buttons
-		in the data section
-		"""
-		if buttonName in self.buttonDict:
-			self.buttonDict[buttonName].config(command=command)
-
-	def copyData(self):
-		"""
-		This method will copy the saved data to the
-		clipboard
-		"""
-		if mainWindow != None:
-			addDataToClipboard(self.data.get())
-
-class passwordNotebook(advancedNotebook):
-	"""
-	Modified notebook used specifically
-	for the view pod screen.
-	"""
-
-	templates=[]
-	def __init__(self,parent,**kwargs):
-		advancedNotebook.__init__(self,parent,**kwargs)
-
-		#Create the two basic tabs
-		self.addTab("Basic")
-		self.addTab("Advanced")
-
-		#Store the basic and advanced sections
-		self.basicSections=[]
-		self.advancedSections=[]
-
-	def addTab(self,tabName):
-		"""
-		This method will add a tab to the notebook
-		and create the frame etc
-		"""
-		newTabFrame=mainFrame(self)
-		self.addView(newTabFrame,tabName)
 
 
 #==============Other Classes==============
