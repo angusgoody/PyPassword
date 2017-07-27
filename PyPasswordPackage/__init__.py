@@ -56,13 +56,20 @@ mainRedColour="#E6607A"
 #Log
 log=logClass("Main")
 
-#===============================(Password Templates)===============================
+#===============================(Private Templates)===============================
 
 #===Normal Login===
-"""
-loginTemplate=passwordTemplate("Login")
-loginTemplate.createBulk(["Title","Username","Password"],"Basic")
-"""
+privateLoginTemplate=privateTemplate("Login")
+privateLoginTemplate.addTab("Advanced")
+privateLoginTemplate.addTemplateSection("Basic","Username",Entry)
+privateLoginTemplate.addTemplateSection("Basic","Password",Entry)
+
+privateLoginTemplate.addTemplateSection("Advanced","Website",Entry)
+privateLoginTemplate.addTemplateSection("Advanced","Notes",Text)
+
+#===Secure Note===
+privateSecureNote=privateTemplate("SecureNote")
+privateSecureNote.addTemplateSection("Basic","Notes",Text)
 #===============================(USER INTERFACE)===============================
 
 #-----Log Screen----
@@ -257,9 +264,9 @@ viewPodNotebookFrame=mainFrame(viewPodScreen)
 viewPodNotebookFrame.pack(expand=True,fill=BOTH)
 
 #Notebook
-viewPodNotebook=passwordNotebook(viewPodNotebookFrame)
+viewPodNotebook=passwordNotebook(viewPodNotebookFrame,select="#A9F955")
 viewPodNotebook.pack(expand=True,fill=BOTH)
-
+viewPodNotebook.loadTemplate("SecureNote")
 
 
 #--Bottom section--
@@ -885,8 +892,6 @@ viewMenu.add_command(label="Show Log",command=lambda: logScreen.show())
 loadFilesInDirectory()
 genPassword()
 #===============================(TESTING AREA)===============================
-newPrivate=privateDataSection(window,"Title",Entry)
-newPrivate.pack()
 
 #===============================(END)===============================
 window.mainloop()

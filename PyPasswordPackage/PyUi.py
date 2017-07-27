@@ -695,7 +695,6 @@ class advancedListbox(Listbox):
 		#Update the label
 		self.updateVars("Results: "+str(len(self.get(0,END))))
 
-
 	def addPodList(self,poDict):
 		"""
 		This method can add a dictionary of data
@@ -1347,6 +1346,49 @@ class labelEntry(mainFrame):
 
 #==============Password Widget Classes==============
 
+class privateTemplate:
+	"""
+	Class for storing templates 
+	of display views.
+	The tabData will store all the tabs
+	the template will use
+	and each tab will have a dictionary containing
+	all the private sections it will have
+	"""
+	templates={}
+
+	def __init__(self,templateName):
+		self.name=templateName
+
+		#Add to object array
+		privateTemplate.templates[templateName]=self
+		#Stores tabs
+		self.tabData={}
+
+		#Auto create basic and title
+		self.addTab("Basic")
+		self.addTemplateSection("Basic","Title",Entry)
+
+
+	def addTab(self,tabName):
+		"""
+		This method will add a tab to the template
+		for use in a notebook
+		"""
+		if tabName not in self.tabData:
+			self.tabData[tabName]={}
+
+
+	def addTemplateSection(self,tabIndicator,sectionTitle,sectionDataType):
+		"""
+		This method will add a section to the template
+		using an indicator to determine which tab
+		"""
+		if tabIndicator in self.tabData:
+			self.tabData[tabIndicator][sectionTitle]=sectionDataType
+
+
+
 
 class dataSection(mainFrame):
 	"""
@@ -1403,7 +1445,7 @@ class privateDataSection(dataSection):
 		self.buttonFrame=mainFrame(self.container)
 
 		#Create the default elements
-		self.titleLabel=mainLabel(self.labelFrame,text=(self.title+":"))
+		self.titleLabel=mainLabel(self.labelFrame,text=(self.title+":"),width=12)
 		self.titleLabel.pack(expand=True)
 
 		"""
@@ -1416,20 +1458,20 @@ class privateDataSection(dataSection):
 		#Text or Other
 		if selectedSource == Text:
 			#Create data source
-			dataSourceWidget=Text(self.dataFrame)
-			dataSourceWidget.pack(expand=True,fill=BOTH)
+			dataSourceWidget=Text(self.dataFrame,height=10)
+			dataSourceWidget.pack(fill=X)
 			self.dataSourceType=Text
 			self.dataSource=dataSourceWidget
 			#Create screen layout
-			self.container.pack(expand=True,fill=BOTH)
-			self.labelFrame.pack(side=TOP,fill=X)
-			self.dataFrame.pack(expand=True,fill=BOTH)
+			self.container.pack(fill=X)
+			self.labelFrame.pack(side=TOP,fill=X,pady=10)
+			self.dataFrame.pack(expand=True,fill=X)
 			self.buttonFrame.pack(side=BOTTOM,fill=X)
 
 		#Entry
 		else:
 			#Create data source
-			dataSourceWidget=Entry(self.dataFrame,justify=CENTER)
+			dataSourceWidget=Entry(self.dataFrame,width=25)
 			dataSourceWidget.pack(expand=True)
 			self.dataSourceType=Entry
 			self.dataSource=dataSourceWidget
@@ -1440,6 +1482,8 @@ class privateDataSection(dataSection):
 			self.buttonFrame.pack(side=RIGHT)
 
 
+		if "colour" in kwargs:
+			self.colour(kwargs["colour"])
 
 class passwordDisplayView(displayView):
 	"""
@@ -1449,8 +1493,6 @@ class passwordDisplayView(displayView):
 	"""
 	def __init__(self,parent):
 		displayView.__init__(self,parent)
-		#Todo temp only
-		self.colour(generateHexColour())
 		#Store the sections
 		self.sectionData={}
 
@@ -1480,6 +1522,9 @@ class passwordNotebook(advancedNotebook):
 			newDisplay=passwordDisplayView(self)
 			self.addView(newDisplay,tabName)
 			self.tabDict[tabName]=newDisplay
+			return newDisplay
+		else:
+			return self.tabDict[tabName]
 
 	def getDisplay(self,indicator):
 		"""
@@ -1488,6 +1533,17 @@ class passwordNotebook(advancedNotebook):
 		"""
 		if indicator in self.tabDict:
 			return self.tabDict[indicator]
+
+	def loadTemplate(self,templateName):
+		if templateName in privateTemplate.templates:
+			template=privateTemplate.templates[templateName]
+			for tab in template.tabData:
+				tabData=template.tabData[tab]
+				display=self.addNewDisplayTab(tab)
+				if display != None:
+					for item in tabData:
+						newPrivateSection=privateDataSection(display,item,tabData[item])
+						display.addSection(newPrivateSection)
 
 
 
