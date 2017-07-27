@@ -188,7 +188,6 @@ openMasterDisplay.addSection(openMasterTopFrame)
 openMasterDisplay.addSection(openMasterMainFrame)
 openMasterDisplay.addSection(openMasterBottomFrame)
 
-openMasterDisplay.showSections()
 
 
 #Colour Section
@@ -252,12 +251,18 @@ viewPodScreen=mainScreen(window,"Pod Info",statusVar)
 viewPodTopNameVar=StringVar()
 viewPodTopFrame=topStrip(viewPodScreen,viewPodTopNameVar)
 viewPodTopFrame.pack(side=TOP,fill=X)
+
 #--Main Notebook--
 viewPodNotebookFrame=mainFrame(viewPodScreen)
 viewPodNotebookFrame.pack(expand=True,fill=BOTH)
 
+viewPodNotebook=passwordNotebook(viewPodNotebookFrame)
+viewPodNotebook.pack(expand=True,fill=BOTH)
 
-
+viewPodNotebook.addNewDisplayTab("Basic")
+viewPodNotebook.showView("Basic")
+viewPodBasicSection=viewPodNotebook.getDisplay("Basic")
+viewPodBasicSection.addSection(privateDataSection(viewPodBasicSection,"Title",Entry))
 
 #--Bottom section--
 viewPodBottomFrame=centerFrame(viewPodScreen)

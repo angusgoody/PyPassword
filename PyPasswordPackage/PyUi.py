@@ -307,7 +307,7 @@ def recursiveChangeColour(parent,colour,fgColour):
 	of an element and change their colour
 	"""
 	widgetArray =["Entry", "Button", "Text", "Listbox", "OptionMenu", "Menu"]
-	excludeArray=[advancedNotebook]
+	excludeArray=[advancedNotebook,passwordNotebook]
 	parentClass=parent.winfo_class()
 	if type(parent) not in excludeArray:
 		if parentClass == "Frame":
@@ -983,8 +983,9 @@ class displayView(mainFrame):
 			self.sections.append(frameToShow)
 			if "colour" in kwargs:
 				frameToShow.colour(kwargs["colour"])
+			frameToShow.pack(expand=True,fill=BOTH)
 
-	def clear(self):
+	def clearScreen(self):
 		"""
 		Will clear all the sections
 		from the screen
@@ -993,7 +994,7 @@ class displayView(mainFrame):
 			item.pack_forget()
 
 	def showSections(self):
-		self.clear()
+		self.clearScreen()
 		for item in self.sections:
 			item.pack(expand=True,fill=BOTH)
 
@@ -1346,6 +1347,94 @@ class labelEntry(mainFrame):
 
 #==============Password Widget Classes==============
 
+
+class dataSection(mainFrame):
+	"""
+	This class will be used to hold
+	data. It will be a frame on screen
+	that has a label and data source
+	"""
+	def __init__(self,parent,title,**kwargs):
+		mainFrame.__init__(self,parent,**kwargs)
+		self.title=title
+		#Store data source
+		self.dataSource=None
+		#Store that data
+		self.data=None
+
+	def addData(self,data):
+		"""
+		This method adds data to the data source
+		of the widget
+		"""
+		if self.dataSource != None:
+			insertEntry(self.dataSource,data)
+
+	def clearData(self):
+		"""
+		This method will clear all data
+		in the data source
+		"""
+		if self.dataSource != None:
+			insertEntry(self.dataSource,"")
+			self.data=""
+
+class privateDataSection(dataSection):
+	"""
+	This class will be a data section that
+	is used for storing pod info it will automatically
+	create the widgets etc.
+	Available sources are...
+	*Entry
+	*Text
+	"""
+	def __init__(self,parent,title,selectedSource,**kwargs):
+		dataSection.__init__(self,parent,title,**kwargs)
+
+		#Variables
+		self.dataSourceType=None
+		self.dataSourceWidget=None
+
+
+		#Ui Elements
+		self.container=mainFrame(self)
+		self.labelFrame=mainFrame(self.container)
+		self.dataFrame=mainFrame(self.container)
+		self.buttonFrame=mainFrame(self.container)
+
+		"""
+		This is where the layout
+		will be created depending
+		on what kind of data will be
+		show. Entry or Text widget
+		"""
+
+		#Text or Other
+		if selectedSource == Text:
+			#Create data source
+			dataSourceWidget=Text(self)
+			self.dataSourceType=Text
+			self.dataSource=dataSourceWidget
+			#Create screen layout
+			self.container.pack(expand=True,fill=BOTH)
+			self.labelFrame.pack(side=TOP,fill=X)
+			self.dataFrame.pack(expand=True,fill=BOTH)
+			self.buttonFrame.pack(side=BOTTOM,fill=X)
+
+		#Entry
+		else:
+			#Create data source
+			dataSourceWidget=Entry(self)
+			self.dataSourceType=Entry
+			self.dataSource=dataSourceWidget
+			#Create screen layout
+			self.container.pack(expand=True)
+			self.labelFrame.pack(side=LEFT)
+			self.dataFrame.pack(side=RIGHT)
+			self.buttonFrame.pack(side=RIGHT)
+
+
+
 class passwordDisplayView(displayView):
 	"""
 	This class is a modified display view
@@ -1354,6 +1443,10 @@ class passwordDisplayView(displayView):
 	"""
 	def __init__(self,parent):
 		displayView.__init__(self,parent)
+
+		#Store the sections
+		self.sectionData={}
+
 
 class passwordNotebook(advancedNotebook):
 	"""
@@ -1366,6 +1459,11 @@ class passwordNotebook(advancedNotebook):
 		#Key = tabName Value = displayView
 		self.tabDict={}
 
+		#Create Basic And Advanced
+		self.addNewDisplayTab("Basic")
+
+		self.addNewDisplayTab("Advanced")
+
 	def addNewDisplayTab(self,tabName):
 		"""
 		This method will create a new display view
@@ -1373,7 +1471,19 @@ class passwordNotebook(advancedNotebook):
 		"""
 		if tabName not in self.tabDict:
 			#Create the display view
-			pass
+			newDisplay=passwordDisplayView(self)
+			self.addView(newDisplay,tabName)
+			self.tabDict[tabName]=newDisplay
+
+	def getDisplay(self,indicator):
+		"""
+		This method will return the display view
+		that was created when a new tab was added
+		"""
+		if indicator in self.tabDict:
+			return self.tabDict[indicator]
+
+
 
 
 
