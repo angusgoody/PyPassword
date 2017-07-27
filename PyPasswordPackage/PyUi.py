@@ -1402,6 +1402,10 @@ class privateDataSection(dataSection):
 		self.dataFrame=mainFrame(self.container)
 		self.buttonFrame=mainFrame(self.container)
 
+		#Create the default elements
+		self.titleLabel=mainLabel(self.labelFrame,text=(self.title+":"))
+		self.titleLabel.pack(expand=True)
+
 		"""
 		This is where the layout
 		will be created depending
@@ -1412,7 +1416,8 @@ class privateDataSection(dataSection):
 		#Text or Other
 		if selectedSource == Text:
 			#Create data source
-			dataSourceWidget=Text(self)
+			dataSourceWidget=Text(self.dataFrame)
+			dataSourceWidget.pack(expand=True,fill=BOTH)
 			self.dataSourceType=Text
 			self.dataSource=dataSourceWidget
 			#Create screen layout
@@ -1424,7 +1429,8 @@ class privateDataSection(dataSection):
 		#Entry
 		else:
 			#Create data source
-			dataSourceWidget=Entry(self)
+			dataSourceWidget=Entry(self.dataFrame,justify=CENTER)
+			dataSourceWidget.pack(expand=True)
 			self.dataSourceType=Entry
 			self.dataSource=dataSourceWidget
 			#Create screen layout
@@ -1443,7 +1449,8 @@ class passwordDisplayView(displayView):
 	"""
 	def __init__(self,parent):
 		displayView.__init__(self,parent)
-
+		#Todo temp only
+		self.colour(generateHexColour())
 		#Store the sections
 		self.sectionData={}
 
@@ -1461,7 +1468,6 @@ class passwordNotebook(advancedNotebook):
 
 		#Create Basic And Advanced
 		self.addNewDisplayTab("Basic")
-
 		self.addNewDisplayTab("Advanced")
 
 	def addNewDisplayTab(self,tabName):

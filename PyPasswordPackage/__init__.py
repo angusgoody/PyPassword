@@ -256,13 +256,11 @@ viewPodTopFrame.pack(side=TOP,fill=X)
 viewPodNotebookFrame=mainFrame(viewPodScreen)
 viewPodNotebookFrame.pack(expand=True,fill=BOTH)
 
+#Notebook
 viewPodNotebook=passwordNotebook(viewPodNotebookFrame)
 viewPodNotebook.pack(expand=True,fill=BOTH)
 
-viewPodNotebook.addNewDisplayTab("Basic")
-viewPodNotebook.showView("Basic")
-viewPodBasicSection=viewPodNotebook.getDisplay("Basic")
-viewPodBasicSection.addSection(privateDataSection(viewPodBasicSection,"Title",Entry))
+
 
 #--Bottom section--
 viewPodBottomFrame=centerFrame(viewPodScreen)
@@ -887,6 +885,8 @@ viewMenu.add_command(label="Show Log",command=lambda: logScreen.show())
 loadFilesInDirectory()
 genPassword()
 #===============================(TESTING AREA)===============================
+newPrivate=privateDataSection(window,"Title",Entry)
+newPrivate.pack()
 
 #===============================(END)===============================
 window.mainloop()
