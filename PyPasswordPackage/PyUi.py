@@ -1422,6 +1422,7 @@ class dataSection(mainFrame):
 		"""
 		if self.dataSource != None:
 			insertEntry(self.dataSource,data)
+			self.data=data
 
 	def clearData(self):
 		"""
@@ -1587,6 +1588,7 @@ class privateNotebook(advancedNotebook):
 			return self.tabDict[indicator]
 
 	def loadTemplate(self,templateName):
+		log.report("Loading template",templateName)
 		if templateName != self.lastTemplate:
 			if templateName in privateTemplate.templates:
 
@@ -1619,7 +1621,6 @@ class privateNotebook(advancedNotebook):
 
 			#Get the type of pod
 			templateType=dataPodInstance.templateType
-
 			#Load the correct template
 			if templateType in privateTemplate.templates:
 				self.loadTemplate(templateType)
