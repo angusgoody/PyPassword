@@ -1365,8 +1365,10 @@ class privateTemplate:
 
 		#Add to object array
 		privateTemplate.templates[templateName]=self
+
 		#Stores tabs
 		self.tabData={}
+		self.sectionTitles=[]
 
 		#Auto create basic and title
 		self.addTab("Basic")
@@ -1379,7 +1381,8 @@ class privateTemplate:
 		for use in a notebook
 		"""
 		if tabName not in self.tabData:
-			self.tabData[tabName]={}
+			#Creates empty array to store sections
+			self.tabData[tabName]=[]
 
 
 	def addTemplateSection(self,tabIndicator,sectionTitle,sectionDataType):
@@ -1387,8 +1390,8 @@ class privateTemplate:
 		This method will add a section to the template
 		using an indicator to determine which tab
 		"""
-		if tabIndicator in self.tabData:
-			self.tabData[tabIndicator][sectionTitle]=sectionDataType
+		if tabIndicator in self.tabData and sectionTitle not in self.sectionTitles:
+				self.tabData[tabIndicator].append([sectionTitle,sectionDataType])
 
 
 
@@ -1562,13 +1565,13 @@ class passwordNotebook(advancedNotebook):
 
 			template=privateTemplate.templates[templateName]
 			for tab in template.tabData:
-				tabData=template.tabData[tab]
+				tabArray=template.tabData[tab]
 				display=self.addNewDisplayTab(tab)
 				if display != None:
-					for item in tabData:
-						newPrivateSection=privateDataSection(display,item,tabData[item])
+					for item in tabArray:
+						newPrivateSection=privateDataSection(display,item[0],item[1])
 						display.addSection(newPrivateSection)
-						
+
 		else:
 			log.report("Unable to load template could not find name",templateName)
 
