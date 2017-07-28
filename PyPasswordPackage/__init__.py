@@ -69,7 +69,8 @@ privateLoginTemplate.addTemplateSection("Advanced","Notes",Text)
 
 #===Secure Note===
 privateSecureNote=privateTemplate("SecureNote")
-privateSecureNote.addTemplateSection("Basic","Notes",Text)
+privateSecureNote.addTab("Advanced")
+privateSecureNote.addTemplateSection("Advanced","Notes",Text)
 #===============================(USER INTERFACE)===============================
 
 #-----Log Screen----
@@ -266,7 +267,7 @@ viewPodNotebookFrame.pack(expand=True,fill=BOTH)
 #Notebook
 viewPodNotebook=passwordNotebook(viewPodNotebookFrame,select="#A9F955")
 viewPodNotebook.pack(expand=True,fill=BOTH)
-viewPodNotebook.loadTemplate("SecureNote")
+viewPodNotebook.loadTemplate("Login")
 
 
 #--Bottom section--

@@ -1014,6 +1014,7 @@ class advancedNotebook(mainFrame):
 		self.topBar.pack(side=TOP,fill=X)
 		self.topBar.colour("#C5CDCD")
 
+		#Tracks the views
 		self.views={}
 		self.labelDict={}
 		self.currentView=None
@@ -1103,6 +1104,8 @@ class advancedNotebook(mainFrame):
 		if name in self.labelDict:
 			self.labelDict[name].grid_forget()
 
+	def unHideTab(self,name):
+		pass
 class advancedSlider(mainFrame):
 	"""
 	This class is a modified scale widget.
@@ -1505,7 +1508,19 @@ class passwordNotebook(advancedNotebook):
 	def __init__(self,parent,**kwargs):
 		advancedNotebook.__init__(self,parent,**kwargs)
 
-		#Key = tabName Value = displayView
+		#Create the strip along the top
+		self.templateStrip=mainFrame(self)
+		self.templateStrip.pack(side=TOP,fill=X)
+
+		self.templateLabelVar=StringVar()
+		self.templateLabelVar.set("Hi")
+		self.templateLabel=mainLabel(self.templateStrip,textvariable=self.templateLabelVar)
+		self.templateLabel.pack(expand=True)
+
+		#Colour the template strip
+		self.templateStrip.colour("#8E9193")
+
+		#Stores display views and tabs
 		self.tabDict={}
 
 		#Create Basic And Advanced
@@ -1535,7 +1550,16 @@ class passwordNotebook(advancedNotebook):
 			return self.tabDict[indicator]
 
 	def loadTemplate(self,templateName):
+		log.report("Attempting to load template",templateName)
 		if templateName in privateTemplate.templates:
+
+			#First Clear the screen
+			for tab in self.tabDict:
+				self.tabDict[tab].clearScreen()
+
+			#Update the template label var
+			self.templateLabelVar.set(templateName)
+
 			template=privateTemplate.templates[templateName]
 			for tab in template.tabData:
 				tabData=template.tabData[tab]
@@ -1544,7 +1568,9 @@ class passwordNotebook(advancedNotebook):
 					for item in tabData:
 						newPrivateSection=privateDataSection(display,item,tabData[item])
 						display.addSection(newPrivateSection)
-
+						
+		else:
+			log.report("Unable to load template could not find name",templateName)
 
 
 
