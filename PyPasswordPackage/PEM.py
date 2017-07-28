@@ -23,7 +23,7 @@ import pickle
 import os
 import random
 import string
-from PyUi import logClass
+from PyUi import *
 
 #==========VARIABLES=========
 mainWindow=None
@@ -33,6 +33,7 @@ symbols=['!', '"', '#', '$', '%', '&', "'", '()',
          '*', '+', ',', '-', '.', '/', ':', ';',
          '<', '=', '>', '?', '@', '[', ']', '^', '_',
          '`', '{', '|', '}', '~', "'"]
+
 
 #==================================(FUNCTIONS)=============================
 def addPEMWindow(window):
@@ -150,6 +151,8 @@ class dataPod:
 		self.podVault={}
 		#Stores tags
 		self.tags=[]
+		#Store the type of account
+		self.templateType="Login"
 
 	def addData(self,name,info):
 		self.podVault[name]=info

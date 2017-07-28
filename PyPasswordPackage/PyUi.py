@@ -307,7 +307,7 @@ def recursiveChangeColour(parent,colour,fgColour):
 	of an element and change their colour
 	"""
 	widgetArray =["Entry", "Button", "Text", "Listbox", "OptionMenu", "Menu"]
-	excludeArray=[advancedNotebook,passwordNotebook]
+	excludeArray=[advancedNotebook, privateNotebook]
 	parentClass=parent.winfo_class()
 	if type(parent) not in excludeArray:
 		if parentClass == "Frame":
@@ -1106,6 +1106,7 @@ class advancedNotebook(mainFrame):
 
 	def unHideTab(self,name):
 		pass
+
 class advancedSlider(mainFrame):
 	"""
 	This class is a modified scale widget.
@@ -1400,10 +1401,6 @@ class privateTemplate:
 			tabArray=self.tabData[tabIndicator]
 			tabArray[0][2]=chosenColour
 
-
-
-
-
 class dataSection(mainFrame):
 	"""
 	This class will be used to hold
@@ -1529,8 +1526,7 @@ class passwordDisplayView(displayView):
 		#Store the sections
 		self.sectionData={}
 
-
-class passwordNotebook(advancedNotebook):
+class privateNotebook(advancedNotebook):
 	"""
 	This class will be used on the view pod
 	screen and will display the data from a pod
@@ -1543,7 +1539,7 @@ class passwordNotebook(advancedNotebook):
 		self.templateStrip.pack(side=TOP,fill=X)
 
 		self.templateLabelVar=StringVar()
-		self.templateLabelVar.set("Hi")
+		self.templateLabelVar.set("Login")
 		self.templateLabel=mainLabel(self.templateStrip,textvariable=self.templateLabelVar)
 		self.templateLabel.pack(expand=True)
 
@@ -1609,6 +1605,9 @@ class passwordNotebook(advancedNotebook):
 			else:
 				log.report("Unable to load template could not find name",templateName)
 
+	def addDataPod(self,dataPodInstance):
+		if type(dataPodInstance) == PEM.dataPod:
+			pass
 
 
 
@@ -1618,3 +1617,30 @@ class passwordNotebook(advancedNotebook):
 #==============Other Classes==============
 
 
+
+#===============================(Private Templates)===============================
+
+"""
+Private templates are templates for storing pod data
+they contain the relevant information to create widgets
+that can hold different data.
+Some examples of templates include...
+*Logins
+*Notes
+*Bank details
+"""
+#===Normal Login===
+privateLoginTemplate=privateTemplate("Login")
+privateLoginTemplate.addTab("Advanced")
+privateLoginTemplate.colourSection("Basic","Title","#67A1FF")
+privateLoginTemplate.addTemplateSection("Basic","Username",Entry,colour="#5C90E3")
+privateLoginTemplate.addTemplateSection("Basic","Password",Entry,colour="#5382CE")
+
+privateLoginTemplate.addTemplateSection("Advanced","Website",Entry,colour="#55CEC3")
+privateLoginTemplate.addTemplateSection("Advanced","Notes",Text,colour="#4DBCB2")
+
+#===Secure Note===
+privateSecureNote=privateTemplate("Secure Note")
+privateSecureNote.colourSection("Basic","Title","#6ECA3F")
+privateSecureNote.addTab("Advanced")
+privateSecureNote.addTemplateSection("Advanced","Notes",Text,colour="#55CA88")

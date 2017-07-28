@@ -56,31 +56,7 @@ mainRedColour="#E6607A"
 #Log
 log=logClass("Main")
 
-#===============================(Private Templates)===============================
 
-"""
-Private templates are templates for storing pod data
-they contain the relevant information to create widgets
-that can hold different data.
-Some examples of templates include...
-*Logins
-*Notes
-*Bank details
-"""
-#===Normal Login===
-privateLoginTemplate=privateTemplate("Login")
-privateLoginTemplate.addTab("Advanced")
-privateLoginTemplate.colourSection("Basic","Title","#67A1FF")
-privateLoginTemplate.addTemplateSection("Basic","Username",Entry,colour="#5C90E3")
-privateLoginTemplate.addTemplateSection("Basic","Password",Entry,colour="#5382CE")
-
-privateLoginTemplate.addTemplateSection("Advanced","Website",Entry,colour="#55CEC3")
-privateLoginTemplate.addTemplateSection("Advanced","Notes",Text,colour="#4DBCB2")
-
-#===Secure Note===
-privateSecureNote=privateTemplate("Secure Note")
-privateSecureNote.addTab("Advanced")
-privateSecureNote.addTemplateSection("Advanced","Notes",Text)
 #===============================(USER INTERFACE)===============================
 
 #-----Log Screen----
@@ -166,7 +142,6 @@ openSelectFileButton.pack(side=RIGHT,padx=5)
 openScreen.colour("#4A4D9C")
 
 #endregion
-
 #----Open Master Password Screen-----
 #region master screen
 openMasterScreen=mainScreen(window, "Master Password", statusVar,menu=lockScreenMenu)
@@ -275,7 +250,7 @@ viewPodNotebookFrame=mainFrame(viewPodScreen)
 viewPodNotebookFrame.pack(expand=True,fill=BOTH)
 
 #Notebook
-viewPodNotebook=passwordNotebook(viewPodNotebookFrame,select="#A9F955")
+viewPodNotebook=privateNotebook(viewPodNotebookFrame, select="#A9F955")
 viewPodNotebook.pack(expand=True,fill=BOTH)
 viewPodNotebook.loadTemplate("Login")
 
@@ -556,6 +531,7 @@ def unlockMasterPod():
 			homeTopLabelVar.set(currentMasterPod.getRootName()+" accounts")
 			#Update variable
 			masterPod.currentMasterPod=currentMasterPod
+
 		else:
 			askMessage("Incorrect","Password Incorrect")
 
