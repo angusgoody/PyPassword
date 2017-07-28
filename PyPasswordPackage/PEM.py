@@ -223,35 +223,19 @@ class masterPod:
 		"""
 		#Get file contents
 		content=openPickle(self.location)
-		if content != None:
+		if content != None and type(content) == masterPod:
 			#Attempt unlock
-			info=decrypt(content,attempt)
-
-			#Check if decryption was successful
-			try:
-				info=eval(info)
-			except:
-				log.report("Incorrect master password used","(Unlock)",tag="File")
-				return False
-			else:
+			if attempt == content.masterKey:
 				log.report("Correct master password used","(Unlock)",tag="File")
-				#Add key to class
-				self.masterKey=attempt
-				#Add all the pods to the master and return data
-				podDict={}
-				for iterPod in info:
-					#Create pod instance
-					currentPod=dataPod(self,iterPod)
-					podDict[iterPod]=currentPod
 
-					#Add the pod data
-					podData=info[iterPod]
-					for podSection in podData:
-						currentPod.addData(podSection,podData[podSection])
+				#Update references
+				self.masterPodDict[self.location]=content
+				self.masterPodNameDict[self.getRootName()]=content
 
-					#Add the pod to self
-					self.addPodRefrence(currentPod.podName,currentPod)
-				return podDict
+				return content.podDict
+
+			else:
+				askMessage("Incorrect","Password Incorrect")
 		else:
 			return False
 
@@ -286,20 +270,10 @@ class masterPod:
 		"""
 		#Wont save without encryption key
 		if self.masterKey != None:
-			exportDict={}
-			#Gather info here
-			for pod in self.podDict:
-
-				info=self.podDict[pod].getVault()
-				exportDict[pod]=info
 
 			#Save file
-			savePickle(cipher(str(exportDict),self.masterKey),self.location)
+			savePickle(self,self.location)
 
-			#Update variables in pods to NOT edited
-			for i in self.podDict:
-				pod=self.podDict[i]
-				pod.edited=False
 			log.report("Saved master pod successfully","(MP)",tag="File")
 
 		else:
@@ -328,9 +302,8 @@ class masterPod:
 
 #==================Testing area=================
 """
-newPod=masterPod("Hidden.mp")
-newPod.addDirectory("/Users/angus/Documents/Hidden.mp")
-newPod.addKey("donkey")
+newPod=masterPod("Alan walker.mp")
+newPod.addKey("kygo")
 gog=newPod.addPod("Google")
 gog.addData("Username","angus.goody")
 gog.addData("Password","frog")
@@ -341,6 +314,5 @@ git.addData("Password","sheep56")
 
 newPod.save()
 """
-
 #Angus = turtle123
 #Bob = secret
