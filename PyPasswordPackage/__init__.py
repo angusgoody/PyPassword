@@ -407,11 +407,10 @@ def loadDataPod(selectedPod):
 	#Set Variable
 	masterPod.currentDataPod=selectedPod
 	#Add data to screen
-	# todo add data to screen
 	viewPodNotebook.loadDataPod(selectedPod)
 
-	#Make sure data is hidden
-	#Make sure right tab is loaded
+	#todo Make sure data is hidden
+	#todo Make sure right tab is loaded
 	#Report to log
 	log.report("Data pod opened")
 
@@ -580,6 +579,8 @@ def initiatePod(popupInstance):
 		loadDataPod(pd)
 
 def createNewPodPopup():
+
+	#todo add a drop down menu to select template when creating pod
 	"""
 	This function creates a popup window
 	that allows the user to enter a name
@@ -832,6 +833,7 @@ homeOpenPodButton.config(command=loadSelectedDataPod)
 homeNewPodButton.config(command=createNewPodPopup)
 #=====VIEW POD=====
 viewPodEditButton.config(command=lambda: viewPodNotebook.startEdit(viewPodChangeController))
+viewPodCancelButton.config(command=lambda: viewPodNotebook.cancelEdit(viewPodChangeController))
 #=====GEN PASSWORD SCREEN=====
 genPasswordRegenerateButton.config(command=genPassword)
 genPasswordCopyButton.config(command=lambda e=genPasswordEntry:copyDataFromEntry(e))

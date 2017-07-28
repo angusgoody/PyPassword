@@ -207,10 +207,13 @@ def addUIWindow(window):
 	mainWindow=window
 
 def addDataToClipboard(data):
-	if mainWindow != None:
-		mainWindow.clipboard_clear()
-		mainWindow.clipboard_append(data)
-		log.report("Added data to clipboard","(Func)")
+	if mainWindow != None and data != None:
+		if len(data.split()) > 1:
+			mainWindow.clipboard_clear()
+			mainWindow.clipboard_append(data)
+			log.report("Added data to clipboard","(Func)")
+		else:
+			log.report("No data to copy to clipboard")
 
 def copyDataFromEntry(entry):
 	"""
@@ -1670,7 +1673,14 @@ class privateNotebook(advancedNotebook):
 						self.tabDict[display].sectionData[section].addData(podVault[section])
 
 	def startEdit(self,multiViewInstance):
-		pass
+		if type(multiViewInstance) == multiView:
+			#Change mutiview
+			multiViewInstance.showView("Cancel")
+
+	def cancelEdit(self,multiViewInstance):
+		if type(multiViewInstance) == multiView:
+			#Change mutiview
+			multiViewInstance.showView("Edit")
 
 
 
