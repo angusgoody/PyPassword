@@ -830,8 +830,7 @@ openMasterCancelButton.config(command=lambda: openScreen.show())
 homeOpenPodButton.config(command=loadSelectedDataPod)
 homeNewPodButton.config(command=createNewPodPopup)
 #=====VIEW POD=====
-#todo add view pod button commands here
-viewPodEditButton.config(command=lambda: viewPodNotebook.loadTemplate("Secure Note"))
+viewPodEditButton.config(command=lambda: viewPodNotebook.startEdit(viewPodChangeController))
 #=====GEN PASSWORD SCREEN=====
 genPasswordRegenerateButton.config(command=genPassword)
 genPasswordCopyButton.config(command=lambda e=genPasswordEntry:copyDataFromEntry(e))

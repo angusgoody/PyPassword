@@ -1456,7 +1456,11 @@ class privateDataSection(dataSection):
 		self.dataSourceType=None
 		self.dataSourceWidget=None
 
+		#State variables
+		self.hidden=False
+
 		#Track buttons
+		self.buttonDict={}
 		self.buttonCounter=-1
 
 		#Ui Elements
@@ -1498,6 +1502,7 @@ class privateDataSection(dataSection):
 			self.dataSource=dataSourceWidget
 
 			#Create the copy button
+			self.addButton("Hide",lambda: self.toggleHide())
 			self.addButton("Copy",lambda: self.copyData())
 			#Create screen layout
 			self.container.pack(expand=True)
@@ -1505,16 +1510,32 @@ class privateDataSection(dataSection):
 			self.buttonFrame.pack(side=RIGHT,padx=5)
 			self.dataFrame.pack(side=RIGHT)
 
-
-
 		if "colour" in kwargs:
 			self.colour(kwargs["colour"])
 
 	def addButton(self,title,command):
-
+		"""
+		This method will create a new button that will be displayed
+		on the frame and stored in a dictionary
+		"""
 		self.buttonCounter+=1
 		newButton=mainButton(self.buttonFrame,text=title,command=command,width=9)
 		newButton.grid(row=0,column=self.buttonCounter)
+		#Add to dict
+		self.buttonDict[title]=newButton
+
+	def toggleHide(self):
+		if self.hidden == False:
+			if self.dataSourceType == Entry:
+				self.dataSource.config(show="•")
+				self.buttonDict["Hide"].config(text="Show")
+				self.hidden=True
+		else:
+			if self.dataSourceType == Entry:
+				self.dataSource.config(show="")
+				self.buttonDict["Hide"].config(text="Hide")
+				self.hidden=False
+
 
 class passwordDisplayView(displayView):
 	"""
@@ -1617,6 +1638,11 @@ class privateNotebook(advancedNotebook):
 				log.report("Unable to load template could not find name",templateName)
 
 	def loadDataPod(self,dataPodInstance):
+		"""
+		This methos is used to load a data pod
+		onto the notebook. It will take the pod 
+		vault and display it on screen
+		"""
 		if type(dataPodInstance) == PEM.dataPod:
 
 			#Get the type of pod
@@ -1642,6 +1668,8 @@ class privateNotebook(advancedNotebook):
 						#Add to entry
 						self.tabDict[display].sectionData[section].addData(podVault[section])
 
+	def startEdit(self,multiViewInstance):
+		pass
 
 
 
