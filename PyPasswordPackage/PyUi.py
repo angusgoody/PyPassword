@@ -1178,29 +1178,30 @@ class multiView(mainFrame):
 		mainFrame.__init__(self,parent,**kwargs)
 
 		#Stores the views
-		self.views=[]
+		self.views={}
 
 		self.lastView=None
 		self.currentView=None
 
-	def addView(self,frameToShow):
+	def addView(self,frameToShow,name):
 		#Add a certain frame to the dictionary
-		if frameToShow not in self.views:
-			self.views.append(frameToShow)
+		if name not in self.views:
+			self.views[name]=frameToShow
 
-	def showView(self,frameToShow):
+	def showView(self,name):
 		"""
 		The show view method when called will show
 		a certain frame in the dictionary. This value
 		is referenced using an indicator string
 		"""
-		if frameToShow in self.views:
-			if frameToShow != self.lastView:
-				for item in self.views:
-					item.pack_forget()
-				frameToShow.pack(expand=True,fill=BOTH)
+		if name in self.views:
+			if name != self.lastView:
+				if self.lastView != None:
+					self.views[self.lastView].pack_forget()
+				self.views[name].pack(expand=True,fill=BOTH)
+				self.lastView=name
 		else:
-			log.report("Non registered frame attempted to be show",frameToShow,tag="Error",system=True)
+			log.report("Non registered frame attempted to be show",name,tag="Error",system=True)
 
 #==============Secondary Master Classes==============
 

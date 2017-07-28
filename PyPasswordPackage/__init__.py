@@ -266,14 +266,15 @@ viewPodChangeController.pack(pady=2)
 
 #Edit section
 viewPodEditFrame=mainFrame(viewPodChangeController)
-viewPodChangeController.addView(viewPodEditFrame)
-viewPodChangeController.showView(viewPodEditFrame)
+viewPodChangeController.addView(viewPodEditFrame,"Edit")
+viewPodChangeController.showView("Edit")
 viewPodEditButton=mainButton(viewPodEditFrame,text="Edit",width=9)
 viewPodEditButton.pack(padx=5)
 
 #Cancel Edit section
 viewPodCancelEditSection=mainFrame(viewPodChangeController)
-viewPodChangeController.addView(viewPodCancelEditSection)
+viewPodChangeController.addView(viewPodCancelEditSection,"Cancel")
+
 viewPodCancelButton=mainButton(viewPodCancelEditSection,text="Cancel",width=9)
 viewPodCancelButton.grid(row=0,column=0)
 
