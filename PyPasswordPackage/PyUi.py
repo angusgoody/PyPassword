@@ -1435,6 +1435,13 @@ class dataSection(mainFrame):
 			insertEntry(self.dataSource,"")
 			self.data=""
 
+	def copyData(self):
+		"""
+		This method will copy the data saved in the object
+		to the clipboard
+		"""
+		addDataToClipboard(self.data)
+
 class privateDataSection(dataSection):
 	"""
 	This class will be a data section that
@@ -1451,6 +1458,8 @@ class privateDataSection(dataSection):
 		self.dataSourceType=None
 		self.dataSourceWidget=None
 
+		#Track buttons
+		self.buttonCounter=-1
 
 		#Ui Elements
 		self.container=mainFrame(self)
@@ -1489,15 +1498,25 @@ class privateDataSection(dataSection):
 			dataSourceWidget.pack(expand=True)
 			self.dataSourceType=Entry
 			self.dataSource=dataSourceWidget
+
+			#Create the copy button
+			self.addButton("Copy",lambda: self.copyData())
 			#Create screen layout
 			self.container.pack(expand=True)
 			self.labelFrame.pack(side=LEFT)
+			self.buttonFrame.pack(side=RIGHT,padx=5)
 			self.dataFrame.pack(side=RIGHT)
-			self.buttonFrame.pack(side=RIGHT)
+
 
 
 		if "colour" in kwargs:
 			self.colour(kwargs["colour"])
+
+	def addButton(self,title,command):
+
+		self.buttonCounter+=1
+		newButton=mainButton(self.buttonFrame,text=title,command=command,width=9)
+		newButton.grid(row=0,column=self.buttonCounter)
 
 class passwordDisplayView(displayView):
 	"""
