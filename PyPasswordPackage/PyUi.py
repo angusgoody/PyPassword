@@ -1384,14 +1384,22 @@ class privateTemplate:
 			#Creates empty array to store sections
 			self.tabData[tabName]=[]
 
-
-	def addTemplateSection(self,tabIndicator,sectionTitle,sectionDataType):
+	def addTemplateSection(self,tabIndicator,sectionTitle,sectionDataType,**kwargs):
 		"""
 		This method will add a section to the template
 		using an indicator to determine which tab
 		"""
 		if tabIndicator in self.tabData and sectionTitle not in self.sectionTitles:
-				self.tabData[tabIndicator].append([sectionTitle,sectionDataType])
+				self.tabData[tabIndicator].append([sectionTitle,sectionDataType,"#F7FDFF"])
+				#if a colour is specified
+				if "colour" in kwargs:
+					self.tabData[tabIndicator][len(self.tabData[tabIndicator])-1][2]=kwargs["colour"]
+
+	def colourSection(self,tabIndicator,sectionName,chosenColour):
+		if tabIndicator in self.tabData:
+			tabArray=self.tabData[tabIndicator]
+			tabArray[0][2]=chosenColour
+
 
 
 
@@ -1573,7 +1581,7 @@ class passwordNotebook(advancedNotebook):
 					display=self.addNewDisplayTab(tab)
 					if display != None:
 						for item in tabArray:
-							newPrivateSection=privateDataSection(display,item[0],item[1])
+							newPrivateSection=privateDataSection(display,item[0],item[1],colour=item[2])
 							display.addSection(newPrivateSection)
 
 

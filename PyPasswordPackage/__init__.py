@@ -70,11 +70,12 @@ Some examples of templates include...
 #===Normal Login===
 privateLoginTemplate=privateTemplate("Login")
 privateLoginTemplate.addTab("Advanced")
-privateLoginTemplate.addTemplateSection("Basic","Username",Entry)
-privateLoginTemplate.addTemplateSection("Basic","Password",Entry)
+privateLoginTemplate.colourSection("Basic","Title","#67A1FF")
+privateLoginTemplate.addTemplateSection("Basic","Username",Entry,colour="#5C90E3")
+privateLoginTemplate.addTemplateSection("Basic","Password",Entry,colour="#5382CE")
 
-privateLoginTemplate.addTemplateSection("Advanced","Website",Entry)
-privateLoginTemplate.addTemplateSection("Advanced","Notes",Text)
+privateLoginTemplate.addTemplateSection("Advanced","Website",Entry,colour="#55CEC3")
+privateLoginTemplate.addTemplateSection("Advanced","Notes",Text,colour="#4DBCB2")
 
 #===Secure Note===
 privateSecureNote=privateTemplate("Secure Note")
