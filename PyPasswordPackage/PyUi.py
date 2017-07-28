@@ -1451,7 +1451,7 @@ class privateDataSection(dataSection):
 		self.buttonFrame=mainFrame(self.container)
 
 		#Create the default elements
-		self.titleLabel=mainLabel(self.labelFrame,text=(self.title+":"),width=12)
+		self.titleLabel=mainLabel(self.labelFrame,text=(self.title),width=12)
 		self.titleLabel.pack(expand=True)
 
 		"""
@@ -1525,6 +1525,8 @@ class passwordNotebook(advancedNotebook):
 
 		#Stores display views and tabs
 		self.tabDict={}
+		#Store the last template so same are not reloaded
+		self.lastTemplate=None
 
 		#Create Basic And Advanced
 		self.addNewDisplayTab("Basic")
@@ -1553,27 +1555,32 @@ class passwordNotebook(advancedNotebook):
 			return self.tabDict[indicator]
 
 	def loadTemplate(self,templateName):
-		log.report("Attempting to load template",templateName)
-		if templateName in privateTemplate.templates:
+		if templateName != self.lastTemplate:
+			if templateName in privateTemplate.templates:
 
-			#First Clear the screen
-			for tab in self.tabDict:
-				self.tabDict[tab].clearScreen()
+				#First Clear the screen
+				for tab in self.tabDict:
+					self.tabDict[tab].clearScreen()
 
-			#Update the template label var
-			self.templateLabelVar.set(templateName)
 
-			template=privateTemplate.templates[templateName]
-			for tab in template.tabData:
-				tabArray=template.tabData[tab]
-				display=self.addNewDisplayTab(tab)
-				if display != None:
-					for item in tabArray:
-						newPrivateSection=privateDataSection(display,item[0],item[1])
-						display.addSection(newPrivateSection)
+				#Update the template label var
+				self.templateLabelVar.set(templateName)
 
-		else:
-			log.report("Unable to load template could not find name",templateName)
+
+				template=privateTemplate.templates[templateName]
+				for tab in template.tabData:
+					tabArray=template.tabData[tab]
+					display=self.addNewDisplayTab(tab)
+					if display != None:
+						for item in tabArray:
+							newPrivateSection=privateDataSection(display,item[0],item[1])
+							display.addSection(newPrivateSection)
+
+
+				#Update last template var
+				self.lastTemplate=templateName
+			else:
+				log.report("Unable to load template could not find name",templateName)
 
 
 

@@ -58,6 +58,15 @@ log=logClass("Main")
 
 #===============================(Private Templates)===============================
 
+"""
+Private templates are templates for storing pod data
+they contain the relevant information to create widgets
+that can hold different data.
+Some examples of templates include...
+*Logins
+*Notes
+*Bank details
+"""
 #===Normal Login===
 privateLoginTemplate=privateTemplate("Login")
 privateLoginTemplate.addTab("Advanced")
@@ -68,7 +77,7 @@ privateLoginTemplate.addTemplateSection("Advanced","Website",Entry)
 privateLoginTemplate.addTemplateSection("Advanced","Notes",Text)
 
 #===Secure Note===
-privateSecureNote=privateTemplate("SecureNote")
+privateSecureNote=privateTemplate("Secure Note")
 privateSecureNote.addTab("Advanced")
 privateSecureNote.addTemplateSection("Advanced","Notes",Text)
 #===============================(USER INTERFACE)===============================
@@ -843,6 +852,7 @@ homeOpenPodButton.config(command=loadSelectedDataPod)
 homeNewPodButton.config(command=createNewPodPopup)
 #=====VIEW POD=====
 #todo add view pod button commands here
+viewPodEditButton.config(command=lambda: viewPodNotebook.loadTemplate("Secure Note"))
 #=====GEN PASSWORD SCREEN=====
 genPasswordRegenerateButton.config(command=genPassword)
 genPasswordCopyButton.config(command=lambda e=genPasswordEntry:copyDataFromEntry(e))
