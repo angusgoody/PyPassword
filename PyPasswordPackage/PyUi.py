@@ -1526,6 +1526,15 @@ class passwordDisplayView(displayView):
 		#Store the sections
 		self.sectionData={}
 
+	def addPrivateSection(self,title,section):
+		"""
+		This method will add a private
+		section to the display view and 
+		store it in the object class
+		"""
+		self.sectionData[title]=section
+		self.addSection(section)
+
 class privateNotebook(advancedNotebook):
 	"""
 	This class will be used on the view pod
@@ -1597,7 +1606,7 @@ class privateNotebook(advancedNotebook):
 					if display != None:
 						for item in tabArray:
 							newPrivateSection=privateDataSection(display,item[0],item[1],colour=item[2])
-							display.addSection(newPrivateSection)
+							display.addPrivateSection(item[0],newPrivateSection)
 
 
 				#Update last template var
@@ -1605,9 +1614,37 @@ class privateNotebook(advancedNotebook):
 			else:
 				log.report("Unable to load template could not find name",templateName)
 
-	def addDataPod(self,dataPodInstance):
+	def loadDataPod(self,dataPodInstance):
 		if type(dataPodInstance) == PEM.dataPod:
-			pass
+
+			#Get the type of pod
+			templateType=dataPodInstance.templateType
+
+			#Load the correct template
+			if templateType in privateTemplate.templates:
+				self.loadTemplate(templateType)
+
+			else:
+				log.report("Invalid template name to load",templateType)
+				self.loadTemplate("Login")
+
+			#Get the pod vault
+			podVault=dataPodInstance.podVault
+
+			#Add title separately
+			if "Title" not in podVault:
+				self.tabDict["Basic"].sectionData["Title"].addData(dataPodInstance.podName)
+			#Add the data
+			for display in self.tabDict:
+				for section in self.tabDict[display].sectionData:
+					if section in podVault:
+						#Add to entry
+						self.tabDict[display].sectionData[section].addData(podVault[section])
+
+
+
+
+
 
 
 

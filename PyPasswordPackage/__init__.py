@@ -407,6 +407,8 @@ def loadDataPod(selectedPod):
 	masterPod.currentDataPod=selectedPod
 	#Add data to screen
 	# todo add data to screen
+	viewPodNotebook.loadDataPod(selectedPod)
+
 	#Make sure data is hidden
 	#Make sure right tab is loaded
 	#Report to log
