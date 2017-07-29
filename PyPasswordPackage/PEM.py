@@ -133,6 +133,26 @@ def generatePassword(length,symbolAmount,digitAmount):
 
 	mashed=mash(length,charList,symbolList,digitList)
 	return mashed
+
+def unlockMasterPod(location,attempt):
+	"""
+	This function will attempt to unlock a master
+	pod from memory
+	"""
+	masterInstance=openPickle(location)
+	if masterInstance != None:
+		if type(masterInstance) == masterPod:
+			decryptedData=decrypt(masterInstance.masterKey,attempt)
+			try:
+				decryptedData=decryptedData.decode('utf-8')
+			except:
+				log.report("Error converting to utf-8")
+				return False
+			else:
+				if decryptedData == attempt:
+					return True
+				else:
+					return False
 #==================================(Classes)=============================
 
 class dataPod:
@@ -190,6 +210,32 @@ class dataPod:
 		if tagName not in self.tags:
 			self.tags.append(tagName)
 
+	def encryptVault(self):
+		"""
+		This method will encrypt the vault and return an encrypted dictionary
+		that can still be pickled or used.
+		"""
+		if self.master.masterKey != None:
+			key=self.master.masterKey
+			#Encrypt all the data
+			for item in self.podVault:
+				oldData=self.podVault[item]
+				self.podVault[item]=cipher(oldData,key)
+
+	def decryptVault(self):
+		"""
+		This method will attempt to decrypt the data in
+		the vault using the master pod key.
+		"""
+		if self.master.masterKey != None:
+			key=self.master.masterKey
+			#Decrpt the data
+			for item in self.podVault:
+				oldData=self.podVault[item]
+				try:
+					self.podVault[item]=decrypt(oldData,key).decode('utf-8')
+				except:
+					print("Error")
 class masterPod:
 	"""
 	The master pod is a class
@@ -232,10 +278,12 @@ class masterPod:
 				self.masterPodDict[self.location]=content
 				self.masterPodNameDict[self.getRootName()]=content
 
+				#Add master key
+				content.addKey(attempt)
 				return content.podDict
 
 			else:
-				askMessage("Incorrect","Password Incorrect")
+				return False
 		else:
 			return False
 
@@ -271,9 +319,17 @@ class masterPod:
 		#Wont save without encryption key
 		if self.masterKey != None:
 
+			print("Ready to save data")
+			#Encrypt all the pods first
+			self.cipherPods()
+			#Cipher key
+			self.masterKey=cipher(self.masterKey,self.masterKey)
 			#Save file
 			savePickle(self,self.location)
-
+			#Decrypt the pods
+			self.decryptPods()
+			#Decipher key
+			self.masterKey=decrypt(self.masterKey,self.masterKey)
 			log.report("Saved master pod successfully","(MP)",tag="File")
 
 		else:
@@ -299,20 +355,34 @@ class masterPod:
 		if saveOrNot:
 			self.save()
 
+	def cipherPods(self):
+		"""
+		This method will encrypt all the pods
+		for the master pod
+		"""
+		for pod in self.podDict:
+			#Cipher vault
+			self.podDict[pod].encryptVault()
+
+	def decryptPods(self):
+		"""
+		This method will decrypt all the pods
+		for the master pod
+		"""
+		print(self.podDict)
+		for pod in self.podDict:
+			self.podDict[pod].decryptVault()
+			print(self.podDict[pod].podVault)
 
 #==================Testing area=================
 """
-newPod=masterPod("Alan walker.mp")
-newPod.addKey("kygo")
-gog=newPod.addPod("Google")
-gog.addData("Username","angus.goody")
-gog.addData("Password","frog")
-
-git=newPod.addPod("Github")
-git.addData("Username","bob.marley")
-git.addData("Password","sheep56")
-
+newPod=masterPod("Luigi.mp")
+newPod.addKey("luigi")
+gog=newPod.addPod("Omnigraffle")
+gog.addData("Username","Angus")
+gog.addData("Password","harry")
+gog.templateType="Login"
 newPod.save()
-"""
 #Angus = turtle123
+"""
 #Bob = secret

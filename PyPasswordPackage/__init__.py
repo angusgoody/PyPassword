@@ -515,20 +515,24 @@ def initiateMasterPod(popupInstance):
 
 #=====MASTER PASSWORD=======
 
-def unlockMasterPod():
+def attemptUnlockMasterPod():
 	attempt=openMasterEntry.get()
 	if len(attempt.split()) > 0:
 		currentMasterPod=masterPod.currentMasterPod
 
 		#Attempt to unlock
-		response=currentMasterPod.unlock(attempt)
+		response=unlockMasterPod(currentMasterPod.location, attempt)
 		if response != None and response != False:
 			log.report("Unlock success","(Unlock)",tag="Login")
+
+			#Decrypt data
+			currentMasterPod.masterKey=attempt
+			currentMasterPod.decryptPods()
 
 			#Load screen
 			homeScreen.show()
 			#Show Pods
-			homePodListbox.addPodList(response)
+			homePodListbox.addPodList(currentMasterPod.podDict)
 			#Update top label
 			homeTopLabelVar.set(currentMasterPod.getRootName()+" accounts")
 			#Update variable
@@ -826,7 +830,7 @@ def checkMasterPodDataValid(entryList,dataSource,popupInstance):
 openSelectFileButton.config(command=openMasterPod)
 openCreateFileButton.config(command=createNewMasterPodPopup)
 #=====MASTER SCREEN=====
-openMasterUnlockButton.config(command=unlockMasterPod)
+openMasterUnlockButton.config(command=attemptUnlockMasterPod)
 openMasterCancelButton.config(command=lambda: openScreen.show())
 #=====HOME SCREEN=====
 homeOpenPodButton.config(command=loadSelectedDataPod)
@@ -854,7 +858,7 @@ statusBar.addBinding("<Double-Button-1>",lambda event: goHome())
 openMainListbox.bind("<Double-Button-1>", lambda event: openMasterPod())
 openMainListbox.bind("<Return>", lambda event: openMasterPod())
 #=====MASTER SCREEN=====
-openMasterEntry.bind("<Return>", lambda event: unlockMasterPod())
+openMasterEntry.bind("<Return>", lambda event: attemptUnlockMasterPod())
 #=====HOME SCREEN=====
 homePodListbox.bind("<Double-Button-1>", lambda event: loadSelectedDataPod())
 
