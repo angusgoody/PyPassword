@@ -263,6 +263,7 @@ viewPodBottomSub=viewPodBottomFrame.miniFrame
 #-Controller--
 viewPodChangeController=multiView(viewPodBottomSub)
 viewPodChangeController.pack(pady=2)
+viewPodNotebook.multiViewInstance=viewPodChangeController
 
 #Edit section
 viewPodEditFrame=mainFrame(viewPodChangeController)
@@ -842,9 +843,9 @@ openMasterCancelButton.config(command=lambda: openScreen.show())
 homeOpenPodButton.config(command=loadSelectedDataPod)
 homeNewPodButton.config(command=createNewPodPopup)
 #=====VIEW POD=====
-viewPodEditButton.config(command=lambda: viewPodNotebook.startEdit(viewPodChangeController))
-viewPodCancelButton.config(command=lambda: viewPodNotebook.cancelEdit(viewPodChangeController))
-viewPodSaveButton.config(command=lambda: viewPodNotebook.saveData(viewPodChangeController))
+viewPodEditButton.config(command=lambda: viewPodNotebook.startEdit())
+viewPodCancelButton.config(command=lambda: viewPodNotebook.cancelEdit())
+viewPodSaveButton.config(command=lambda: viewPodNotebook.saveData())
 #=====GEN PASSWORD SCREEN=====
 genPasswordRegenerateButton.config(command=genPassword)
 genPasswordCopyButton.config(command=lambda e=genPasswordEntry:copyDataFromEntry(e))
