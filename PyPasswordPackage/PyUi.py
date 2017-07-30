@@ -23,6 +23,7 @@ import datetime
 from tkinter import messagebox
 from tkinter import filedialog
 import webbrowser
+import os
 
 #Variable for TK windows
 mainWindow=None
@@ -444,6 +445,19 @@ def advancedSearch(target, dataToSearch):
 					return True
 
 	return False
+
+def getBaseOfDirectory(value,fileNameOrBaseName):
+	if fileNameOrBaseName == "file":
+		try:
+			return os.path.basename(value)
+		except:
+			return ""
+	else:
+		try:
+			return os.path.splitext(os.path.basename(value))[0]
+		except:
+			return ""
+
 #==================================(CLASSES)=============================
 
 #==============Classes==============

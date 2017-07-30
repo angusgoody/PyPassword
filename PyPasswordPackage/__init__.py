@@ -423,7 +423,8 @@ def openMasterPod():
 	if current != None:
 		#Load screen to enter master password
 		openMasterScreen.show()
-		openMasterTopVar.set(current)
+		#Update top lavbel
+		openMasterTopVar.set(getBaseOfDirectory(current,"file"))
 		masterPod.currentOpenFileName=current
 	else:
 		askMessage("Select","No Pod Selected")
@@ -538,8 +539,8 @@ def attemptUnlockMasterPod():
 			else:
 				askMessage("Incorrect","Incorrect Password")
 		else:
-			log.report("Error opening file")
-			askMessage("Error","An error occurred")
+			log.report("Error opening file with pickle",tag="Error")
+			askMessage("Error","An error occurred opening the file")
 	else:
 		askMessage("Blank","Please Enter Something")
 
@@ -822,7 +823,7 @@ def checkMasterPodDataValid(entryList,dataSource,popupInstance):
 				return True
 
 def addNewPod(location):
-	openMainListbox.addObject(os.path.splitext(location)[0],location)
+	openMainListbox.addObject(getBaseOfDirectory(location,"base"),location)
 #endregion
 
 
