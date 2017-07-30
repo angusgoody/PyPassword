@@ -54,6 +54,7 @@ class logClass():
 		self.systemTree=None
 
 	def report(self,message,*extra,**kwargs):
+
 		"""
 		The report method is the main
 		method that is called to report
@@ -72,7 +73,6 @@ class logClass():
 		tag="Default"
 		if "tag" in kwargs:
 			tag=kwargs["tag"]
-
 		#Get time
 		currentTime=datetime.datetime.now().time()
 
@@ -172,9 +172,12 @@ def insertEntry(entry,message):
 	Will insert data into an entry
 	and will also work with Text boxes
 	"""
+	if message == None:
+		message=""
 	if type(entry) == Entry:
 		entry.delete(0,END)
 		entry.insert(END,message)
+
 	elif type(entry) == Text:
 		entry.delete("1.0",END)
 		entry.insert("1.0",message)
@@ -208,7 +211,7 @@ def addUIWindow(window):
 
 def addDataToClipboard(data):
 	if mainWindow != None and data != None:
-		if len(data.split()) > 1:
+		if len(data.split()) > 0:
 			mainWindow.clipboard_clear()
 			mainWindow.clipboard_append(data)
 			log.report("Added data to clipboard","(Func)")
@@ -224,6 +227,7 @@ def copyDataFromEntry(entry):
 	if data != None:
 		addDataToClipboard(data)
 		log.report("Added data to clipboard","(Copy)")
+
 	else:
 		askMessage("Empty","No data to copy")
 
@@ -682,6 +686,7 @@ class advancedListbox(Listbox):
 			if "colour" in kwargs:
 				colour=kwargs["colour"]
 			self.colourDict[text]=colour
+
 		else:
 			colour=self.colourDict[text]
 
@@ -707,7 +712,7 @@ class advancedListbox(Listbox):
 		for item in poDict:
 			self.addObject(item, poDict[item])
 
-	def getSelected(self):
+	def getSelectedObject(self):
 		"""
 		This method will attempt to return
 		the selected object
@@ -757,14 +762,6 @@ class advancedListbox(Listbox):
 		else:
 			log.report("Unable to remove item from listbox not in dict",indicator)
 			print("Unable")
-
-	def updateItemLabel(self,oldName,newName):
-		for item in self.listData:
-			if item == oldName:
-				listData=self.listData[oldName]
-				self.removeItem(oldName,True)
-				self.addObject(newName, listData)
-				break
 
 	def addCertain(self,listToAdd):
 		"""
@@ -1444,6 +1441,14 @@ class dataSection(mainFrame):
 		"""
 		addDataToClipboard(self.data)
 
+	def restore(self):
+		"""
+		This method will add the saved data back
+		to the data source if it was modified
+		:return: 
+		"""
+		if self.dataSource:
+			insertEntry(self.dataSource,self.data)
 class privateDataSection(dataSection):
 	"""
 	This class will be a data section that
@@ -1528,17 +1533,49 @@ class privateDataSection(dataSection):
 		#Add to dict
 		self.buttonDict[title]=newButton
 
-	def toggleHide(self):
-		if self.hidden == False:
-			if self.dataSourceType == Entry:
-				self.dataSource.config(show="•")
-				self.buttonDict["Hide"].config(text="Show")
-				self.hidden=True
+	def toggleHide(self,**kwargs):
+
+		#Override funcitons will not toggle
+		if "stay" in kwargs:
+			stay=kwargs["stay"]
+			if stay == "hidden":
+				if self.dataSourceType == Entry:
+					self.dataSource.config(show="•")
+					self.buttonDict["Hide"].config(text="Show")
+					self.hidden=True
+			elif stay == "show":
+				if self.dataSourceType == Entry:
+					self.dataSource.config(show="")
+					self.buttonDict["Hide"].config(text="Hide")
+					self.hidden=False
 		else:
-			if self.dataSourceType == Entry:
-				self.dataSource.config(show="")
-				self.buttonDict["Hide"].config(text="Hide")
-				self.hidden=False
+			if self.hidden == False:
+				if self.dataSourceType == Entry:
+					self.dataSource.config(show="•")
+					self.buttonDict["Hide"].config(text="Show")
+					self.hidden=True
+			else:
+				if self.dataSourceType == Entry:
+					self.dataSource.config(show="")
+					self.buttonDict["Hide"].config(text="Hide")
+					self.hidden=False
+
+	def disableDataSource(self):
+		"""
+		This method makes the data source
+		un usable
+		:return: 
+		"""
+		if self.dataSource:
+			self.dataSource.config(state=DISABLED)
+
+	def enableDataSource(self):
+		"""
+		This method will allow the user
+		to edit data in the data source
+		"""
+		if self.dataSource:
+			self.dataSource.config(state=NORMAL)
 
 
 class passwordDisplayView(displayView):
@@ -1561,6 +1598,31 @@ class passwordDisplayView(displayView):
 		self.sectionData[title]=section
 		self.addSection(section)
 
+	def disable(self):
+		"""
+		This method will disable editing all the 
+		data in the display view
+		"""
+		for item in self.sectionData:
+			self.sectionData[item].disableDataSource()
+
+	def enable(self):
+		"""
+		Will enable all the sections inside
+		the display view
+		:return: 
+		"""
+		for item in self.sectionData:
+			self.sectionData[item].enableDataSource()
+
+	def restore(self):
+		"""
+		This method will restore any data that
+		was changed by the user when editing
+		:return: 
+		"""
+		for item in self.sectionData:
+			self.sectionData[item].restore()
 class privateNotebook(advancedNotebook):
 	"""
 	This class will be used on the view pod
@@ -1568,6 +1630,7 @@ class privateNotebook(advancedNotebook):
 	"""
 	def __init__(self,parent,**kwargs):
 		advancedNotebook.__init__(self,parent,**kwargs)
+
 
 		#Create the strip along the top
 		self.templateStrip=mainFrame(self)
@@ -1580,11 +1643,15 @@ class privateNotebook(advancedNotebook):
 
 		#Colour the template strip
 		self.templateStrip.colour("#8E9193")
-
 		#Stores display views and tabs
 		self.tabDict={}
+		#Which data should be hidden by default
+		self.privateData=["Password"]
 		#Store the last template so same are not reloaded
 		self.lastTemplate=None
+
+		#Store the first tab added
+		self.firstTab=None
 
 		#Create Basic And Advanced
 		self.addNewDisplayTab("Basic")
@@ -1600,6 +1667,9 @@ class privateNotebook(advancedNotebook):
 			newDisplay=passwordDisplayView(self)
 			self.addView(newDisplay,tabName)
 			self.tabDict[tabName]=newDisplay
+			#Attempt to update var
+			if self.firstTab == None:
+				self.firstTab=tabName
 			return newDisplay
 		else:
 			return self.tabDict[tabName]
@@ -1655,6 +1725,7 @@ class privateNotebook(advancedNotebook):
 			if templateType in privateTemplate.templates:
 				self.loadTemplate(templateType)
 
+			#Load default template
 			else:
 				log.report("Invalid template name to load",templateType)
 				self.loadTemplate("Login")
@@ -1671,22 +1742,45 @@ class privateNotebook(advancedNotebook):
 					if section in podVault:
 						#Add to entry
 						self.tabDict[display].sectionData[section].addData(podVault[section])
+						#Make sure private data is hidden by default
+						if section in self.privateData:
+							self.tabDict[display].sectionData[section].toggleHide(stay="hidden")
+
+			#Ensure the first tab is loaded
+			self.showView(self.firstTab)
+
+			#Disable editing
+			for item in self.tabDict:
+				self.tabDict[item].disable()
 
 	def startEdit(self,multiViewInstance):
+		"""
+		This method will start edit mode. This will
+		allow the user to change pod data
+		and edit it and save it or cancel
+		"""
 		if type(multiViewInstance) == multiView:
 			#Change mutiview
 			multiViewInstance.showView("Cancel")
+			#Make the data editable
+			for item in self.tabDict:
+				self.tabDict[item].enable()
+
 
 	def cancelEdit(self,multiViewInstance):
+		"""
+		This is the method that will be called 
+		when the user chooses to cancel the edit.
+		It will restore the data if the user changed it
+		and return to default
+		"""
 		if type(multiViewInstance) == multiView:
 			#Change mutiview
 			multiViewInstance.showView("Edit")
-
-
-
-
-
-
+			#Disable the data
+			for item in self.tabDict:
+				self.tabDict[item].restore()
+				self.tabDict[item].disable()
 
 
 

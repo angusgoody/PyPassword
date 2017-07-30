@@ -408,8 +408,6 @@ def loadDataPod(selectedPod):
 	masterPod.currentDataPod=selectedPod
 	#Add data to screen
 	viewPodNotebook.loadDataPod(selectedPod)
-
-	#todo Make sure data is hidden
 	#todo Make sure right tab is loaded
 	#Report to log
 	log.report("Data pod opened")
@@ -421,14 +419,12 @@ def openMasterPod():
 	This function is for when the user
 	attempts to open a master pod file
 	"""
-	current=openMainListbox.getSelected()
+	current=openMainListbox.getSelectedObject()
 	if current != None:
 		#Load screen to enter master password
 		openMasterScreen.show()
-		openMasterTopVar.set(current.getRootName())
-		#Load master pod
-		masterPod.currentMasterPod=current
-
+		openMasterTopVar.set(current)
+		masterPod.currentOpenFileName=current
 	else:
 		askMessage("Select","No Pod Selected")
 
@@ -439,13 +435,11 @@ def openOtherMasterPod():
 	"""
 	directory=askForFile()
 	if directory:
-		if directory in masterPod.masterPodDict:
+		base=os.path.basename(directory)
+		if os.path.splitext(base)[0] in openMainListbox.get(0,END):
 			askMessage("Already open","This pod is currently open")
 		else:
-			pod=masterPod(os.path.basename(directory))
-			pod.addDirectory(directory)
-			#Adds to listbox and removes extension
-			openMainListbox.addObject(pod.getRootName(), pod)
+			addNewPod(directory)
 
 def createNewMasterPodPopup():
 	"""
@@ -509,38 +503,43 @@ def initiateMasterPod(popupInstance):
 		if ".mp" not in fileName:
 			fileName=fileName+".mp"
 		newPod=masterPod(fileName)
-		newPod.addKey(podPassword)
+		newPod.masterKey=podPassword
 		newPod.save()
-		openMainListbox.addObject(podName, newPod)
+		addNewPod(fileName)
 
 #=====MASTER PASSWORD=======
 
 def attemptUnlockMasterPod():
+	"""
+	This function will attempt
+	to open the master pod. If succesfull
+	it will load the data on screen.
+	"""
 	attempt=openMasterEntry.get()
 	if len(attempt.split()) > 0:
-		currentMasterPod=masterPod.currentMasterPod
+		content=openPickle(masterPod.currentOpenFileName)
+		if content != None and type(content) == masterPod:
+			if unlockMasterPod(content,attempt):
+				currentMasterPod=content
+				#Update the key
+				currentMasterPod.masterKey=attempt
+				#Decrypt the pods
+				currentMasterPod.decryptPods()
+				#Load screen
+				homeScreen.show()
+				#Show Pods
+				homePodListbox.addPodList(currentMasterPod.podDict)
+				#Update top label
+				homeTopLabelVar.set(currentMasterPod.getRootName()+" accounts")
+				#Update variable
+				masterPod.currentMasterPod=currentMasterPod
 
-		#Attempt to unlock
-		response=unlockMasterPod(currentMasterPod.location, attempt)
-		if response != None and response != False:
-			log.report("Unlock success","(Unlock)",tag="Login")
 
-			#Decrypt data
-			currentMasterPod.masterKey=attempt
-			currentMasterPod.decryptPods()
-
-			#Load screen
-			homeScreen.show()
-			#Show Pods
-			homePodListbox.addPodList(currentMasterPod.podDict)
-			#Update top label
-			homeTopLabelVar.set(currentMasterPod.getRootName()+" accounts")
-			#Update variable
-			masterPod.currentMasterPod=currentMasterPod
-
+			else:
+				askMessage("Incorrect","Incorrect Password")
 		else:
-			askMessage("Incorrect","Password Incorrect")
-
+			log.report("Error opening file")
+			askMessage("Error","An error occurred")
 	else:
 		askMessage("Blank","Please Enter Something")
 
@@ -558,7 +557,7 @@ def loadSelectedDataPod():
 	"""
 
 	#Find the pod the user selected
-	selectedPod=homePodListbox.getSelected()
+	selectedPod=homePodListbox.getSelectedObject()
 	#Checks if a pod has actually been selected
 	if selectedPod != None and selectedPod != False:
 		loadDataPod(selectedPod)
@@ -752,11 +751,12 @@ def loadFilesInDirectory():
 
 	#Create Master Pods and display them
 	for item in filesFound:
-		pod=masterPod(item)
-		pod.addDirectory(filesFound[item])
+		rootName=os.path.splitext(item)[0]
 		#Adds to listbox and removes extension
-		openMainListbox.addObject(pod.getRootName(), pod)
-
+		openMainListbox.addObject(rootName,item)
+		#Add name to class array
+		if rootName not in masterPod.masterPodNames:
+			masterPod.masterPodNames.append(rootName)
 def checkPodNameValid(entry, dataSource, popupInstance):
 	"""
 	This function checks that the data
@@ -807,20 +807,22 @@ def checkMasterPodDataValid(entryList,dataSource,popupInstance):
 
 		else:
 			#Check if name is taken
-			for pod in dataSource.masterPodNameDict:
-				if pod.upper() == entryList[0].get().upper():
+			for name in masterPod.masterPodNames:
+				if name.upper() == entryList[0].get().upper():
 					valid=False
 					popupInstance.changeEntryColour(mainRedColour)
 					popupInstance.toggle("DISABLED")
 					popupInstance.infoStringVar.set("Invalid Name (Name taken)")
 					return False
+
 			else:
 				popupInstance.changeEntryColour(mainGreenColour)
 				popupInstance.toggle("NORMAL")
 				popupInstance.infoStringVar.set("Valid Name")
 				return True
 
-
+def addNewPod(location):
+	openMainListbox.addObject(os.path.splitext(location)[0],location)
 #endregion
 
 
@@ -880,6 +882,7 @@ fileMenu.add_command(label="Save Data", command=lambda: masterPod.currentMasterP
 fileMenu.add_command(label="Exit Master Pod",command=lockdown)
 
 lockFileMenu.add_command(label="Open Other",command=openOtherMasterPod)
+
 #==View==
 viewMenu.add_command(label="Show Log",command=lambda: logScreen.show())
 
