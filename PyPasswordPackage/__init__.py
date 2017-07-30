@@ -406,9 +406,10 @@ def loadDataPod(selectedPod):
 	viewPodTopNameVar.set(str(masterPod.currentMasterPod.getRootName()) + " / " + str(selectedPod.podName))
 	#Set Variable
 	masterPod.currentDataPod=selectedPod
+	#todo clear the screen
+
 	#Add data to screen
 	viewPodNotebook.loadDataPod(selectedPod)
-	#todo Make sure right tab is loaded
 	#Report to log
 	log.report("Data pod opened")
 
@@ -439,6 +440,7 @@ def openOtherMasterPod():
 		base=os.path.basename(directory)
 		if os.path.splitext(base)[0] in openMainListbox.get(0,END):
 			askMessage("Already open","This pod is currently open")
+			#todo reopen file
 		else:
 			addNewPod(directory)
 
@@ -758,6 +760,7 @@ def loadFilesInDirectory():
 		#Add name to class array
 		if rootName not in masterPod.masterPodNames:
 			masterPod.masterPodNames.append(rootName)
+
 def checkPodNameValid(entry, dataSource, popupInstance):
 	"""
 	This function checks that the data
@@ -841,6 +844,7 @@ homeNewPodButton.config(command=createNewPodPopup)
 #=====VIEW POD=====
 viewPodEditButton.config(command=lambda: viewPodNotebook.startEdit(viewPodChangeController))
 viewPodCancelButton.config(command=lambda: viewPodNotebook.cancelEdit(viewPodChangeController))
+viewPodSaveButton.config(command=lambda: viewPodNotebook.saveData(viewPodChangeController))
 #=====GEN PASSWORD SCREEN=====
 genPasswordRegenerateButton.config(command=genPassword)
 genPasswordCopyButton.config(command=lambda e=genPasswordEntry:copyDataFromEntry(e))

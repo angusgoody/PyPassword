@@ -447,6 +447,13 @@ def advancedSearch(target, dataToSearch):
 	return False
 
 def getBaseOfDirectory(value,fileNameOrBaseName):
+	"""
+	This function will get the base filename
+	of a directory stored as a sttring. The fileNameOrBaseName
+	variable indicates whether the extension is needed or not.
+	file = extension
+	else = without extension
+	"""
 	if fileNameOrBaseName == "file":
 		try:
 			return os.path.basename(value)
@@ -1463,6 +1470,16 @@ class dataSection(mainFrame):
 		"""
 		if self.dataSource:
 			insertEntry(self.dataSource,self.data)
+
+	def update(self):
+		"""
+		This method will update the
+		data stored with what is in
+		the entry.
+		"""
+		if getData(self.dataSource) != self.data:
+			self.data=getData(self.dataSource)
+
 class privateDataSection(dataSection):
 	"""
 	This class will be a data section that
@@ -1592,6 +1609,7 @@ class privateDataSection(dataSection):
 			self.dataSource.config(state=NORMAL)
 
 
+
 class passwordDisplayView(displayView):
 	"""
 	This class is a modified display view
@@ -1637,6 +1655,16 @@ class passwordDisplayView(displayView):
 		"""
 		for item in self.sectionData:
 			self.sectionData[item].restore()
+
+	def updateAll(self):
+		"""
+		Bulk save all the data changed
+		by the user
+		:return:
+		"""
+		for item in self.sectionData:
+			self.sectionData[item].update()
+
 class privateNotebook(advancedNotebook):
 	"""
 	This class will be used on the view pod
@@ -1780,7 +1808,6 @@ class privateNotebook(advancedNotebook):
 			for item in self.tabDict:
 				self.tabDict[item].enable()
 
-
 	def cancelEdit(self,multiViewInstance):
 		"""
 		This is the method that will be called 
@@ -1796,6 +1823,18 @@ class privateNotebook(advancedNotebook):
 				self.tabDict[item].restore()
 				self.tabDict[item].disable()
 
+	def saveData(self,multiViewInstance):
+		"""
+		This method is used to save the new data
+		entered in the data sources for the notebook
+		:param multiViewInstance:
+		:return:
+		"""
+		#Save the data
+		for tab in self.tabDict:
+			self.tabDict[tab].updateAll()
+		#Cancel the edit
+		self.cancelEdit(multiViewInstance)
 
 
 
