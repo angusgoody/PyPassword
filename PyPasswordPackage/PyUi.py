@@ -1452,6 +1452,7 @@ class dataSection(mainFrame):
 		in the data source
 		"""
 		if self.dataSource != None:
+			self.enableDataSource()
 			insertEntry(self.dataSource,"")
 			self.data=""
 
@@ -1479,6 +1480,23 @@ class dataSection(mainFrame):
 		"""
 		if getData(self.dataSource) != self.data:
 			self.data=getData(self.dataSource)
+
+	def disableDataSource(self):
+		"""
+		This method makes the data source
+		un usable
+		:return: 
+		"""
+		if self.dataSource:
+			self.dataSource.config(state=DISABLED)
+
+	def enableDataSource(self):
+		"""
+		This method will allow the user
+		to edit data in the data source
+		"""
+		if self.dataSource:
+			self.dataSource.config(state=NORMAL)
 
 class privateDataSection(dataSection):
 	"""
@@ -1591,22 +1609,7 @@ class privateDataSection(dataSection):
 					self.buttonDict["Hide"].config(text="Hide")
 					self.hidden=False
 
-	def disableDataSource(self):
-		"""
-		This method makes the data source
-		un usable
-		:return: 
-		"""
-		if self.dataSource:
-			self.dataSource.config(state=DISABLED)
 
-	def enableDataSource(self):
-		"""
-		This method will allow the user
-		to edit data in the data source
-		"""
-		if self.dataSource:
-			self.dataSource.config(state=NORMAL)
 
 
 
@@ -1675,6 +1678,7 @@ class passwordDisplayView(displayView):
 		for item in self.sectionData:
 			self.sectionData[item].update()
 
+
 	def configAllButtons(self,buttonName,state):
 		"""
 		This method will disable or enable
@@ -1690,6 +1694,11 @@ class passwordDisplayView(displayView):
 						self.sectionData[section].buttonDict[button].config(state=NORMAL)
 
 
+
+	def fullClear(self):
+		for item in self.sectionData:
+			self.sectionData[item].clearData()
+			
 class privateNotebook(advancedNotebook):
 	"""
 	This class will be used on the view pod
@@ -1716,6 +1725,8 @@ class privateNotebook(advancedNotebook):
 		self.privateData=["Password"]
 		#Store the last template so same are not reloaded
 		self.lastTemplate=None
+		#Stores the multi view instance
+		self.multiViewInstance=None
 
 		#Store the first tab added
 		self.firstTab=None
@@ -1751,6 +1762,7 @@ class privateNotebook(advancedNotebook):
 
 	def loadTemplate(self,templateName):
 		log.report("Loading template",templateName)
+		#todo add better efficiency here
 		if templateName != self.lastTemplate:
 			if templateName in privateTemplate.templates:
 
@@ -1797,6 +1809,12 @@ class privateNotebook(advancedNotebook):
 				log.report("Invalid template name to load",templateType)
 				self.loadTemplate("Login")
 
+			#Clear the screen
+			for display in self.tabDict:
+				self.tabDict[display].fullClear()
+			#Make sure edit mode is turned off
+			self.multiViewInstance.showView("Edit")
+
 			#Get the pod vault
 			podVault=dataPodInstance.podVault
 
@@ -1818,28 +1836,30 @@ class privateNotebook(advancedNotebook):
 			for item in self.tabDict:
 				self.tabDict[item].disable()
 
-	def startEdit(self,multiViewInstance):
+	def startEdit(self):
 		"""
 		This method will start edit mode. This will
 		allow the user to change pod data
 		and edit it and save it or cancel
 		"""
-		if type(multiViewInstance) == multiView:
-			#Change mutiview
-			multiViewInstance.showView("Cancel")
-			#Make the data editable
-			for item in self.tabDict:
-				self.tabDict[item].enable()
+		if self.multiViewInstance:
+			if type(self.multiViewInstance) == multiView:
+				#Change mutiview
+				self.multiViewInstance.showView("Cancel")
+				#Make the data editable
+				for item in self.tabDict:
+					self.tabDict[item].enable()
 
 
 
-	def cancelEdit(self,multiViewInstance):
+	def cancelEdit(self):
 		"""
 		This is the method that will be called 
 		when the user chooses to cancel the edit.
 		It will restore the data if the user changed it
 		and return to default
 		"""
+
 		if type(multiViewInstance) == multiView:
 			#Change mutiview
 			multiViewInstance.showView("Edit")
@@ -1850,7 +1870,17 @@ class privateNotebook(advancedNotebook):
 				#Hide private data
 				self.hidePrivateData()
 
-	def saveData(self,multiViewInstance):
+		if self.multiViewInstance:
+			if type(self.multiViewInstance) == multiView:
+				#Change mutiview
+				self.multiViewInstance.showView("Edit")
+				#Disable the data
+				for item in self.tabDict:
+					self.tabDict[item].restore()
+					self.tabDict[item].disable()
+
+
+	def saveData(self):
 		"""
 		This method is used to save the new data
 		entered in the data sources for the notebook
@@ -1861,7 +1891,7 @@ class privateNotebook(advancedNotebook):
 		for tab in self.tabDict:
 			self.tabDict[tab].updateAll()
 		#Cancel the edit
-		self.cancelEdit(multiViewInstance)
+		self.cancelEdit()
 
 	def hidePrivateData(self):
 		#Make sure private data is hidden by default
