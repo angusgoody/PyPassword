@@ -1637,7 +1637,11 @@ class passwordDisplayView(displayView):
 		"""
 		for item in self.sectionData:
 			self.sectionData[item].disableDataSource()
-
+			#Enable the hide button
+			try:
+				self.sectionData[item].buttonDict["Hide"].config(state=NORMAL)
+			except:
+				pass
 	def enable(self):
 		"""
 		Will enable all the sections inside
@@ -1646,6 +1650,12 @@ class passwordDisplayView(displayView):
 		"""
 		for item in self.sectionData:
 			self.sectionData[item].enableDataSource()
+			#Disable the hide button and ensure the data is visible
+			try:
+				self.sectionData[item].buttonDict["Hide"].config(state=DISABLED)
+				self.sectionData[item].toggleHide(stay="show")
+			except:
+				pass
 
 	def restore(self):
 		"""
@@ -1664,6 +1674,21 @@ class passwordDisplayView(displayView):
 		"""
 		for item in self.sectionData:
 			self.sectionData[item].update()
+
+	def configAllButtons(self,buttonName,state):
+		"""
+		This method will disable or enable
+		all the buttons with a certain title
+		in the display view
+		"""
+		for section in self.sectionData:
+			for button in self.sectionData[section].buttonDict:
+				if button == buttonName:
+					if state == "DISABLED":
+						self.sectionData[section].buttonDict[button].config(state=DISABLED)
+					else:
+						self.sectionData[section].buttonDict[button].config(state=NORMAL)
+
 
 class privateNotebook(advancedNotebook):
 	"""
@@ -1784,9 +1809,7 @@ class privateNotebook(advancedNotebook):
 					if section in podVault:
 						#Add to entry
 						self.tabDict[display].sectionData[section].addData(podVault[section])
-						#Make sure private data is hidden by default
-						if section in self.privateData:
-							self.tabDict[display].sectionData[section].toggleHide(stay="hidden")
+						self.hidePrivateData()
 
 			#Ensure the first tab is loaded
 			self.showView(self.firstTab)
@@ -1808,6 +1831,8 @@ class privateNotebook(advancedNotebook):
 			for item in self.tabDict:
 				self.tabDict[item].enable()
 
+
+
 	def cancelEdit(self,multiViewInstance):
 		"""
 		This is the method that will be called 
@@ -1822,6 +1847,8 @@ class privateNotebook(advancedNotebook):
 			for item in self.tabDict:
 				self.tabDict[item].restore()
 				self.tabDict[item].disable()
+				#Hide private data
+				self.hidePrivateData()
 
 	def saveData(self,multiViewInstance):
 		"""
@@ -1836,6 +1863,12 @@ class privateNotebook(advancedNotebook):
 		#Cancel the edit
 		self.cancelEdit(multiViewInstance)
 
+	def hidePrivateData(self):
+		#Make sure private data is hidden by default
+		for display in self.tabDict:
+			for section in self.tabDict[display].sectionData:
+				if section in self.privateData:
+					self.tabDict[display].sectionData[section].toggleHide(stay="hidden")
 
 
 #==============Other Classes==============

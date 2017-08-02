@@ -440,7 +440,7 @@ def openOtherMasterPod():
 		base=os.path.basename(directory)
 		if os.path.splitext(base)[0] in openMainListbox.get(0,END):
 			askMessage("Already open","This pod is currently open")
-			#todo reopen file
+			# todo reopen file
 		else:
 			addNewPod(directory)
 
@@ -536,7 +536,6 @@ def attemptUnlockMasterPod():
 				homeTopLabelVar.set(currentMasterPod.getRootName()+" accounts")
 				#Update variable
 				masterPod.currentMasterPod=currentMasterPod
-
 
 			else:
 				askMessage("Incorrect","Incorrect Password")
