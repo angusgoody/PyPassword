@@ -1712,8 +1712,10 @@ class privateNotebook(advancedNotebook):
 		self.templateStrip=mainFrame(self)
 		self.templateStrip.pack(side=TOP,fill=X)
 
+		#The strip that shows which template is loaded
 		self.templateLabelVar=StringVar()
-		self.templateLabelVar.set("Login")
+		self.templateLabelVar.set("No template loaded")
+
 		self.templateLabel=mainLabel(self.templateStrip,textvariable=self.templateLabelVar)
 		self.templateLabel.pack(expand=True)
 
@@ -1773,7 +1775,6 @@ class privateNotebook(advancedNotebook):
 
 				#Update the template label var
 				self.templateLabelVar.set(templateName)
-
 
 				template=privateTemplate.templates[templateName]
 				for tab in template.tabData:
@@ -1860,9 +1861,9 @@ class privateNotebook(advancedNotebook):
 		and return to default
 		"""
 
-		if type(multiViewInstance) == multiView:
+		if self.multiViewInstance:
 			#Change mutiview
-			multiViewInstance.showView("Edit")
+			self.multiViewInstance.showView("Edit")
 			#Disable the data
 			for item in self.tabDict:
 				self.tabDict[item].restore()
