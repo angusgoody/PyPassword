@@ -1541,7 +1541,7 @@ class privateDataSection(dataSection):
 		#Text or Other
 		if selectedSource == Text:
 			#Create data source
-			dataSourceWidget=Text(self.dataFrame,height=10)
+			dataSourceWidget=Text(self.dataFrame,height=10,font="Avenir")
 			dataSourceWidget.pack(fill=X)
 			self.dataSourceType=Text
 			self.dataSource=dataSourceWidget
@@ -1554,7 +1554,7 @@ class privateDataSection(dataSection):
 		#Entry
 		else:
 			#Create data source
-			dataSourceWidget=Entry(self.dataFrame,width=25)
+			dataSourceWidget=Entry(self.dataFrame,width=25,font="Avenir")
 			dataSourceWidget.pack(expand=True)
 			self.dataSourceType=Entry
 			self.dataSource=dataSourceWidget
