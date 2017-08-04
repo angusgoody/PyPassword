@@ -29,11 +29,8 @@ import os
 mainWindow=None
 
 #==============Styles==============
-"""
-scaleStyle=ttk.Style()
-scaleStyle.theme_use('clam')
-scaleStyle.configure("Horizontal.TScale",background="#2B65A1")
-"""
+mainFont="Avenir"
+
 #==============LOG CLASS==============
 
 class logClass():
@@ -483,7 +480,7 @@ class mainButton(Button):
 	to modify styles of the button
 	"""
 	def __init__(self,parent,*args,**kwargs):
-		Button.__init__(self,parent,kwargs)
+		Button.__init__(self,parent,**kwargs)
 		self.config(relief=FLAT)
 
 class mainFrame(Frame):
@@ -541,7 +538,14 @@ class mainLabel(Label):
 				mainLabel.nonColours.append(self)
 				kwargs.pop("nonColour")
 				log.report("Non colour widget added")
-		Label.__init__(self,parent,**kwargs)
+
+		if "font" in kwargs:
+			font=kwargs["font"]
+			kwargs.pop("font")
+		else:
+			font=mainFont
+
+		Label.__init__(self,parent,font=font,**kwargs)
 		self.labelData=StringVar()
 		self.textVar=None
 		if "text" in kwargs:
@@ -670,11 +674,13 @@ class advancedListbox(Listbox):
 
 		#Track data in listbox
 		self.listData={}
+
 		#Track item colours
 		self.colourDict={}
 
 		#Track number of items in listbox
 		self.numberOfItems=0
+
 		#Keep status vars
 		self.labelVarList=[]
 
@@ -1234,7 +1240,7 @@ class searchListbox(advancedListbox):
 	to itself
 	"""
 	def __init__(self,parent,**kwargs):
-		advancedListbox.__init__(self,parent,**kwargs)
+		advancedListbox.__init__(self,parent,font="Avenir 20",**kwargs)
 		self.searchSource=None
 		#Stores number of search results (-1 so it cant be same as empty search)
 		self.searchNumber=-1
@@ -1296,7 +1302,7 @@ class titleLabel(mainLabel):
 	"""
 	def __init__(self,parent,**kwargs):
 		mainLabel.__init__(self,parent,**kwargs)
-		self.config(font="Helvetica 17")
+		self.config(font=mainFont+" 17")
 
 class topStrip(mainFrame):
 	"""
@@ -1541,7 +1547,7 @@ class privateDataSection(dataSection):
 		#Text or Other
 		if selectedSource == Text:
 			#Create data source
-			dataSourceWidget=Text(self.dataFrame,height=10,font="Avenir")
+			dataSourceWidget=Text(self.dataFrame,height=10,font=mainFont)
 			dataSourceWidget.pack(fill=X)
 			self.dataSourceType=Text
 			self.dataSource=dataSourceWidget
@@ -1554,7 +1560,7 @@ class privateDataSection(dataSection):
 		#Entry
 		else:
 			#Create data source
-			dataSourceWidget=Entry(self.dataFrame,width=25,font="Avenir")
+			dataSourceWidget=Entry(self.dataFrame,width=25,font=mainFont)
 			dataSourceWidget.pack(expand=True)
 			self.dataSourceType=Entry
 			self.dataSource=dataSourceWidget

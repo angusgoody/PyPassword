@@ -123,7 +123,7 @@ openTopFrame.pack(side=TOP,fill=X)
 openMainFrame=mainFrame(openScreen)
 openMainFrame.pack(expand=True,fill=BOTH)
 
-openMainListbox=advancedListbox(openMainFrame,font="Arial 25")
+openMainListbox=advancedListbox(openMainFrame,font="Avenir 25")
 openMainListbox.pack(expand=True,fill=BOTH)
 
 #--Bottom--
@@ -217,7 +217,7 @@ homeSearchLabel.pack(padx=2)
 homeMainFrame=mainFrame(homeScreen)
 homeMainFrame.pack(expand=True,fill=BOTH)
 
-homePodListbox=searchListbox(homeMainFrame,font="Arial 18")
+homePodListbox=searchListbox(homeMainFrame)
 homePodListbox.addSearchWidget(homeSearchEntry,resultVar=homeSearchVar)
 homePodListbox.pack(expand=True,fill=BOTH)
 
@@ -579,6 +579,8 @@ def initiatePod(popupInstance):
 		pd=masterPod.currentMasterPod.addPod(single)
 		#Add to listbox
 		homePodListbox.addObject(single, pd)
+		#Clear search
+		#todo make sure search is clear
 		#Save data
 		masterPod.currentMasterPod.save()
 		#Display the screen
