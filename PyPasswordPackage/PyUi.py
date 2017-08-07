@@ -1388,13 +1388,21 @@ class privateTemplate:
 	all the private sections it will have
 	"""
 	templates={}
-
-	def __init__(self,templateName):
+	#Stores which colours represent which template
+	templateColours={}
+	def __init__(self,templateName,**kwargs):
 		self.name=templateName
+
+		if "colour" in kwargs:
+			self.colour=kwargs["colour"]
+		else:
+			self.colour=generateHexColour()
 
 		#Add to object array
 		privateTemplate.templates[templateName]=self
 
+		#Add to colour dict
+		privateTemplate.templateColours[templateName]=self.colour
 		#Stores tabs
 		self.tabData={}
 		self.sectionTitles=[]
@@ -1402,7 +1410,6 @@ class privateTemplate:
 		#Auto create basic and title
 		self.addTab("Basic")
 		self.addTemplateSection("Basic","Title",Entry)
-
 
 	def addTab(self,tabName):
 		"""
@@ -1495,6 +1502,8 @@ class dataSection(mainFrame):
 		"""
 		if self.dataSource:
 			self.dataSource.config(state=DISABLED)
+			if type(self.dataSource) == Text:
+				self.dataSource.config(fg="grey")
 
 	def enableDataSource(self):
 		"""
@@ -1503,6 +1512,8 @@ class dataSection(mainFrame):
 		"""
 		if self.dataSource:
 			self.dataSource.config(state=NORMAL)
+			if type(self.dataSource) == Text:
+				self.dataSource.config(fg="black")
 
 class privateDataSection(dataSection):
 	"""
@@ -1692,6 +1703,7 @@ class passwordDisplayView(displayView):
 		in the display view
 		"""
 		for section in self.sectionData:
+			#Goes through all the buttons
 			for button in self.sectionData[section].buttonDict:
 				if button == buttonName:
 					if state == "DISABLED":
@@ -1857,8 +1869,6 @@ class privateNotebook(advancedNotebook):
 				for item in self.tabDict:
 					self.tabDict[item].enable()
 
-
-
 	def cancelEdit(self):
 		"""
 		This is the method that will be called 
@@ -1886,7 +1896,6 @@ class privateNotebook(advancedNotebook):
 					self.tabDict[item].restore()
 					self.tabDict[item].disable()
 
-
 	def saveData(self):
 		"""
 		This method is used to save the new data
@@ -1899,6 +1908,12 @@ class privateNotebook(advancedNotebook):
 			self.tabDict[tab].updateAll()
 		#Cancel the edit
 		self.cancelEdit()
+		#todo Save to file
+		currentMasterPod=PEM.masterPod.currentMasterPod
+		if currentMasterPod != None:
+
+		else:
+			askMessage("No pod","No master pod has been loaded")
 
 	def hidePrivateData(self):
 		#Make sure private data is hidden by default

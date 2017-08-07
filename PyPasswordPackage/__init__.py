@@ -407,7 +407,6 @@ def loadDataPod(selectedPod):
 	viewPodTopNameVar.set(str(masterPod.currentMasterPod.getRootName()) + " / " + str(selectedPod.podName))
 	#Set Variable
 	masterPod.currentDataPod=selectedPod
-	#todo clear the screen
 
 	#Add data to screen
 	viewPodNotebook.loadDataPod(selectedPod)
