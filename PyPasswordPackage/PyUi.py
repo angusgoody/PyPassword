@@ -191,7 +191,11 @@ def getData(dataSource):
 	if type(dataSource) == Entry:
 		return dataSource.get()
 	elif type(dataSource) == Text:
-		return dataSource.get("1.0",END)
+		data=dataSource.get("1.0",END)
+		if len(data.split()) > 0:
+			return data
+		else:
+			return ""
 
 	#Custom
 	elif type(dataSource) == labelEntry:
@@ -1459,6 +1463,12 @@ class dataSection(mainFrame):
 			insertEntry(self.dataSource,data)
 			self.data=data
 
+	def getData(self):
+		if self.dataSource:
+			return getData(self.dataSource)
+		else:
+			return None
+
 	def clearData(self):
 		"""
 		This method will clear all data
@@ -1903,14 +1913,32 @@ class privateNotebook(advancedNotebook):
 		:param multiViewInstance:
 		:return:
 		"""
-		#Save the data
-		for tab in self.tabDict:
-			self.tabDict[tab].updateAll()
-		#Cancel the edit
-		self.cancelEdit()
-		#todo Save to file
+		#Updates the pod vault
 		currentMasterPod=PEM.masterPod.currentMasterPod
-		if currentMasterPod != None:
+		if currentMasterPod:
+			#Get the data pod that is currently loaded
+			currentPod=PEM.masterPod.currentMasterPod.currentPod
+			if currentPod:
+				#Find changed data
+				for display in self.tabDict:
+					for section in self.tabDict[display].sectionData:
+						hiddenSection=self.tabDict[display].sectionData[section]
+						if hiddenSection.getData != hiddenSection.data:
+							#Find coresponding pod
+							if section in currentPod.podVault:
+								currentPod.podVault[section]=hiddenSection.getData()
+								log.report("Updated info in pod")
+
+			#Save the data
+			for tab in self.tabDict:
+				self.tabDict[tab].updateAll()
+			#Cancel the edit
+			self.cancelEdit()
+			#Save to file
+			currentMasterPod.save()
+
+
+
 
 		else:
 			askMessage("No pod","No master pod has been loaded")

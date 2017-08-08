@@ -406,7 +406,7 @@ def loadDataPod(selectedPod):
 	#Set label at top of screen to master/data
 	viewPodTopNameVar.set(str(masterPod.currentMasterPod.getRootName()) + " / " + str(selectedPod.podName))
 	#Set Variable
-	masterPod.currentDataPod=selectedPod
+	masterPod.currentMasterPod.currentPod=selectedPod
 
 	#Add data to screen
 	viewPodNotebook.loadDataPod(selectedPod)

@@ -245,7 +245,6 @@ class masterPod:
 	"""
 	currentMasterPod=None
 	currentOpenFileName=""
-	currentDataPod=None
 	masterPodDict={}
 	masterPodNames=[]
 	def __init__(self,fileName):
@@ -262,6 +261,8 @@ class masterPod:
 		self.state="Open"
 		#Adds self to dictionaries
 		masterPod.masterPodDict[self.location]=self
+		#Stores currently loaded data pod
+		currentPod=None
 
 	def addDirectory(self,directory):
 		#Updates the location of the pod
