@@ -249,6 +249,7 @@ class masterPod:
 	masterPodNames=[]
 	def __init__(self,fileName):
 		#todo add password hint
+		self.masterHint="No Password Hint"
 		#Stores name of master pod
 		self.fileName=fileName
 		#Where the file is stored

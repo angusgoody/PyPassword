@@ -163,9 +163,15 @@ titleLabel(openMasterSub,textvariable=openMasterTopVar).pack(side=RIGHT)
 openMasterMainFrame=centerFrame(openMasterDisplay)
 openMasterSub=openMasterMainFrame.miniFrame
 
-mainLabel(openMasterSub,text="Enter password").pack()
+mainLabel(openMasterSub,text="Enter password",font="Avenir 16").pack()
 openMasterEntry=Entry(openMasterSub,show="•",justify=CENTER,width=25)
 openMasterEntry.pack()
+
+openHintVar=StringVar()
+openHintVar.set("No Hint")
+openHintLabel=mainLabel(openMasterSub,textvariable=openHintVar)
+openHintLabel.pack()
+
 
 #--Bottom Section--
 openMasterBottomFrame=centerFrame(openMasterDisplay)
@@ -424,9 +430,16 @@ def openMasterPod():
 	if current != None:
 		#Load screen to enter master password
 		openMasterScreen.show()
-		#Update top lavbel
+		#Update top label
 		openMasterTopVar.set(getBaseOfDirectory(current,"file"))
 		masterPod.currentOpenFileName=current
+
+		#Add the hint to the screen
+		try:
+			content=openPickle(current)
+			openHintVar.set(content.masterHint)
+		except:
+			pass
 	else:
 		askMessage("Select","No Pod Selected")
 
@@ -468,6 +481,10 @@ def createNewMasterPodPopup():
 	popUpPasswordEntry=Entry(popUpSub,width=20,justify=CENTER)
 	popUpPasswordEntry.pack()
 
+	mainLabel(popUpSub,text="Hint").pack()
+	popupHintEntry=Entry(popUpSub,width=20,justify=CENTER)
+	popupHintEntry.pack()
+
 	mainLabel(popUpSub,textvariable=popupInfoVar,font="Helvetica 10").pack(side=BOTTOM)
 	newWindow.addView(popUpSub)
 
@@ -476,12 +493,16 @@ def createNewMasterPodPopup():
 	                                      ds=masterPod,pi=newWindow: checkMasterPodDataValid(el,ds,newWindow))
 	popUpPasswordEntry.bind("<KeyRelease>",lambda event, el=[popUpEntry,popUpPasswordEntry],
 	                                      ds=masterPod,pi=newWindow: checkMasterPodDataValid(el,ds,newWindow))
+
+	popupHintEntry.bind("<KeyRelease>",lambda event, el=[popUpEntry,popUpPasswordEntry],
+	                                      ds=masterPod,pi=newWindow: checkMasterPodDataValid(el,ds,newWindow))
+
 	#Disable button by default to avoid blank names and disable resizing
 	newWindow.toggle("DISABLED")
 	newWindow.resizable(width=False, height=False)
 
 	#Add data sources and return values
-	newWindow.addDataSource([popUpEntry,popUpPasswordEntry])
+	newWindow.addDataSource([popUpEntry,popUpPasswordEntry,popupHintEntry])
 	newWindow.addCommands([initiateMasterPod],True)
 
 	#Run
@@ -500,6 +521,7 @@ def initiateMasterPod(popupInstance):
 	if len(data) > 1:
 		podName=data[0]
 		podPassword=data[1]
+		podHint=data[2]
 
 		#Create file name
 		fileName=str(podName)
@@ -507,6 +529,8 @@ def initiateMasterPod(popupInstance):
 			fileName=fileName+".mp"
 		newPod=masterPod(fileName)
 		newPod.masterKey=podPassword
+		if podHint != None and podHint != "":
+			newPod.masterHint=podHint
 		newPod.save()
 		addNewPod(fileName)
 
