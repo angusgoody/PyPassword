@@ -1925,9 +1925,8 @@ class privateNotebook(advancedNotebook):
 						hiddenSection=self.tabDict[display].sectionData[section]
 						if hiddenSection.getData != hiddenSection.data:
 							#Find coresponding pod
-							if section in currentPod.podVault:
-								currentPod.podVault[section]=hiddenSection.getData()
-								log.report("Updated info in pod")
+							currentPod.podVault[section]=hiddenSection.getData()
+							log.report("Updated info in pod")
 
 			#Save the data
 			for tab in self.tabDict:
