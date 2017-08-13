@@ -183,6 +183,7 @@ class dataPod:
 		self.templateType="Login"
 		#Store what state the vault is
 		self.vaultState="Open"
+
 	def addData(self,name,info):
 		self.podVault[name]=info
 
@@ -248,7 +249,6 @@ class masterPod:
 	masterPodDict={}
 	masterPodNames=[]
 	def __init__(self,fileName):
-		#todo add password hint
 		self.masterHint="No Password Hint"
 		#Stores name of master pod
 		self.fileName=fileName

@@ -503,6 +503,7 @@ def createNewMasterPodPopup():
 
 	#Add data sources and return values
 	newWindow.addDataSource([popUpEntry,popUpPasswordEntry,popupHintEntry])
+	newWindow.addRequiredFields([popUpEntry,popUpPasswordEntry])
 	newWindow.addCommands([initiateMasterPod],True)
 
 	#Run
@@ -644,6 +645,7 @@ def createNewPodPopup():
 
 		#Add data sources and return values
 		newWindow.addDataSource([popUpEntry])
+		newWindow.addRequiredFields([popUpEntry])
 		newWindow.addCommands([initiatePod],True)
 
 		#Run
@@ -870,6 +872,7 @@ homeNewPodButton.config(command=createNewPodPopup)
 viewPodEditButton.config(command=lambda: viewPodNotebook.startEdit())
 viewPodCancelButton.config(command=lambda: viewPodNotebook.cancelEdit())
 viewPodSaveButton.config(command=lambda: viewPodNotebook.saveData())
+#viewPodDeleteButton.config(command=pass)
 #=====GEN PASSWORD SCREEN=====
 genPasswordRegenerateButton.config(command=genPassword)
 genPasswordCopyButton.config(command=lambda e=genPasswordEntry:copyDataFromEntry(e))

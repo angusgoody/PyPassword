@@ -876,6 +876,7 @@ class popUpWindow(Toplevel):
 
 		#Initiate any entrys the window will have that needs to store data
 		self.entryList=[]
+		self.requiredList=[]
 		self.runCommandDict={}
 		self.gatheredData=[]
 
@@ -944,6 +945,16 @@ class popUpWindow(Toplevel):
 		for entry in entryList:
 			self.entryList.append(entry)
 
+	def addRequiredFields(self,entryList):
+		"""
+		This method will add required entries to
+		the class. These are entries that need
+		to have data in them
+		:param entryList:
+		:return:
+		"""
+		for item in entryList:
+			self.requiredList.append(item)
 	def save(self):
 		"""
 		The save method will collect all the data
@@ -990,7 +1001,7 @@ class popUpWindow(Toplevel):
 		Will change the colour of all the data sources
 		in the popup window
 		"""
-		for entry in self.entryList:
+		for entry in self.requiredList:
 			entry.config(bg=colour)
 
 #==============Master Custom Classes==============
@@ -1925,9 +1936,9 @@ class privateNotebook(advancedNotebook):
 						hiddenSection=self.tabDict[display].sectionData[section]
 						if hiddenSection.getData != hiddenSection.data:
 							#Find coresponding pod
-							currentPod.podVault[section]=hiddenSection.getData()
-							log.report("Updated info in pod")
+							currentPod.updateVault(section,hiddenSection.getData())
 
+							#todo if title is changed update listbox
 			#Save the data
 			for tab in self.tabDict:
 				self.tabDict[tab].updateAll()
