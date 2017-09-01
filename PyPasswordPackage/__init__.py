@@ -608,7 +608,8 @@ def initiatePod(popupInstance):
 		#Add to listbox
 		homePodListbox.addObject(single, pd)
 		#Clear search
-		#todo make sure search is clear
+		insertEntry(homeSearchEntry,"")
+		homePodListbox.search()
 		#Save data
 		masterPod.currentMasterPod.save()
 		#Display the screen
@@ -616,7 +617,6 @@ def initiatePod(popupInstance):
 
 def createNewPodPopup():
 
-	#todo add a drop down menu to select template when creating pod
 	"""
 	This function creates a popup window
 	that allows the user to enter a name
