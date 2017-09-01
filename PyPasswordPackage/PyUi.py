@@ -187,7 +187,7 @@ def getData(dataSource):
 	This function will get data from a number
 	of different widgets
 	"""
-	valids=[Entry,Text]
+	valids=[Entry,Text,StringVar]
 	if type(dataSource) == Entry:
 		return dataSource.get()
 	elif type(dataSource) == Text:
@@ -200,6 +200,8 @@ def getData(dataSource):
 	#Custom
 	elif type(dataSource) == labelEntry:
 		return dataSource.entry.get()
+	elif type(dataSource) == StringVar:
+		return dataSource.get()
 	else:
 		log.report("Not able to get data from",dataSource)
 
@@ -844,7 +846,6 @@ class advancedTree(ttk.Treeview):
 		self.column(sectionName,width=10,minwidth=45)
 		self.heading(sectionName,text=sectionName)
 
-
 	def insertData(self,values,tags):
 		"""
 		Method to insert data into the treeview
@@ -955,6 +956,7 @@ class popUpWindow(Toplevel):
 		"""
 		for item in entryList:
 			self.requiredList.append(item)
+
 	def save(self):
 		"""
 		The save method will collect all the data
@@ -965,8 +967,9 @@ class popUpWindow(Toplevel):
 		#Gather data
 		if len(self.entryList) > 0:
 			for item in self.entryList:
-				if type(item) == Entry:
-					self.gatheredData.append(item.get())
+				data=getData(item)
+				if data != None and data != "":
+					self.gatheredData.append(data)
 				else:
 					log.report("Invalid data source used in popup",item,tag="Error",system=True)
 		else:
@@ -1403,6 +1406,7 @@ class privateTemplate:
 	all the private sections it will have
 	"""
 	templates={}
+	templateList=[]
 	#Stores which colours represent which template
 	templateColours={}
 	def __init__(self,templateName,**kwargs):
@@ -1415,6 +1419,8 @@ class privateTemplate:
 
 		#Add to object array
 		privateTemplate.templates[templateName]=self
+		if templateName not in privateTemplate.templateList:
+			privateTemplate.templateList.append(templateName)
 
 		#Add to colour dict
 		privateTemplate.templateColours[templateName]=self.colour

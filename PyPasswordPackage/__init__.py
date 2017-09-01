@@ -376,6 +376,7 @@ genPasswordReviewFrame.colour("#213380")
 #===============================(FUNCTIONS)===============================
 
 #=========Screen Specific Functions=========
+
 #region Screen Specific Functions
 
 #=====MENU COMMANDS====
@@ -599,8 +600,11 @@ def initiatePod(popupInstance):
 
 	if len(data) > 0:
 		single=data[0]
+		template=data[1]
 		#Create pod with that name
 		pd=masterPod.currentMasterPod.addPod(single)
+		if template in privateTemplate.templateList:
+			pd.templateType=template
 		#Add to listbox
 		homePodListbox.addObject(single, pd)
 		#Clear search
@@ -636,15 +640,25 @@ def createNewPodPopup():
 		popUpEntry.pack()
 		popUpEntry.bind("<KeyRelease>", lambda event, ds=masterPod.currentMasterPod,
 		                                      en=popUpEntry, ins=newWindow: checkPodNameValid(en, ds, ins))
-		mainLabel(popUpSub,textvariable=popupInfoVar,font="Helvetica 10").pack(side=BOTTOM)
+		mainLabel(popUpSub,textvariable=popupInfoVar,font="Helvetica 10").pack(padx=9)
 		newWindow.addView(popUpSub)
+
+		#Area to select template
+
+		mainLabel(popUpSub,text="Select Template").pack()
+
+		selectedTemplate=StringVar()
+		selectedTemplate.set("Login")
+		selectTemplate=OptionMenu(popUpSub,selectedTemplate,*privateTemplate.templateList)
+		selectTemplate.config(width=15)
+		selectTemplate.pack()
 
 		#Disable button by default to avoid blank names and disable resizing
 		newWindow.toggle("DISABLED")
 		newWindow.resizable(width=False, height=False)
 
 		#Add data sources and return values
-		newWindow.addDataSource([popUpEntry])
+		newWindow.addDataSource([popUpEntry,selectedTemplate])
 		newWindow.addRequiredFields([popUpEntry])
 		newWindow.addCommands([initiatePod],True)
 
@@ -889,11 +903,14 @@ genPasswordDigitSlider.addCommand(genPassword)
 
 #=====STATUS BAR=====
 statusBar.addBinding("<Double-Button-1>",lambda event: goHome())
+
 #=====OPEN SCREEN=====
 openMainListbox.bind("<Double-Button-1>", lambda event: openMasterPod())
 openMainListbox.bind("<Return>", lambda event: openMasterPod())
+
 #=====MASTER SCREEN=====
 openMasterEntry.bind("<Return>", lambda event: attemptUnlockMasterPod())
+
 #=====HOME SCREEN=====
 homePodListbox.bind("<Double-Button-1>", lambda event: loadSelectedDataPod())
 
