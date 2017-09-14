@@ -142,6 +142,7 @@ openSelectFileButton.pack(side=RIGHT,padx=5)
 openScreen.colour("#4A4D9C")
 
 #endregion
+
 #----Open Master Password Screen-----
 #region master screen
 openMasterScreen=mainScreen(window, "Master Password", statusVar,menu=lockScreenMenu)
@@ -223,6 +224,7 @@ homeSearchLabel.pack(padx=2)
 homeMainFrame=mainFrame(homeScreen)
 homeMainFrame.pack(expand=True,fill=BOTH)
 
+#todo add right clicks and multiple delete
 homePodListbox=searchListbox(homeMainFrame)
 homePodListbox.addSearchWidget(homeSearchEntry,resultVar=homeSearchVar)
 homePodListbox.pack(expand=True,fill=BOTH)
@@ -420,6 +422,30 @@ def loadDataPod(selectedPod):
 	#Report to log
 	log.report("Data pod opened")
 
+def deletePod(selectedPod):
+	"""
+	This function will take a pod object
+	as a parameter and then delete it from
+	the program
+	"""
+	if selectedPod:
+		#Ask user if they're sure
+		confirm=askConfirm("Delete","Are you sure you wish to delete this pod?")
+		if confirm:
+			#Deletes the pod
+			print("Ready to delete")
+			currentMaster=masterPod.currentMasterPod
+			if selectedPod.podName in currentMaster.podDict:
+				#Remove the reference
+				del currentMaster.podDict[selectedPod.podName]
+				#Remove from listbox
+				homePodListbox.removeItem(selectedPod.podName,False)
+				#Save the data
+				currentMaster.save()
+				#Change the screen
+				homeScreen.show()
+				#Report to log
+				log.report("Successfully deleted pod")
 
 #=====OPEN SCREEN=======
 def openMasterPod():
@@ -436,6 +462,7 @@ def openMasterPod():
 		masterPod.currentOpenFileName=current
 
 		#Add the hint to the screen
+		#todo fix hint bug
 		try:
 			content=openPickle(current)
 			openHintVar.set(content.masterHint)
@@ -886,7 +913,8 @@ homeNewPodButton.config(command=createNewPodPopup)
 viewPodEditButton.config(command=lambda: viewPodNotebook.startEdit())
 viewPodCancelButton.config(command=lambda: viewPodNotebook.cancelEdit())
 viewPodSaveButton.config(command=lambda: viewPodNotebook.saveData())
-#viewPodDeleteButton.config(command=pass)
+viewPodDeleteButton.config(command=lambda: deletePod(masterPod.currentMasterPod.currentPod))
+
 #=====GEN PASSWORD SCREEN=====
 genPasswordRegenerateButton.config(command=genPassword)
 genPasswordCopyButton.config(command=lambda e=genPasswordEntry:copyDataFromEntry(e))

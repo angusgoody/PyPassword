@@ -165,6 +165,20 @@ def askFirst(pre,message,command):
 			command()
 		return response
 
+def askConfirm(pre,message):
+	"""
+	This function will ask
+	the user for an ok or cancel
+	"""
+	try:
+		response=messagebox.askokcancel(pre,message)
+	except:
+		return False
+	else:
+		if response:
+			return True
+		return False
+
 def insertEntry(entry,message):
 	"""
 	Will insert data into an entry
@@ -745,6 +759,13 @@ class advancedListbox(Listbox):
 		for item in poDict:
 			self.addObject(item, poDict[item])
 
+	def renameObject(self,oldIndicator,newIndicator):
+		#Find the old data
+		if oldIndicator in self.listData:
+			oldData=self.listData[oldIndicator]
+			#Rename
+			self.listData[newIndicator]=oldData
+
 	def getSelectedObject(self):
 		"""
 		This method will attempt to return
@@ -800,6 +821,7 @@ class advancedListbox(Listbox):
 		"""
 		This method will take a list of text
 		and if the text is a valid indicator it will add it back
+		to the listbox.
 		"""
 		for item in listToAdd:
 			if item in self.listData:
@@ -818,6 +840,11 @@ class advancedListbox(Listbox):
 		self.delete(0,END)
 
 	def addLabelVar(self,source):
+		"""
+		This function will add a label var
+		to the object so the result can be displayed
+		to the user.
+		"""
 		if source not in self.labelVarList:
 			self.labelVarList.append(source)
 
@@ -1653,10 +1680,6 @@ class privateDataSection(dataSection):
 					self.buttonDict["Hide"].config(text="Hide")
 					self.hidden=False
 
-
-
-
-
 class passwordDisplayView(displayView):
 	"""
 	This class is a modified display view
@@ -1689,6 +1712,7 @@ class passwordDisplayView(displayView):
 				self.sectionData[item].buttonDict["Hide"].config(state=NORMAL)
 			except:
 				pass
+
 	def enable(self):
 		"""
 		Will enable all the sections inside
@@ -1722,7 +1746,6 @@ class passwordDisplayView(displayView):
 		for item in self.sectionData:
 			self.sectionData[item].update()
 
-
 	def configAllButtons(self,buttonName,state):
 		"""
 		This method will disable or enable
@@ -1737,8 +1760,6 @@ class passwordDisplayView(displayView):
 						self.sectionData[section].buttonDict[button].config(state=DISABLED)
 					else:
 						self.sectionData[section].buttonDict[button].config(state=NORMAL)
-
-
 
 	def fullClear(self):
 		for item in self.sectionData:
@@ -1941,10 +1962,16 @@ class privateNotebook(advancedNotebook):
 					for section in self.tabDict[display].sectionData:
 						hiddenSection=self.tabDict[display].sectionData[section]
 						if hiddenSection.getData != hiddenSection.data:
-							#Find coresponding pod
-							currentPod.updateVault(section,hiddenSection.getData())
-
+							#Save old and new data as variables
+							oldData=hiddenSection.data
+							newData=hiddenSection.getData()
+							#Update the vault with the new data
+							currentPod.updateVault(section,newData)
+							#Update listbox etc
+							if section == "Title":
+								pass
 							#todo if title is changed update listbox
+
 			#Save the data
 			for tab in self.tabDict:
 				self.tabDict[tab].updateAll()
@@ -1952,9 +1979,6 @@ class privateNotebook(advancedNotebook):
 			self.cancelEdit()
 			#Save to file
 			currentMasterPod.save()
-
-
-
 
 		else:
 			askMessage("No pod","No master pod has been loaded")
