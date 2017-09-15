@@ -547,10 +547,14 @@ def initiateMasterPod(popupInstance):
 	as a parameter.
 	"""
 	data=popupInstance.gatheredData
-	if len(data) > 1:
+	if len(data) >= 1:
 		podName=data[0]
 		podPassword=data[1]
-		podHint=data[2]
+
+		try:
+			podHint=data[2]
+		except:
+			podHint="No Hint"
 
 		#Create file name
 		fileName=str(podName)
