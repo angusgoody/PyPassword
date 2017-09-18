@@ -462,7 +462,6 @@ def openMasterPod():
 		masterPod.currentOpenFileName=current
 
 		#Add the hint to the screen
-		#todo fix hint bug
 		try:
 			content=openPickle(current)
 			openHintVar.set(content.masterHint)

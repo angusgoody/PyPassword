@@ -482,11 +482,15 @@ def getBaseOfDirectory(value,fileNameOrBaseName):
 		except:
 			return ""
 
+def postMenu(event,listbox,menu):
+    try:
+        current=listbox.curselection()
+    except:
+        print("Listbox error")
+    else:
+        if len(current) > 0:
+            menu.post(event.x_root, event.y_root)
 #==================================(CLASSES)=============================
-
-#==============Classes==============
-
-
 
 
 
@@ -710,6 +714,14 @@ class advancedListbox(Listbox):
 
 		self.scrollbar.config(command=self.yview)
 		self.config(yscrollcommand=self.scrollbar.set)
+
+		#Listbox command label
+		self.rightClickMenu=Menu(self)
+		self.rightClickMenu.add_command(label="Delete")
+		self.rightClickMenu.add_command(label="Open")
+
+		#Add menu binding to listbox
+		self.bind("<Button-2>",lambda event: postMenu(event,self,self.rightClickMenu))
 
 	def addObject(self, textToDisplay, objectInstance, **kwargs):
 		"""
@@ -1967,6 +1979,7 @@ class privateNotebook(advancedNotebook):
 							newData=hiddenSection.getData()
 							#Update the vault with the new data
 							currentPod.updateVault(section,newData)
+
 							#Update listbox etc
 							if section == "Title":
 								pass
