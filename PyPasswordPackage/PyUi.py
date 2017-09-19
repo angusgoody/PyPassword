@@ -1448,6 +1448,7 @@ class privateTemplate:
 	templateList=[]
 	#Stores which colours represent which template
 	templateColours={}
+
 	def __init__(self,templateName,**kwargs):
 		self.name=templateName
 
@@ -2034,3 +2035,11 @@ privateSecureNote=privateTemplate("Secure Note")
 privateSecureNote.colourSection("Basic","Title","#6ECA3F")
 privateSecureNote.addTab("Advanced")
 privateSecureNote.addTemplateSection("Advanced","Notes",Text,colour="#55CA88")
+
+#===Email Account===
+privateEmailAccount=privateTemplate("Email Account")
+privateEmailAccount.colourSection("Basic","Title","#E0C491")
+privateEmailAccount.addTemplateSection("Basic","Email",Entry,colour="#E0C47D")
+privateEmailAccount.addTemplateSection("Basic","Password",Entry,colour="#E0BC5C")
+privateEmailAccount.addTab("Advanced")
+privateEmailAccount.addTemplateSection("Advanced","Notes",Text,colour="#E0A83E")
