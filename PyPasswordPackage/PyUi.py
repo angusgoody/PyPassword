@@ -1449,9 +1449,9 @@ class privateTemplate:
 	#Stores which colours represent which template
 	templateColours={}
 
-	def __init__(self,templateName,**kwargs):
+	def __init__(self,templateName,templateColour,**kwargs):
 		self.name=templateName
-
+		self.templateColour=templateColour
 		if "colour" in kwargs:
 			self.colour=kwargs["colour"]
 		else:
@@ -1799,7 +1799,7 @@ class privateNotebook(advancedNotebook):
 		self.templateLabel.pack(expand=True)
 
 		#Colour the template strip
-		self.templateStrip.colour("#8E9193")
+		self.templateStrip.colour("#ECF0F5")
 		#Stores display views and tabs
 		self.tabDict={}
 		#Which data should be hidden by default
@@ -1846,6 +1846,7 @@ class privateNotebook(advancedNotebook):
 		#todo add better efficiency here
 		if templateName != self.lastTemplate:
 			if templateName in privateTemplate.templates:
+				template=privateTemplate.templates[templateName]
 
 				#First Clear the screen
 				for tab in self.tabDict:
@@ -1854,8 +1855,8 @@ class privateNotebook(advancedNotebook):
 
 				#Update the template label var
 				self.templateLabelVar.set(templateName)
-
-				template=privateTemplate.templates[templateName]
+				#Update top label to right colour
+				self.templateLabel.config(fg=template.templateColour)
 				for tab in template.tabData:
 					tabArray=template.tabData[tab]
 					display=self.addNewDisplayTab(tab)
@@ -2021,7 +2022,7 @@ Some examples of templates include...
 *Bank details
 """
 #===Normal Login===
-privateLoginTemplate=privateTemplate("Login")
+privateLoginTemplate=privateTemplate("Login","#13DCE0")
 privateLoginTemplate.addTab("Advanced")
 privateLoginTemplate.colourSection("Basic","Title","#67A1FF")
 privateLoginTemplate.addTemplateSection("Basic","Username",Entry,colour="#5C90E3")
@@ -2031,15 +2032,15 @@ privateLoginTemplate.addTemplateSection("Advanced","Website",Entry,colour="#55CE
 privateLoginTemplate.addTemplateSection("Advanced","Notes",Text,colour="#4DBCB2")
 
 #===Secure Note===
-privateSecureNote=privateTemplate("Secure Note")
+privateSecureNote=privateTemplate("Secure Note","#1CE029")
 privateSecureNote.colourSection("Basic","Title","#6ECA3F")
 privateSecureNote.addTab("Advanced")
 privateSecureNote.addTemplateSection("Advanced","Notes",Text,colour="#55CA88")
 
 #===Email Account===
-privateEmailAccount=privateTemplate("Email Account")
-privateEmailAccount.colourSection("Basic","Title","#E0C491")
-privateEmailAccount.addTemplateSection("Basic","Email",Entry,colour="#E0C47D")
-privateEmailAccount.addTemplateSection("Basic","Password",Entry,colour="#E0BC5C")
+privateEmailAccount=privateTemplate("Email Account","#E016B1")
+privateEmailAccount.colourSection("Basic","Title","#C463AE")
+privateEmailAccount.addTemplateSection("Basic","Email",Entry,colour="#D36ABA")
+privateEmailAccount.addTemplateSection("Basic","Password",Entry,colour="#E071C6")
 privateEmailAccount.addTab("Advanced")
-privateEmailAccount.addTemplateSection("Advanced","Notes",Text,colour="#E0A83E")
+privateEmailAccount.addTemplateSection("Advanced","Notes",Text,colour="#E0388D")
