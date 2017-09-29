@@ -23,7 +23,7 @@ import pickle
 import os
 import random
 import string
-from PyUi import logClass
+from PyUi import *
 
 #==========VARIABLES=========
 mainWindow=None
@@ -33,6 +33,7 @@ symbols=['!', '"', '#', '$', '%', '&', "'", '()',
          '*', '+', ',', '-', '.', '/', ':', ';',
          '<', '=', '>', '?', '@', '[', ']', '^', '_',
          '`', '{', '|', '}', '~', "'"]
+
 
 #==================================(FUNCTIONS)=============================
 def addPEMWindow(window):
@@ -51,7 +52,7 @@ def pad(text):
 	"""
 	return text +((16-len(text) % 16)*"\n")
 
-def cipher(plainText, key):
+def encryptData(plainText, key):
 	"""
 	The cipher function encrypts
 	data with an AES key
@@ -62,14 +63,20 @@ def cipher(plainText, key):
 	log.report("Cipher command executed","(PEM)",tag="Encryption")
 	return encrypted
 
-def decrypt(data,key):
+def decryptData(data, key):
 	try:
 		key=AES.new(pad(key))
 		log.report("Decrypt command executed","(PEM)",tag="Encryption")
-
-		return key.decrypt(data).rstrip()
+		data=key.decrypt(data).rstrip()
+		try:
+			data=data.decode("utf-8")
+		except:
+			return None
+		else:
+			return data
 	except:
 		log.report("An error occurred when attempting to decrypt","(Decrypt)",tag="Error")
+		return None
 
 def openPickle(fileName):
 	"""
@@ -132,6 +139,28 @@ def generatePassword(length,symbolAmount,digitAmount):
 
 	mashed=mash(length,charList,symbolList,digitList)
 	return mashed
+
+def unlockMasterPod(masterPodInstance,attempt):
+	"""
+	This function will attempt to unlock a master pod using 
+	an attempt. Will return True or False
+	"""
+	if masterPodInstance != None:
+		if type(masterPodInstance) == masterPod:
+			try:
+				if masterPodInstance.state == "Locked":
+					#Attempts to decrypt key
+					decKey=decryptData(masterPodInstance.masterKey,attempt)
+					if decKey != None:
+						return True
+					else:
+						return False
+				else:
+					log.report("Attempted to decrypt open master pod")
+					print("Err")
+			except:
+				log.report("An error occurred decrypting data (Invlaid pod)")
+	return False
 #==================================(Classes)=============================
 
 class dataPod:
@@ -140,21 +169,24 @@ class dataPod:
 	that stores all the information
 	about a account
 	"""
+
 	def __init__(self,master,podTitle):
+		#Master pod var
 		self.master=master
+		#Name of pod
 		self.podName=podTitle
+		#Stores the data
 		self.podVault={}
-		self.edited=False
+		#Stores tags
+		self.tags=[]
+		#Store the type of account
+		self.templateType="Login"
+		#Store what state the vault is
+		self.vaultState="Open"
+
 
 	def addData(self,name,info):
 		self.podVault[name]=info
-		self.edited=True
-
-	def getVault(self):
-		return self.podVault
-
-	def getInfo(self):
-		return {self.podName:self.podVault}
 
 	def updateVault(self,name,newInfo):
 		"""
@@ -175,7 +207,37 @@ class dataPod:
 			self.podVault[name]=newInfo
 			log.report("New section added to pod",name,tag="File",system=True)
 
-		self.edited=True
+	def addTag(self,tagName):
+		"""
+		This allows the pod to have a tag
+		added to it
+		"""
+		if tagName not in self.tags:
+			self.tags.append(tagName)
+
+	def encryptVault(self):
+		"""
+		This method will encrypt the data in the vault of the pod
+		with the key from its master.
+		"""
+		if self.master.masterKey != None:
+			key=self.master.masterKey
+			#Encrypt all the data
+			for item in self.podVault:
+				oldData=self.podVault[item]
+				self.podVault[item]=encryptData(oldData, key)
+
+	def decryptVault(self):
+		"""
+		This method will attempt to decrypt the data in
+		the vault using the master pod key.
+		"""
+		if self.master.masterKey != None:
+			key=self.master.masterKey
+			#Decrpt the data
+			for item in self.podVault:
+				oldData=self.podVault[item]
+				self.podVault[item]=decryptData(oldData,key)
 
 class masterPod:
 	"""
@@ -184,63 +246,31 @@ class masterPod:
 	all the passwords for a user
 	"""
 	currentMasterPod=None
-	currentDataPod=None
+	currentOpenFileName=""
 	masterPodDict={}
-	masterPodNameDict={}
+	masterPodNames=[]
 	def __init__(self,fileName):
+		self.masterHint="No Password Hint"
+		#Stores name of master pod
 		self.fileName=fileName
+		#Where the file is stored
 		self.location=fileName
+		#Stores the pods
 		self.podDict={}
+		#Store the encryption key
 		self.masterKey=None
+		#Store what state
+		self.state="Open"
+		#Adds self to dictionaries
 		masterPod.masterPodDict[self.location]=self
-		masterPod.masterPodNameDict[self.getRootName()]=self
-
-	def addKey(self,masterKey):
-		self.masterKey=masterKey
+		#Stores currently loaded data pod
+		currentPod=None
 
 	def addDirectory(self,directory):
+		#Updates the location of the pod
 		self.location=directory
-		masterPod.masterPodDict.pop(self.fileName,None)
+		masterPod.masterPodDict.pop(self.location,None)
 		masterPod.masterPodDict[directory]=self
-
-	def unlock(self,attempt):
-		"""
-		The unlock method will attempt
-		to decrypt the master pod file
-		"""
-		#Get file contents
-		content=openPickle(self.location)
-		if content != None:
-			#Attempt unlock
-			info=decrypt(content,attempt)
-
-			#Check if decryption was successful
-			try:
-				info=eval(info)
-			except:
-				log.report("Incorrect master password used","(Unlock)",tag="File")
-				return False
-			else:
-				log.report("Correct master password used","(Unlock)",tag="File")
-				#Add key to class
-				self.masterKey=attempt
-				#Add all the pods to the master and return data
-				podDict={}
-				for iterPod in info:
-					#Create pod instance
-					currentPod=dataPod(self,iterPod)
-					podDict[iterPod]=currentPod
-
-					#Add the pod data
-					podData=info[iterPod]
-					for podSection in podData:
-						currentPod.addData(podSection,podData[podSection])
-
-					#Add the pod to self
-					self.addPodRefrence(currentPod.podName,currentPod)
-				return podDict
-		else:
-			return False
 
 	def addPod(self,podName):
 		"""
@@ -252,13 +282,6 @@ class masterPod:
 		podInstance=dataPod(self,podName)
 		self.podDict[podName]=podInstance
 		return podInstance
-
-	def addPodRefrence(self,podTitle,podInstance):
-		"""
-		This method is to add pre existing pods to the master
-		without returning a value
-		"""
-		self.podDict[podTitle]=podInstance
 
 	def updatePodTitle(self,oldName,newName):
 		self.podDict[newName] = self.podDict.pop(oldName)
@@ -273,20 +296,19 @@ class masterPod:
 		"""
 		#Wont save without encryption key
 		if self.masterKey != None:
-			exportDict={}
-			#Gather info here
-			for pod in self.podDict:
 
-				info=self.podDict[pod].getVault()
-				exportDict[pod]=info
-
+			#Encrypt all the pods first
+			self.cipherPods()
+			#Cipher key
+			keyHolder=self.masterKey
+			self.masterKey=encryptData(self.masterKey, self.masterKey)
 			#Save file
-			savePickle(cipher(str(exportDict),self.masterKey),self.location)
+			savePickle(self,self.location)
+			#Decipher key
+			self.masterKey=keyHolder
+			#Decrypt the pods
+			self.decryptPods()
 
-			#Update variables in pods to NOT edited
-			for i in self.podDict:
-				pod=self.podDict[i]
-				pod.edited=False
 			log.report("Saved master pod successfully","(MP)",tag="File")
 
 		else:
@@ -312,22 +334,65 @@ class masterPod:
 		if saveOrNot:
 			self.save()
 
+	def cipherPods(self):
+		"""
+		This method will encrypt all the pods
+		for the master pod
+		"""
+		if self.state == "Open":
+			for pod in self.podDict:
+				#Cipher vault
+				self.podDict[pod].encryptVault()
+			#Update var
+			self.state="Locked"
 
+	def decryptPods(self):
+		"""
+		This method will decrypt all the pods
+		for the master pod
+		"""
+		if self.state == "Locked":
+			for pod in self.podDict:
+				self.podDict[pod].decryptVault()
+			#Update var
+			self.state="Open"
 #==================Testing area=================
 """
-newPod=masterPod("Hidden.mp")
-newPod.addDirectory("/Users/angus/Documents/Hidden.mp")
-newPod.addKey("donkey")
-gog=newPod.addPod("Google")
-gog.addData("Username","angus.goody")
-gog.addData("Password","frog")
+newPod=masterPod("Alan Walker.mp")
+newPod.masterKey="kygo"
 
-git=newPod.addPod("Github")
-git.addData("Username","bob.marley")
-git.addData("Password","sheep56")
+gog=newPod.addPod("Soundcloud")
+gog.addData("Username","Alan")
+gog.addData("Password","singMeToSleep123")
+gog.addData("Website","soundcloud.com")
+gog.templateType="Login"
+
+bog=newPod.addPod("Spotify")
+bog.addData("Username","AlanW")
+bog.addData("Password","alone123")
+bog.addData("Website","spotify.co.uk")
+bog.addData("Notes","This is a note for spotify")
+bog.templateType="Login"
+
+noc=newPod.addPod("Ideas")
+noc.templateType="Secure Note"
+noc.addData("Notes","This is a note for my ideas section")
 
 newPod.save()
 """
 
+
+
+"""
+file=openPickle("Angus.mp")
+for item in file.podDict:
+	pod=file.podDict[item]
+	print(pod.podVault)
+	for item in pod.podVault:
+		print("The section name is",item,"Decrypted is",decryptData(pod.podVault[item],"turtle"))
+
+"""
 #Angus = turtle123
+
 #Bob = secret
+

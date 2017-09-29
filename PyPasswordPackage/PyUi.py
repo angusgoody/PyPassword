@@ -22,30 +22,14 @@ import random
 import datetime
 from tkinter import messagebox
 from tkinter import filedialog
+import webbrowser
+import os
 
-#Stores the main TK windos for __init__ to use in this program
+#Variable for TK windows
 mainWindow=None
 
-def getData(dataSource):
-	"""
-	This function will get data from a number
-	of different widgets
-	"""
-	valids=[Entry,Text]
-	if type(dataSource) == Entry:
-		return dataSource.get()
-	elif type(dataSource) == Text:
-		return dataSource.get("1.0",END)
-	else:
-		log.report("Not able to get data from",dataSource)
-
-def addUIWindow(window):
-	global mainWindow
-	"""
-	Allows a tk window to be added
-	to this program
-	"""
-	mainWindow=window
+#==============Styles==============
+mainFont="Avenir"
 
 #==============LOG CLASS==============
 
@@ -67,7 +51,8 @@ class logClass():
 		self.defaultTree=None
 		self.systemTree=None
 
-	def report(self,message,variable,*extra,**kwargs):
+	def report(self,message,*extra,**kwargs):
+
 		"""
 		The report method is the main
 		method that is called to report
@@ -77,7 +62,6 @@ class logClass():
 		"""
 		#Gether message
 		message=message+" "
-		message+=str(variable)
 		system=False
 		if len(extra) > 0:
 			for item in extra:
@@ -87,7 +71,6 @@ class logClass():
 		tag="Default"
 		if "tag" in kwargs:
 			tag=kwargs["tag"]
-
 		#Get time
 		currentTime=datetime.datetime.now().time()
 
@@ -120,7 +103,6 @@ class logClass():
 		elif indicator == "Default":
 			self.defaultTree=tree
 
-
 	def addDataToTree(self,data,time,system):
 		"""
 		This method will take the time and data
@@ -136,6 +118,7 @@ class logClass():
 
 log=logClass("UI")
 
+import PEM
 
 #==================================(FUNCTIONS)=============================
 
@@ -146,6 +129,19 @@ Utility Functions are handy little
 functions that help reduce the amount
 of code needed.
 """
+
+def launchWebsite(url):
+	"""
+	This function will launch the website in the default
+	webbrowser
+	"""
+	if url:
+		try:
+			if "http://" not in url:
+				url="http://"+url
+			webbrowser.open_new(url)
+		except:
+			log.report("Error opening website",url,tag="Error")
 
 def askMessage(pre,message):
 	try:
@@ -169,17 +165,90 @@ def askFirst(pre,message,command):
 			command()
 		return response
 
+def askConfirm(pre,message):
+	"""
+	This function will ask
+	the user for an ok or cancel
+	"""
+	try:
+		response=messagebox.askokcancel(pre,message)
+	except:
+		return False
+	else:
+		if response:
+			return True
+		return False
+
 def insertEntry(entry,message):
 	"""
 	Will insert data into an entry
 	and will also work with Text boxes
 	"""
+	if message == None:
+		message=""
 	if type(entry) == Entry:
 		entry.delete(0,END)
 		entry.insert(END,message)
+
 	elif type(entry) == Text:
 		entry.delete("1.0",END)
 		entry.insert("1.0",message)
+	elif type(entry) == labelEntry:
+		insertEntry(entry.entry,message)
+
+def getData(dataSource):
+	"""
+	This function will get data from a number
+	of different widgets
+	"""
+	valids=[Entry,Text,StringVar]
+	if type(dataSource) == Entry:
+		return dataSource.get()
+	elif type(dataSource) == Text:
+		data=dataSource.get("1.0",END)
+		if len(data.split()) > 0:
+			return data
+		else:
+			return ""
+
+	#Custom
+	elif type(dataSource) == labelEntry:
+		return dataSource.entry.get()
+	elif type(dataSource) == StringVar:
+		return dataSource.get()
+	else:
+		log.report("Not able to get data from",dataSource)
+
+def addUIWindow(window):
+	global mainWindow
+	"""
+	Allows a tk window to be added
+	to this program
+	"""
+	mainWindow=window
+
+def addDataToClipboard(data):
+	if mainWindow != None and data != None:
+		if len(data.split()) > 0:
+			mainWindow.clipboard_clear()
+			mainWindow.clipboard_append(data)
+			log.report("Added data to clipboard","(Func)")
+		else:
+			log.report("No data to copy to clipboard")
+
+def copyDataFromEntry(entry):
+	"""
+	This function will copy the password generated
+	to the clipboard
+	"""
+	data=getData(entry)
+	if data != None:
+		addDataToClipboard(data)
+		log.report("Added data to clipboard","(Copy)")
+
+	else:
+		askMessage("Empty","No data to copy")
+
 
 #==============HEX FUNCTIONS================
 
@@ -263,7 +332,7 @@ def recursiveChangeColour(parent,colour,fgColour):
 	of an element and change their colour
 	"""
 	widgetArray =["Entry", "Button", "Text", "Listbox", "OptionMenu", "Menu"]
-	excludeArray=[advancedNotebook]
+	excludeArray=[advancedNotebook, privateNotebook]
 	parentClass=parent.winfo_class()
 	if type(parent) not in excludeArray:
 		if parentClass == "Frame":
@@ -274,14 +343,22 @@ def recursiveChangeColour(parent,colour,fgColour):
 		else:
 			try:
 				#Certain widgets need diffrent attention
-				if parent.winfo_class() in widgetArray:
+				if parentClass in widgetArray:
 						parent.config(highlightbackground=colour)
 				else:
-					parent.config(bg=colour)
+
+					#Some labels dont need colour updating
+					if type(parent) == mainLabel:
+						if parent in mainLabel.nonColours:
+							print(parent.labelData.get())
+						else:
+							parent.config(bg=colour)
+					else:
+						parent.config(bg=colour)
 
 				#Update labels so they show up on certain colours
-				if parent.winfo_class() == "Label":
-						parent.changeColour(getColourForBackground(colour))
+				if parentClass == "Label":
+					parent.changeColour(getColourForBackground(colour))
 
 			except:
 				pass
@@ -326,10 +403,98 @@ def askForFile():
 		if directory != None:
 			return directory
 
+def advancedSearch(target, dataToSearch):
+	"""
+	This function is the actual search
+	function and will recursivley search and return
+	True or False
+	"""
+	#Setup
+	target=str(target)
+	target=target.upper()
+
+	#If string passed to function convert to array
+	if type(dataToSearch) == str:
+		dataToSearch=[dataToSearch]
+
+
+	#Iterate through all data
+	for item in dataToSearch:
+
+		#If data source is dictionary
+		if type(dataToSearch) == dict:
+			if advancedSearch(target,dataToSearch[item]):
+				return True
+
+		#Get data type
+		try:
+			dataType=type(item)
+		except:
+			log.report("Error converting data type to search",tag="error",system=True)
+		else:
+
+			#If data is number or float
+			if dataType == int or dataType == float:
+				item=str(item)
+				dataType=type(item)
+
+			#If data is simple string
+			if dataType == str:
+				if target in item.upper():
+					return True
+			#If data is list
+			elif dataType == list:
+				for section in item:
+					if advancedSearch(target, [section]):
+						return True
+			#If data is dictionary
+			elif dataType == dict:
+				for section in item:
+					if advancedSearch(target, section):
+						return True
+					dataInSection=item[section]
+					if advancedSearch(target, [dataInSection]):
+						return True
+			#If data is a student class
+			elif dataType == PEM.dataPod:
+				data=item.getInfo()
+				if advancedSearch(target, data):
+					return True
+
+	return False
+
+def getBaseOfDirectory(value,fileNameOrBaseName):
+	"""
+	This function will get the base filename
+	of a directory stored as a sttring. The fileNameOrBaseName
+	variable indicates whether the extension is needed or not.
+	file = extension
+	else = without extension
+	"""
+	if fileNameOrBaseName == "file":
+		try:
+			return os.path.basename(value)
+		except:
+			return ""
+	else:
+		try:
+			return os.path.splitext(os.path.basename(value))[0]
+		except:
+			return ""
+
+def postMenu(event,listbox,menu):
+    try:
+        current=listbox.curselection()
+    except:
+        print("Listbox error")
+    else:
+        if len(current) > 0:
+            menu.post(event.x_root, event.y_root)
 #==================================(CLASSES)=============================
 
 
-#==============Master Classes==============
+
+#==============Master TK Classes==============
 
 class mainButton(Button):
 	"""
@@ -339,123 +504,8 @@ class mainButton(Button):
 	to modify styles of the button
 	"""
 	def __init__(self,parent,*args,**kwargs):
-		Button.__init__(self,parent,kwargs)
+		Button.__init__(self,parent,**kwargs)
 		self.config(relief=FLAT)
-
-class advancedListbox(Listbox):
-	"""
-	The advanced Listbox is based on
-	the listbox class and adds more functionality
-	and makes it easier to track elements
-	"""
-	def __init__(self,parent,**kwargs):
-		Listbox.__init__(self,parent,**kwargs)
-
-		#Track data in listbox
-		self.listData={}
-
-		#Add a scrollbar
-		self.scrollbar=Scrollbar(self)
-		self.scrollbar.pack(side=RIGHT,fill=Y)
-
-		self.scrollbar.config(command=self.yview)
-		self.config(yscrollcommand=self.scrollbar.set)
-
-	def addItem(self,textToDisplay,objectInstance,**kwargs):
-		"""
-		The add function allows an object
-		to be added to the listbox and display plain
-		text
-		"""
-		self.listData[textToDisplay]=objectInstance
-		self.insert(END,textToDisplay)
-
-		#Change colour
-		colour=generateHexColour()
-		if "colour" in kwargs:
-			colour=kwargs["colour"]
-		self.itemconfig(END,bg=colour)
-
-		#Change FG
-		try:
-			fgColour=getColourForBackground(colour)
-		except:
-			log.report("Error getting fg colour for",colour,tag="Error",system=True)
-		else:
-			self.itemconfig(END,fg=fgColour)
-
-	def addPodList(self,poDict):
-		"""
-		This method can add a dictionary of data
-		pods to the listbox
-		"""
-		self.fullClear()
-		for item in poDict:
-			self.addItem(item,poDict[item])
-
-	def getSelected(self):
-		"""
-		This method will attempt to return
-		the selected object
-		"""
-		index=0
-		try:
-			index =self.curselection()
-		except:
-			log.report("Method called on static listbox", "(Get Selected)", tag="error", system=True)
-		else:
-			try:
-				value=self.get(index)
-			except:
-				log.report("Error getting value from listbox", "(Get Selected)", tag="error", system=True)
-			else:
-				for item in self.listData:
-					if item == value:
-						return self.listData[item]
-
-	def fullClear(self):
-		"""
-		The clear method will delete
-		everything in the listbox and remove
-		from dictionary as well
-		"""
-		self.delete(0,END)
-		self.listData.clear()
-		log.report("Listbox has been cleared of data", "(FullClear)", system=True)
-
-	def removeItem(self,indicator,tempOrNot):
-		"""
-		This method will remove an item
-		from the listbox. The indicator is used
-		to identify the item to remove and tempOrNot 
-		determines the refrence from the dict or not.
-		"""
-		if indicator in self.listData:
-			deleteItemFromListbox(self,indicator)
-			#if not temp it removes reference from dict
-			if tempOrNot == False:
-				del self.listData[indicator]
-			log.report("Removed item from listbox",indicator)
-		else:
-			log.report("Unable to remove item from listbox not in dict",indicator)
-			print("Unable")
-
-	def updateItemLabel(self,oldName,newName):
-		for item in self.listData:
-			if item == oldName:
-				listData=self.listData[oldName]
-				self.removeItem(oldName,True)
-				self.addItem(newName,listData)
-				break
-
-	def addCommand(self,commandToRun):
-		"""
-		The add command method will allow
-		a command to be added to the listbox
-		which will execute a double click
-		or right click popup menu.
-		"""
-		pass
 
 class mainFrame(Frame):
 	"""
@@ -497,14 +547,29 @@ class mainLabel(Label):
 	which makes it easier to change colours and fonts
 	and also hover bindings etc.
 	"""
+	nonColours=[]
 	def __init__(self,parent,**kwargs):
-		if "hover" in kwargs:
-			kwargs.pop("hover")
-			hover=True
-		else:
-			hover=False
 
-		Label.__init__(self,parent,**kwargs)
+		#Custom kwargs
+		hover=False
+		if "hover" in kwargs:
+			if kwargs["hover"]:
+				kwargs.pop("hover")
+				hover=True
+
+		if "nonColour" in kwargs:
+			if kwargs["nonColour"]:
+				mainLabel.nonColours.append(self)
+				kwargs.pop("nonColour")
+				log.report("Non colour widget added")
+
+		if "font" in kwargs:
+			font=kwargs["font"]
+			kwargs.pop("font")
+		else:
+			font=mainFont
+
+		Label.__init__(self,parent,font=font,**kwargs)
 		self.labelData=StringVar()
 		self.textVar=None
 		if "text" in kwargs:
@@ -557,16 +622,6 @@ class mainLabel(Label):
 		else:
 			self.config(fg=getColourForBackground(currentColour))
 
-class titleLabel(mainLabel):
-	"""
-	The title label is a class
-	for displaying labels that
-	are important
-	"""
-	def __init__(self,parent,**kwargs):
-		mainLabel.__init__(self,parent,**kwargs)
-		self.config(font="Helvetica 17")
-
 class mainScreen(mainFrame):
 	"""
 	The mainScreen class is a class
@@ -590,6 +645,9 @@ class mainScreen(mainFrame):
 		#Get menu to use with screen
 		self.mainMenu=kwargs.get("menu")
 
+		#Store commands
+		self.commands=[]
+
 	def show(self):
 		"""
 		The show method that will display
@@ -610,334 +668,231 @@ class mainScreen(mainFrame):
 			#Update menu
 			if self.mainMenu != None:
 				self.parent.config(menu=self.mainMenu)
+
 			#Report to log
 			log.report("Showing screen",self.screenName,tag="Screen")
+			#Run commands
+			for item in self.commands:
+				try:
+					item()
+				except:
+					log.report("Error running screen command",tag="Error")
+					try:
+						item
+					except:
+						pass
 
-class displayView(mainFrame):
+
+
+	def addCommand(self,command):
+		self.commands.append(command)
+
+class advancedListbox(Listbox):
 	"""
-	This display View class is a class
-	that allows multiple frames
-	to be shown together in a nice
-	format. It evenly spreads each frame
-	out and takes care of colouring etc
-	"""
-
-	def __init__(self,parent):
-		mainFrame.__init__(self,parent)
-		self.sections=[]
-
-	def addSection(self,frameToShow,**kwargs):
-		self.sections.append(frameToShow)
-		if "colour" in kwargs:
-			frameToShow.colour(kwargs["colour"])
-
-	def showSections(self):
-		for item in self.sections:
-			item.pack(expand=True,fill=BOTH)
-
-class passwordDisplayView(displayView):
-	"""
-	This class is a modified display view
-	that holds passwords and usernames etc
-	"""
-	def __init__(self,parent):
-		displayView.__init__(self,parent)
-		#The section dict stores hiddenData sections with key of name
-		self.sectionDict={}
-
-	def addPasswordSection(self,hiddenDataSection,**kwargs):
-		"""
-		Overides the default add section method
-		because title needs to be stored in the
-		object
-		"""
-		self.addSection(hiddenDataSection,**kwargs)
-		self.sectionDict[hiddenDataSection.title]=hiddenDataSection
-
-	def createSections(self,titleList,colourList):
-		"""
-		This method bulk creates sections in the displayView
-		"""
-		for title in titleList:
-			newSection=hiddenDataSection(self,title)
-			try:
-				newSection.colour(colourList[titleList.index(title)])
-			except:
-				pass
-			self.addPasswordSection(newSection)
-
-	def clearScreen(self):
-		"""
-		This method will wipe all data from the
-		screen and dictionary
-		"""
-		for item in self.sectionDict:
-			#Remove refrence
-			self.sectionDict[item].clear()
-
-	def addCustomScreen(self,frameToShow,dataSource,title):
-		"""
-		The add custom screen allows a custom frame
-		to be added to the password display view
-		"""
-		self.addSection(frameToShow)
-
-class topStrip(mainFrame):
-	"""
-	The stopStrip class is a class
-	that is used to go at the top of
-	a screen to display information
-	"""
-	def __init__(self,parent,textVar):
-		mainFrame.__init__(self,parent)
-		self.textVar=textVar
-
-		#Label
-		self.labelView=titleLabel(self,textvariable=self.textVar)
-		self.labelView.pack(expand=True)
-
-class centerFrame(mainFrame):
-	"""
-	A center frame is a frame that
-	automatically creates a sub frame
-	that will be in the center of the
-	screen
+	The advanced Listbox is based on
+	the listbox class and adds more functionality
+	and makes it easier to track elements
 	"""
 	def __init__(self,parent,**kwargs):
-		mainFrame.__init__(self,parent,**kwargs)
+		Listbox.__init__(self,parent,**kwargs)
 
-		self.miniFrame=mainFrame(self)
-		self.miniFrame.pack(expand=True)
+		#Track data in listbox
+		self.listData={}
 
-class dataSection(centerFrame):
-	"""
-	This class is a mainFrame that wil be able
-	to store data and display a title. It will
-	be used for custom password sections that require
-	more than the standard hidden data section.
-	"""
-	def __init__(self,parent,title,**kwargs):
-		centerFrame.__init__(self,parent,**kwargs)
+		#Track item colours
+		self.colourDict={}
 
-		self.title=title
-		self.dataSource=None
+		#Track number of items in listbox
+		self.numberOfItems=0
 
-		#Key variables
-		self.editData=False
-		self.data=StringVar()
+		#Keep status vars
+		self.labelVarList=[]
 
+		#Add a scrollbar
+		self.scrollbar=Scrollbar(self)
+		self.scrollbar.pack(side=RIGHT,fill=Y)
 
-	def addDataSource(self,dataSource):
-		self.dataSource=dataSource
+		self.scrollbar.config(command=self.yview)
+		self.config(yscrollcommand=self.scrollbar.set)
 
-	def getData(self):
+		#Listbox command label
+		self.rightClickMenu=Menu(self)
+		self.rightClickMenu.add_command(label="Delete")
+		self.rightClickMenu.add_command(label="Open")
+
+		#Add menu binding to listbox
+		self.bind("<Button-2>",lambda event: postMenu(event,self,self.rightClickMenu))
+
+	def addObject(self, textToDisplay, objectInstance, **kwargs):
 		"""
-		This method will get data for a number
-		of diffrent widgets and return the data
+		The add function allows an object
+		to be added to the listbox and display plain
+		text
 		"""
-		if self.dataSource != None:
-			return getData(self.dataSource)
+		self.listData[textToDisplay]=objectInstance
+		self.addItem(textToDisplay,**kwargs)
 
-	def insertData(self,dataToAdd):
+	def addItem(self,text,**kwargs):
 		"""
-		The method that adds data to the range
-		of data sources that this class will have
+		The method that actuall adds the data
+		to the UI and generates a colour
 		"""
-		if self.dataSource != None:
-			self.enableDataSource()
-			insertEntry(self.dataSource,dataToAdd)
-			if self.editData == False:
-				self.disableDataSource()
+		self.insert(END,text)
+
+		#Change colour
+		if text not in self.colourDict:
+			colour=generateHexColour()
+			if "colour" in kwargs:
+				colour=kwargs["colour"]
+			self.colourDict[text]=colour
+
+		else:
+			colour=self.colourDict[text]
+
+		self.itemconfig(END,bg=colour)
+
+		#Change FG
+		try:
+			fgColour=getColourForBackground(colour)
+		except:
+			log.report("Error getting fg colour for",colour,tag="Error",system=True)
+		else:
+			self.itemconfig(END,fg=fgColour)
+
+		#Update the label
+		self.updateVars("Results: "+str(len(self.get(0,END))))
+
+	def addPodList(self,poDict):
+		"""
+		This method can add a dictionary of data
+		pods to the listbox
+		"""
+		self.fullClear()
+		for item in poDict:
+			self.addObject(item, poDict[item])
+
+	def renameObject(self,oldIndicator,newIndicator):
+		#Find the old data
+		if oldIndicator in self.listData:
+			oldData=self.listData[oldIndicator]
+			#Rename
+			self.listData[newIndicator]=oldData
+
+	def getSelectedObject(self):
+		"""
+		This method will attempt to return
+		the selected object
+		"""
+		index=0
+		try:
+			index =self.curselection()
+		except:
+			log.report("Method called on static listbox", "(Get Selected)", tag="error", system=True)
+		else:
+			try:
+				value=self.get(index)
+			except:
+				log.report("Error getting value from listbox", "(Get Selected)", tag="error", system=True)
+			else:
+				for item in self.listData:
+					if item == value:
+						return self.listData[item]
+
+	def updateVars(self,data):
+		for item in self.labelVarList:
+			item.set(data)
+
+	def fullClear(self):
+		"""
+		The clear method will delete
+		everything in the listbox and remove
+		from dictionary as well
+		"""
+		self.delete(0,END)
+		self.listData.clear()
+		log.report("Listbox has been cleared of data", "(FullClear)", system=True)
+
+	def removeItem(self,indicator,tempOrNot):
+		"""
+		This method will remove an item
+		from the listbox. The indicator is used
+		to identify the item to remove and tempOrNot
+		determines the refrence from the dict or not.
+		"""
+		if indicator in self.listData:
+			deleteItemFromListbox(self,indicator)
+			#if not temp it removes reference from dict
+			if tempOrNot == False:
+				del self.listData[indicator]
+			log.report("Removed item from listbox",indicator)
+		else:
+			log.report("Unable to remove item from listbox not in dict",indicator)
+			print("Unable")
+
+	def addCertain(self,listToAdd):
+		"""
+		This method will take a list of text
+		and if the text is a valid indicator it will add it back
+		to the listbox.
+		"""
+		for item in listToAdd:
+			if item in self.listData:
+				self.addItem(item)
+
+	def restore(self):
+		"""
+		Will restore all the data that was in 
+		the pod list to the UI
+		"""
+		self.delete(0,END)
+		for item in self.listData:
+			self.insert(END,item)
 
 	def clear(self):
-		"""
-		This method removes all data from the object
-		so it can be used by another pod
-		"""
-		if self.dataSource != None:
-			self.insertData("")
-		self.data.set("")
+		self.delete(0,END)
 
-	def disableDataSource(self):
+	def addLabelVar(self,source):
 		"""
-		This method will disable the objects data source
-		so the user is unable to edit it
+		This function will add a label var
+		to the object so the result can be displayed
+		to the user.
 		"""
-		self.editMode=False
-		if self.dataSource != None:
-			self.dataSource.config(state=DISABLED)
-			#Text boxes are hard to tell if disabled or not
-			if type(self.dataSource) == Text:
-				self.dataSource.config(fg="#919591")
+		if source not in self.labelVarList:
+			self.labelVarList.append(source)
 
-	def enableDataSource(self):
-		"""
-		This method will make the data source
-		available to edit again
-		"""
-		self.editMode=True
-		if self.dataSource != None:
-			self.dataSource.config(state=NORMAL)
-			#Text boxes are hard to tell if disabled or not
-			if type(self.dataSource) == Text:
-				self.dataSource.config(fg="#000000")
-
-	def addData(self,dataToAdd):
-		"""
-		This method will add data to the section
-		by inserting the data into the entry and
-		updting the string variable
-		"""
-		if self.dataSource != None:
-			self.enableDataSource()
-			self.insertData(dataToAdd)
-			self.data.set(dataToAdd)
-			if self.editMode == False:
-				self.dataSource.config(state=DISABLED)
-
-	def restoreData(self):
-		"""
-		This method will restore the original
-		data to the entry if it is edited by
-		user
-		"""
-		self.addData(self.data.get())
-
-	def updateData(self):
-		"""
-		This method will get the data
-		from the entry and then update the data
-		"""
-		if self.dataSource != None:
-			newData=self.getData()
-			self.data.set(newData)
-
-class hiddenDataSection(dataSection):
+class advancedTree(ttk.Treeview):
 	"""
-	This class is used to display sensitive
-	information such as password or username
+	This is a modified tree view
+	which will make it easier to do
+	the basic operations and auto add
+	scroll bar etc.
 	"""
-	def __init__(self,parent,title):
-		dataSection.__init__(self,parent,title)
+	def __init__(self,parent,columns,**kwargs):
+		ttk.Treeview.__init__(self,parent,show="headings",columns=columns)
+		self.columns=columns
 
-		self.title=title
-		self.data=StringVar()
+		#Add the scrollbar
+		self.scroll=Scrollbar(self)
+		self.scroll.pack(side=RIGHT,fill=Y)
 
-		self.centerFrame=self.miniFrame
+		self.scroll.config(command=self.yview)
+		self.config(yscrollcommand=self.scroll.set)
 
-		self.titleLabel=mainLabel(self.centerFrame,text=self.title+":",width=10,hover=True)
-		self.titleLabel.grid(row=0,column=0)
-
-		self.dataEntry=Entry(self.centerFrame,state=DISABLED)
-		self.dataEntry.grid(row=0,column=1)
-		self.addDataSource(self.dataEntry)
-
-		self.buttonFrame=mainFrame(self.centerFrame)
-		self.buttonFrame.grid(row=0,column=2,padx=7)
-
-		#Edit variables
-		self.hiddenVar=False
-		self.editMode=False
-
-		#Store Buttons
-		self.buttonDict={}
-		self.buttonCounter=0
-
-		#Create preset buttons (Array used because order matters)
-		initButtons=[["Hide",lambda s=self:s.toggleHide()],["Copy",lambda s=self: s.copyData()]]
-		for but in initButtons:
-			self.addButton(but[0])
-			self.addButtonCommand(but[0],but[1])
-
-	def toggleHide(self):
+	def addSection(self,sectionName):
 		"""
-		This method is used to toggle
-		whether the data in the entry
-		is hidden or revealed
+		Add a section to the tree
 		"""
-		if self.hiddenVar == False:
-			self.dataEntry.config(show="•")
-			self.buttonDict["Hide"].config(text="Show")
-			self.disableDataSource()
-			self.hiddenVar=True
-		else:
-			self.dataEntry.config(show="")
-			self.buttonDict["Hide"].config(text="Hide")
-			self.hiddenVar=False
-			if self.editMode == False:
-				self.disableDataSource()
-			else:
-				self.enableDataSource()
+		self.column(sectionName,width=10,minwidth=45)
+		self.heading(sectionName,text=sectionName)
 
-	def addButton(self,buttonText):
+	def insertData(self,values,tags):
 		"""
-		This method will add a button
-		to the frame and commands can be
-		added later
+		Method to insert data into the treeview
 		"""
+		self.insert("" , 0,values=values,tags=tags)
 
-		#Create button
-		newButton=mainButton(self.buttonFrame,text=buttonText,width=7)
-		newButton.grid(row=0,column=self.buttonCounter)
-		self.buttonCounter+=1
-
-		#Add to list
-		self.buttonDict[buttonText]=newButton
-
-		#Return button
-		return newButton
-
-	def addButtonCommand(self,buttonName,command):
-		"""
-		This method will add a command to one of the buttons
-		in the data section
-		"""
-		if buttonName in self.buttonDict:
-			self.buttonDict[buttonName].config(command=command)
-
-	def copyData(self):
-		"""
-		This method will copy the saved data to the
-		clipboard
-		"""
-		if mainWindow != None:
-			mainWindow.clipboard_clear()
-			mainWindow.clipboard_append(self.data.get())
-			log.report("Added data to clipboard","(Hidden data entry)")
-
-class multiView(mainFrame):
-	"""
-	The multiview class is a class that allows
-	multiple frames to be viewed in the same place
-	by changing frames with simple methods
-	"""
-	def __init__(self,parent,**kwargs):
-		mainFrame.__init__(self,parent,**kwargs)
-
-		#Stores the views
-		self.views=[]
-
-		self.lastView=None
-		self.currentView=None
-
-	def addView(self,frameToShow):
-		#Add a certain frame to the dictionary
-		if frameToShow not in self.views:
-			self.views.append(frameToShow)
-
-	def showView(self,frameToShow):
-		"""
-		The show view method when called will show
-		a certain frame in the dictionary. This value
-		is referenced using an indicator string
-		"""
-		if frameToShow in self.views:
-			if frameToShow != self.lastView:
-				for item in self.views:
-					item.pack_forget()
-				frameToShow.pack(expand=True,fill=BOTH)
-		else:
-			log.report("Non registered frame attempted to be show",frameToShow,tag="Error",system=True)
+	def addTag(self,tag,colour):
+		self.tag_configure(tag,background=colour)
 
 class popUpWindow(Toplevel):
 	"""
@@ -961,6 +916,7 @@ class popUpWindow(Toplevel):
 
 		#Initiate any entrys the window will have that needs to store data
 		self.entryList=[]
+		self.requiredList=[]
 		self.runCommandDict={}
 		self.gatheredData=[]
 
@@ -1029,6 +985,17 @@ class popUpWindow(Toplevel):
 		for entry in entryList:
 			self.entryList.append(entry)
 
+	def addRequiredFields(self,entryList):
+		"""
+		This method will add required entries to
+		the class. These are entries that need
+		to have data in them
+		:param entryList:
+		:return:
+		"""
+		for item in entryList:
+			self.requiredList.append(item)
+
 	def save(self):
 		"""
 		The save method will collect all the data
@@ -1039,8 +1006,9 @@ class popUpWindow(Toplevel):
 		#Gather data
 		if len(self.entryList) > 0:
 			for item in self.entryList:
-				if type(item) == Entry:
-					self.gatheredData.append(item.get())
+				data=getData(item)
+				if data != None and data != "":
+					self.gatheredData.append(data)
 				else:
 					log.report("Invalid data source used in popup",item,tag="Error",system=True)
 		else:
@@ -1075,63 +1043,43 @@ class popUpWindow(Toplevel):
 		Will change the colour of all the data sources
 		in the popup window
 		"""
-		for entry in self.entryList:
+		for entry in self.requiredList:
 			entry.config(bg=colour)
 
-class advancedSlider(mainFrame):
+#==============Master Custom Classes==============
+
+class displayView(mainFrame):
 	"""
-	This class is a modified scale widget.
-	It will add more customization and 
-	a label kwarg which adds a label to the widget
+	This display View class is a class
+	that allows multiple frames
+	to be shown together in a nice
+	format. It evenly spreads each frame
+	out and takes care of colouring etc
 	"""
-	def __init__(self,parent,text,*extra,**kwargs):
+
+	def __init__(self,parent):
 		mainFrame.__init__(self,parent)
+		self.sections=[]
 
-		#Important
-		self.text=text
-		self.outputVar=StringVar()
-		self.commands=[]
+	def addSection(self,frameToShow,**kwargs):
+		if frameToShow not in self.sections:
+			self.sections.append(frameToShow)
+			if "colour" in kwargs:
+				frameToShow.colour(kwargs["colour"])
+			frameToShow.pack(expand=True,fill=BOTH)
 
-		#UI
-		self.label=mainLabel(self,text=self.text)
-		self.label.pack()
-
-		self.sliderContainer=mainFrame(self)
-		self.sliderContainer.pack()
-
-		self.slider=ttk.Scale(self.sliderContainer,length=150,**kwargs)
-		self.slider.grid(row=0,column=0)
-
-		self.outputLabel=mainLabel(self.sliderContainer,textvariable=self.outputVar,width=5)
-		self.outputLabel.grid(row=0,column=1)
-
-		#Adds command run
-		self.slider.config(command=self.run)
-	def addCommand(self,command):
+	def clearScreen(self):
 		"""
-		Will add a command to the list to execute
-		when slider moves
+		Will clear all the sections
+		from the screen
 		"""
-		if command not in self.commands:
-			self.commands.append(command)
+		for item in self.sections:
+			item.pack_forget()
 
-	def run(self,value):
-		"""
-		THis is the method called every time the slider
-		moves
-		"""
-
-		value=round(float(value))
-		#Run the commands
-		for command in self.commands:
-			try:
-				command()
-			except:
-				log.report("Error running command","(Slider)",tag="Error",system=True)
-		#Update label
-		self.outputVar.set(value)
-
-#==============TEST==============
+	def showSections(self):
+		self.clearScreen()
+		for item in self.sections:
+			item.pack(expand=True,fill=BOTH)
 
 class advancedNotebook(mainFrame):
 	"""
@@ -1148,8 +1096,9 @@ class advancedNotebook(mainFrame):
 		self.topBar=centerFrame(self)
 		self.topSub=self.topBar.miniFrame
 		self.topBar.pack(side=TOP,fill=X)
-		self.topBar.colour("#B9BEBD")
+		self.topBar.colour("#C5CDCD")
 
+		#Tracks the views
 		self.views={}
 		self.labelDict={}
 		self.currentView=None
@@ -1159,7 +1108,9 @@ class advancedNotebook(mainFrame):
 		#Colour variables
 		self.selectColour="#FFFFFF"
 		self.selectFG="#000000"
+
 		self.notSelected="#98A5AA"
+		self.notSelectedFG=getColourForBackground(self.notSelected)
 		self.notSelectedHover="#AFBCC2"
 
 		#Get a select colour from kwargs
@@ -1168,8 +1119,6 @@ class advancedNotebook(mainFrame):
 			self.selectFG=getColourForBackground(kwargs["select"])
 		if "topColour" in kwargs:
 			self.topBar.colour(kwargs["topColour"])
-
-
 
 	def addView(self,frame,name):
 		"""
@@ -1204,13 +1153,14 @@ class advancedNotebook(mainFrame):
 			currentViewName=self.currentView
 			frameToLoad=self.views[name]
 
-			#Ensure same frame isnt loaded
+			#Ensure same frame isn't loaded
 			if currentViewName != name:
 				if currentViewName != None:
 					#Hide frame
 					self.views[currentViewName].pack_forget()
 					#Update label
-					self.labelDict[currentViewName].config(bg=self.notSelected)
+					self.labelDict[currentViewName].config(bg=self.notSelected,fg=self.notSelectedFG)
+
 					#Remove old bindings
 					currentLabel=self.labelDict[currentViewName]
 					currentLabel.bind("<Enter>",lambda event,lab=currentLabel: lab.config(bg=self.notSelectedHover))
@@ -1227,5 +1177,870 @@ class advancedNotebook(mainFrame):
 				#Unbind because when selected tab has no bindings
 				currentLabel.unbind("<Enter>")
 				currentLabel.unbind("<Leave>")
+		else:
+			log.report("Invalid view loaded by notebook")
+
+	def hideTab(self,name):
+		"""
+		This method will hide one of the tabs
+		in the notebook 
+		"""
+		if name in self.labelDict:
+			self.labelDict[name].grid_forget()
+
+	def unHideTab(self,name):
+		pass
+
+class advancedSlider(mainFrame):
+	"""
+	This class is a modified scale widget.
+	It will add more customization and 
+	a label kwarg which adds a label to the widget
+	"""
+	def __init__(self,parent,text,*extra,**kwargs):
+
+		mainFrame.__init__(self,parent)
+
+		#Important
+		self.text=text
+		self.outputVar=StringVar()
+		self.commands=[]
+
+		#UI
+		self.label=mainLabel(self,text=self.text)
+		self.label.pack()
+
+		self.sliderContainer=mainFrame(self)
+		self.sliderContainer.pack()
+
+		self.slider=ttk.Scale(self.sliderContainer,length=150,**kwargs)
+		self.slider.grid(row=0,column=0)
+
+		self.outputLabel=mainLabel(self.sliderContainer,textvariable=self.outputVar,width=5)
+		self.outputLabel.grid(row=0,column=1)
+
+		#Update label
+		self.outputVar.set(self.getValue())
+
+		#Adds command run
+		self.slider.config(command=self.run)
+
+	def addCommand(self,command):
+		"""
+		Will add a command to the list to execute
+		when slider moves
+		"""
+		if command not in self.commands:
+			self.commands.append(command)
+
+	def run(self,value):
+		"""
+		THis is the method called every time the slider
+		moves
+		"""
+
+		value=round(float(value))
+		#Run the commands
+		for command in self.commands:
+			try:
+				command()
+			except:
+				log.report("Error running command","(Slider)",tag="Error",system=True)
+		#Update label
+		self.outputVar.set(value)
+
+	def getValue(self):
+		return int(float(self.slider.get()))
+
+class multiView(mainFrame):
+	"""
+	The multiview class is a class that allows
+	multiple frames to be viewed in the same place
+	by changing frames with simple methods
+	"""
+	def __init__(self,parent,**kwargs):
+		mainFrame.__init__(self,parent,**kwargs)
+
+		#Stores the views
+		self.views={}
+
+		self.lastView=None
+		self.currentView=None
+
+	def addView(self,frameToShow,name):
+		#Add a certain frame to the dictionary
+		if name not in self.views:
+			self.views[name]=frameToShow
+
+	def showView(self,name):
+		"""
+		The show view method when called will show
+		a certain frame in the dictionary. This value
+		is referenced using an indicator string
+		"""
+		if name in self.views:
+			if name != self.lastView:
+				if self.lastView != None:
+					self.views[self.lastView].pack_forget()
+				self.views[name].pack(expand=True,fill=BOTH)
+				self.lastView=name
+		else:
+			log.report("Non registered frame attempted to be show",name,tag="Error",system=True)
+
+#==============Secondary Master Classes==============
+
+class searchListbox(advancedListbox):
+	"""
+	This class will be a modified advancedListbox
+	that will have a built in search bar that will
+	search through its own data source and return results
+	to itself
+	"""
+	def __init__(self,parent,**kwargs):
+		advancedListbox.__init__(self,parent,font="Avenir 20",**kwargs)
+		self.searchSource=None
+		#Stores number of search results (-1 so it cant be same as empty search)
+		self.searchNumber=-1
+
+	def addSearchWidget(self,widget,**kwargs):
+		"""
+		This function will allow a search
+		entry to be added to the class which
+		will control all of the searching functions
+		
+		The result variables are string variables 
+		that will update with the number of results
+		the search returned
+		"""
+		#Add the widget to obejct
+		self.searchSource=widget
+		#Add a binding to self
+		widget.bind("<KeyRelease>",lambda event:self.search())
+
+		#Add the result string variables to object
+		if "resultVar" in kwargs:
+			resultVar=kwargs["resultVar"]
+			self.addLabelVar(resultVar)
+		#Report
+		log.report("Added a search source to widget","(Search Listbox)")
+
+	def search(self):
+		"""
+		The command that is executed when the user begins to type
+		in the search source
+		"""
+		#Colect data
+		target=getData(self.searchSource)
+		dataSource=self.listData
+		results=[]
+		#Check though self data
+		for item in dataSource:
+			if advancedSearch(target,item):
+				results.append(item)
+
+		#This if statement makes sure same data is reloaded
+		if len(results) != self.searchNumber:
+			self.searchNumber=len(results)
+			self.addSearchResults(results)
+
+	def addSearchResults(self,results):
+
+		#Add results
+		self.clear()
+		self.addCertain(results)
+		#Update label
+		self.updateVars("Results: "+str(len(results)))
+
+class titleLabel(mainLabel):
+	"""
+	The title label is a class
+	for displaying labels that
+	are important
+	"""
+	def __init__(self,parent,**kwargs):
+		mainLabel.__init__(self,parent,**kwargs)
+		self.config(font=mainFont+" 17")
+
+class topStrip(mainFrame):
+	"""
+	The stopStrip class is a class
+	that is used to go at the top of
+	a screen to display information
+	"""
+	def __init__(self,parent,textVar):
+		mainFrame.__init__(self,parent)
+		self.textVar=textVar
+
+		#Label
+		self.labelView=titleLabel(self,textvariable=self.textVar)
+		self.labelView.pack(expand=True)
+
+class centerFrame(mainFrame):
+	"""
+	A center frame is a frame that
+	automatically creates a sub frame
+	that will be in the center of the
+	screen
+	"""
+	def __init__(self,parent,**kwargs):
+		mainFrame.__init__(self,parent,**kwargs)
+
+		self.miniFrame=mainFrame(self)
+		self.miniFrame.pack(expand=True)
+
+class labelEntry(mainFrame):
+	"""
+	This class will be an entry with a built in
+	label underneath to display a certain value
+	"""
+	def __init__(self,parent,**kwargs):
+
+		#Get title for object
+		self.title=None
+		if "title" in kwargs:
+			self.title=kwargs["title"]
+			kwargs.pop("title")
+		#Init
+		mainFrame.__init__(self,parent)
+
+		if self.title != None:
+			#Title label
+			self.titleLabel=titleLabel(self,text=self.title)
+			self.titleLabel.pack()
+
+		#Create entry
+		self.entry=Entry(self,**kwargs)
+		self.entry.pack()
+
+		#Create label
+		self.dataVar=StringVar()
+		self.dataLabel=mainLabel(self,textvariable=self.dataVar,font="Helvetica 10")
+		self.dataLabel.pack()
+
+	def insert(self,data):
+		#Add data to the entry
+		insertEntry(self.entry,data)
+
+	def updateLabel(self,data):
+		#Update the label with a value
+		self.dataVar.set(data)
+
+	def get(self):
+		#Return value in the entry
+		return self.entry.get()
+
+	def changeColour(self,colour):
+		#Change entry colour
+		self.entry.config(bg=colour)
+
+#==============Password Widget Classes==============
+
+class privateTemplate:
+	"""
+	Class for storing templates 
+	of display views.
+	The tabData will store all the tabs
+	the template will use
+	and each tab will have a dictionary containing
+	all the private sections it will have
+	"""
+	templates={}
+	templateList=[]
+	#Stores which colours represent which template
+	templateColours={}
+
+	def __init__(self,templateName,templateColour,**kwargs):
+		self.name=templateName
+		self.templateColour=templateColour
+		if "colour" in kwargs:
+			self.colour=kwargs["colour"]
+		else:
+			self.colour=generateHexColour()
+
+		#Add to object array
+		privateTemplate.templates[templateName]=self
+		if templateName not in privateTemplate.templateList:
+			privateTemplate.templateList.append(templateName)
+
+		#Add to colour dict
+		privateTemplate.templateColours[templateName]=self.colour
+		#Stores tabs
+		self.tabData={}
+		self.sectionTitles=[]
+
+		#Auto create basic and title
+		self.addTab("Basic")
+		self.addTemplateSection("Basic","Title",Entry)
+
+	def addTab(self,tabName):
+		"""
+		This method will add a tab to the template
+		for use in a notebook
+		"""
+		if tabName not in self.tabData:
+			#Creates empty array to store sections
+			self.tabData[tabName]=[]
+
+	def addTemplateSection(self,tabIndicator,sectionTitle,sectionDataType,**kwargs):
+		"""
+		This method will add a section to the template
+		using an indicator to determine which tab
+		"""
+		if tabIndicator in self.tabData and sectionTitle not in self.sectionTitles:
+				self.tabData[tabIndicator].append([sectionTitle,sectionDataType,"#F7FDFF"])
+				#if a colour is specified
+				if "colour" in kwargs:
+					self.tabData[tabIndicator][len(self.tabData[tabIndicator])-1][2]=kwargs["colour"]
+
+	def colourSection(self,tabIndicator,sectionName,chosenColour):
+		if tabIndicator in self.tabData:
+			tabArray=self.tabData[tabIndicator]
+			tabArray[0][2]=chosenColour
+
+class dataSection(mainFrame):
+	"""
+	This class will be used to hold
+	data. It will be a frame on screen
+	that has a label and data source
+	"""
+	def __init__(self,parent,title,**kwargs):
+		mainFrame.__init__(self,parent,**kwargs)
+		self.title=title
+		#Store data source
+		self.dataSource=None
+		#Store that data
+		self.data=None
+
+	def addData(self,data):
+		"""
+		This method adds data to the data source
+		of the widget
+		"""
+		if self.dataSource != None:
+			insertEntry(self.dataSource,data)
+			self.data=data
+
+	def getData(self):
+		if self.dataSource:
+			return getData(self.dataSource)
+		else:
+			return None
+
+	def clearData(self):
+		"""
+		This method will clear all data
+		in the data source
+		"""
+		if self.dataSource != None:
+			self.enableDataSource()
+			insertEntry(self.dataSource,"")
+			self.data=""
+
+	def copyData(self):
+		"""
+		This method will copy the data saved in the object
+		to the clipboard
+		"""
+		addDataToClipboard(self.data)
+
+	def restore(self):
+		"""
+		This method will add the saved data back
+		to the data source if it was modified
+		:return: 
+		"""
+		if self.dataSource:
+			insertEntry(self.dataSource,self.data)
+
+	def update(self):
+		"""
+		This method will update the
+		data stored with what is in
+		the entry.
+		"""
+		if getData(self.dataSource) != self.data:
+			self.data=getData(self.dataSource)
+
+	def disableDataSource(self):
+		"""
+		This method makes the data source
+		un usable
+		:return: 
+		"""
+		if self.dataSource:
+			self.dataSource.config(state=DISABLED)
+			if type(self.dataSource) == Text:
+				self.dataSource.config(fg="grey")
+
+	def enableDataSource(self):
+		"""
+		This method will allow the user
+		to edit data in the data source
+		"""
+		if self.dataSource:
+			self.dataSource.config(state=NORMAL)
+			if type(self.dataSource) == Text:
+				self.dataSource.config(fg="black")
+
+class privateDataSection(dataSection):
+	"""
+	This class will be a data section that
+	is used for storing pod info it will automatically
+	create the widgets etc.
+	Available sources are...
+	*Entry
+	*Text
+	"""
+	def __init__(self,parent,title,selectedSource,**kwargs):
+		dataSection.__init__(self,parent,title,**kwargs)
+
+		#Variables
+		self.dataSourceType=None
+		self.dataSourceWidget=None
+
+		#State variables
+		self.hidden=False
+
+		#Track buttons
+		self.buttonDict={}
+		self.buttonCounter=-1
+
+		#Ui Elements
+		self.container=mainFrame(self)
+		self.labelFrame=mainFrame(self.container)
+		self.dataFrame=mainFrame(self.container)
+		self.buttonFrame=mainFrame(self.container)
+
+		#Create the default elements
+		self.titleLabel=mainLabel(self.labelFrame,text=(self.title),width=12)
+		self.titleLabel.pack(expand=True)
+
+		"""
+		This is where the layout
+		will be created depending
+		on what kind of data will be
+		show. Entry or Text widget
+		"""
+
+		#Text or Other
+		if selectedSource == Text:
+			#Create data source
+			dataSourceWidget=Text(self.dataFrame,height=10,font=mainFont)
+			dataSourceWidget.pack(fill=X)
+			self.dataSourceType=Text
+			self.dataSource=dataSourceWidget
+			#Create screen layout
+			self.container.pack(fill=X)
+			self.labelFrame.pack(side=TOP,fill=X,pady=10)
+			self.dataFrame.pack(expand=True,fill=X)
+			self.buttonFrame.pack(side=BOTTOM,fill=X)
+
+		#Entry
+		else:
+			#Create data source
+			dataSourceWidget=Entry(self.dataFrame,width=25,font=mainFont)
+			dataSourceWidget.pack(expand=True)
+			self.dataSourceType=Entry
+			self.dataSource=dataSourceWidget
+
+			#Create the copy button
+			self.addButton("Hide",lambda: self.toggleHide())
+			self.addButton("Copy",lambda: self.copyData())
+			#Create screen layout
+			self.container.pack(expand=True)
+			self.labelFrame.pack(side=LEFT)
+			self.buttonFrame.pack(side=RIGHT,padx=5)
+			self.dataFrame.pack(side=RIGHT)
+
+		if "colour" in kwargs:
+			self.colour(kwargs["colour"])
+
+	def addButton(self,title,command):
+		"""
+		This method will create a new button that will be displayed
+		on the frame and stored in a dictionary
+		"""
+		self.buttonCounter+=1
+		newButton=mainButton(self.buttonFrame,text=title,command=command,width=9)
+		newButton.grid(row=0,column=self.buttonCounter)
+		#Add to dict
+		self.buttonDict[title]=newButton
+
+	def toggleHide(self,**kwargs):
+
+		#Override funcitons will not toggle
+		if "stay" in kwargs:
+			stay=kwargs["stay"]
+			if stay == "hidden":
+				if self.dataSourceType == Entry:
+					self.dataSource.config(show="•")
+					self.buttonDict["Hide"].config(text="Show")
+					self.hidden=True
+			elif stay == "show":
+				if self.dataSourceType == Entry:
+					self.dataSource.config(show="")
+					self.buttonDict["Hide"].config(text="Hide")
+					self.hidden=False
+		else:
+			if self.hidden == False:
+				if self.dataSourceType == Entry:
+					self.dataSource.config(show="•")
+					self.buttonDict["Hide"].config(text="Show")
+					self.hidden=True
+			else:
+				if self.dataSourceType == Entry:
+					self.dataSource.config(show="")
+					self.buttonDict["Hide"].config(text="Hide")
+					self.hidden=False
+
+class passwordDisplayView(displayView):
+	"""
+	This class is a modified display view
+	and will contain special methods to add batter
+	security.
+	"""
+	def __init__(self,parent):
+		displayView.__init__(self,parent)
+		#Store the sections
+		self.sectionData={}
+
+	def addPrivateSection(self,title,section):
+		"""
+		This method will add a private
+		section to the display view and 
+		store it in the object class
+		"""
+		self.sectionData[title]=section
+		self.addSection(section)
+
+	def disable(self):
+		"""
+		This method will disable editing all the 
+		data in the display view
+		"""
+		for item in self.sectionData:
+			self.sectionData[item].disableDataSource()
+			#Enable the hide button
+			try:
+				self.sectionData[item].buttonDict["Hide"].config(state=NORMAL)
+			except:
+				pass
+
+	def enable(self):
+		"""
+		Will enable all the sections inside
+		the display view
+		:return: 
+		"""
+		for item in self.sectionData:
+			self.sectionData[item].enableDataSource()
+			#Disable the hide button and ensure the data is visible
+			try:
+				self.sectionData[item].buttonDict["Hide"].config(state=DISABLED)
+				self.sectionData[item].toggleHide(stay="show")
+			except:
+				pass
+
+	def restore(self):
+		"""
+		This method will restore any data that
+		was changed by the user when editing
+		:return: 
+		"""
+		for item in self.sectionData:
+			self.sectionData[item].restore()
+
+	def updateAll(self):
+		"""
+		Bulk save all the data changed
+		by the user
+		:return:
+		"""
+		for item in self.sectionData:
+			self.sectionData[item].update()
+
+	def configAllButtons(self,buttonName,state):
+		"""
+		This method will disable or enable
+		all the buttons with a certain title
+		in the display view
+		"""
+		for section in self.sectionData:
+			#Goes through all the buttons
+			for button in self.sectionData[section].buttonDict:
+				if button == buttonName:
+					if state == "DISABLED":
+						self.sectionData[section].buttonDict[button].config(state=DISABLED)
+					else:
+						self.sectionData[section].buttonDict[button].config(state=NORMAL)
+
+	def fullClear(self):
+		for item in self.sectionData:
+			self.sectionData[item].clearData()
+			
+class privateNotebook(advancedNotebook):
+	"""
+	This class will be used on the view pod
+	screen and will display the data from a pod
+	"""
+	def __init__(self,parent,**kwargs):
+		advancedNotebook.__init__(self,parent,**kwargs)
 
 
+		#Create the strip along the top
+		self.templateStrip=mainFrame(self)
+		self.templateStrip.pack(side=TOP,fill=X)
+
+		#The strip that shows which template is loaded
+		self.templateLabelVar=StringVar()
+		self.templateLabelVar.set("No template loaded")
+
+		self.templateLabel=mainLabel(self.templateStrip,textvariable=self.templateLabelVar)
+		self.templateLabel.pack(expand=True)
+
+		#Colour the template strip
+		self.templateStrip.colour("#ECF0F5")
+		#Stores display views and tabs
+		self.tabDict={}
+		#Which data should be hidden by default
+		self.privateData=["Password"]
+		#Store the last template so same are not reloaded
+		self.lastTemplate=None
+		#Stores the multi view instance
+		self.multiViewInstance=None
+
+		#Store the first tab added
+		self.firstTab=None
+
+		#Create Basic And Advanced
+		self.addNewDisplayTab("Basic")
+		self.addNewDisplayTab("Advanced")
+
+	def addNewDisplayTab(self,tabName):
+		"""
+		This method will create a new display view
+		and create a new tab for it
+		"""
+		if tabName not in self.tabDict:
+			#Create the display view
+			newDisplay=passwordDisplayView(self)
+			self.addView(newDisplay,tabName)
+			self.tabDict[tabName]=newDisplay
+			#Attempt to update var
+			if self.firstTab == None:
+				self.firstTab=tabName
+			return newDisplay
+		else:
+			return self.tabDict[tabName]
+
+	def getDisplay(self,indicator):
+		"""
+		This method will return the display view
+		that was created when a new tab was added
+		"""
+		if indicator in self.tabDict:
+			return self.tabDict[indicator]
+
+	def loadTemplate(self,templateName):
+		log.report("Loading template",templateName)
+		#todo add better efficiency here
+		if templateName != self.lastTemplate:
+			if templateName in privateTemplate.templates:
+				template=privateTemplate.templates[templateName]
+
+				#First Clear the screen
+				for tab in self.tabDict:
+					self.tabDict[tab].clearScreen()
+
+
+				#Update the template label var
+				self.templateLabelVar.set(templateName)
+				#Update top label to right colour
+				self.templateLabel.config(fg=template.templateColour)
+				for tab in template.tabData:
+					tabArray=template.tabData[tab]
+					display=self.addNewDisplayTab(tab)
+					if display != None:
+						for item in tabArray:
+							newPrivateSection=privateDataSection(display,item[0],item[1],colour=item[2])
+							display.addPrivateSection(item[0],newPrivateSection)
+
+
+				#Update last template var
+				self.lastTemplate=templateName
+			else:
+				log.report("Unable to load template could not find name",templateName)
+
+	def loadDataPod(self,dataPodInstance):
+		"""
+		This methos is used to load a data pod
+		onto the notebook. It will take the pod 
+		vault and display it on screen
+		"""
+		if type(dataPodInstance) == PEM.dataPod:
+
+			#Get the type of pod
+			templateType=dataPodInstance.templateType
+			#Load the correct template
+			if templateType in privateTemplate.templates:
+				self.loadTemplate(templateType)
+
+			#Load default template
+			else:
+				log.report("Invalid template name to load",templateType)
+				self.loadTemplate("Login")
+
+			#Clear the screen
+			for display in self.tabDict:
+				self.tabDict[display].fullClear()
+			#Make sure edit mode is turned off
+			self.multiViewInstance.showView("Edit")
+
+			#Get the pod vault
+			podVault=dataPodInstance.podVault
+
+			#Add title separately
+			if "Title" not in podVault:
+				self.tabDict["Basic"].sectionData["Title"].addData(dataPodInstance.podName)
+			#Add the data
+			for display in self.tabDict:
+				for section in self.tabDict[display].sectionData:
+					if section in podVault:
+						#Add to entry
+						self.tabDict[display].sectionData[section].addData(podVault[section])
+						self.hidePrivateData()
+
+			#Ensure the first tab is loaded
+			self.showView(self.firstTab)
+
+			#Disable editing
+			for item in self.tabDict:
+				self.tabDict[item].disable()
+
+	def startEdit(self):
+		"""
+		This method will start edit mode. This will
+		allow the user to change pod data
+		and edit it and save it or cancel
+		"""
+		if self.multiViewInstance:
+			if type(self.multiViewInstance) == multiView:
+				#Change mutiview
+				self.multiViewInstance.showView("Cancel")
+				#Make the data editable
+				for item in self.tabDict:
+					self.tabDict[item].enable()
+
+	def cancelEdit(self):
+		"""
+		This is the method that will be called 
+		when the user chooses to cancel the edit.
+		It will restore the data if the user changed it
+		and return to default
+		"""
+
+		if self.multiViewInstance:
+			#Change mutiview
+			self.multiViewInstance.showView("Edit")
+			#Disable the data
+			for item in self.tabDict:
+				self.tabDict[item].restore()
+				self.tabDict[item].disable()
+				#Hide private data
+				self.hidePrivateData()
+
+		if self.multiViewInstance:
+			if type(self.multiViewInstance) == multiView:
+				#Change mutiview
+				self.multiViewInstance.showView("Edit")
+				#Disable the data
+				for item in self.tabDict:
+					self.tabDict[item].restore()
+					self.tabDict[item].disable()
+
+	def saveData(self):
+		"""
+		This method is used to save the new data
+		entered in the data sources for the notebook
+		:param multiViewInstance:
+		:return:
+		"""
+		#Updates the pod vault
+		currentMasterPod=PEM.masterPod.currentMasterPod
+		if currentMasterPod:
+			#Get the data pod that is currently loaded
+			currentPod=PEM.masterPod.currentMasterPod.currentPod
+			if currentPod:
+				#Find changed data
+				for display in self.tabDict:
+					for section in self.tabDict[display].sectionData:
+						hiddenSection=self.tabDict[display].sectionData[section]
+						if hiddenSection.getData != hiddenSection.data:
+							#Save old and new data as variables
+							oldData=hiddenSection.data
+							newData=hiddenSection.getData()
+							#Update the vault with the new data
+							currentPod.updateVault(section,newData)
+
+							#Update listbox etc
+							if section == "Title":
+								pass
+							#todo if title is changed update listbox
+
+			#Save the data
+			for tab in self.tabDict:
+				self.tabDict[tab].updateAll()
+			#Cancel the edit
+			self.cancelEdit()
+			#Save to file
+			currentMasterPod.save()
+
+		else:
+			askMessage("No pod","No master pod has been loaded")
+
+	def hidePrivateData(self):
+		#Make sure private data is hidden by default
+		for display in self.tabDict:
+			for section in self.tabDict[display].sectionData:
+				if section in self.privateData:
+					self.tabDict[display].sectionData[section].toggleHide(stay="hidden")
+
+
+#==============Other Classes==============
+
+
+
+#===============================(Private Templates)===============================
+
+"""
+Private templates are templates for storing pod data
+they contain the relevant information to create widgets
+that can hold different data.
+Some examples of templates include...
+*Logins
+*Notes
+*Bank details
+"""
+#===Normal Login===
+privateLoginTemplate=privateTemplate("Login","#13DCE0")
+privateLoginTemplate.addTab("Advanced")
+privateLoginTemplate.colourSection("Basic","Title","#67A1FF")
+privateLoginTemplate.addTemplateSection("Basic","Username",Entry,colour="#5C90E3")
+privateLoginTemplate.addTemplateSection("Basic","Password",Entry,colour="#5382CE")
+
+privateLoginTemplate.addTemplateSection("Advanced","Website",Entry,colour="#55CEC3")
+privateLoginTemplate.addTemplateSection("Advanced","Notes",Text,colour="#4DBCB2")
+
+#===Secure Note===
+privateSecureNote=privateTemplate("Secure Note","#1CE029")
+privateSecureNote.colourSection("Basic","Title","#6ECA3F")
+privateSecureNote.addTab("Advanced")
+privateSecureNote.addTemplateSection("Advanced","Notes",Text,colour="#55CA88")
+
+#===Email Account===
+privateEmailAccount=privateTemplate("Email Account","#E016B1")
+privateEmailAccount.colourSection("Basic","Title","#C463AE")
+privateEmailAccount.addTemplateSection("Basic","Email",Entry,colour="#D36ABA")
+privateEmailAccount.addTemplateSection("Basic","Password",Entry,colour="#E071C6")
+privateEmailAccount.addTab("Advanced")
+privateEmailAccount.addTemplateSection("Advanced","Notes",Text,colour="#E0388D")
