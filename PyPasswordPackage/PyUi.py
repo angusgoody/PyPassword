@@ -729,8 +729,15 @@ class advancedListbox(Listbox):
 		to be added to the listbox and display plain
 		text
 		"""
+
+		#Get correct colour for template
+		if type(objectInstance) == PEM.dataPod:
+			templateType=objectInstance.templateType
+			colour=privateTemplate.templateColours[templateType]
+		else:
+			colour=generateHexColour()
 		self.listData[textToDisplay]=objectInstance
-		self.addItem(textToDisplay,**kwargs)
+		self.addItem(textToDisplay,colour=colour,**kwargs)
 
 	def addItem(self,text,**kwargs):
 		"""
@@ -1452,10 +1459,6 @@ class privateTemplate:
 	def __init__(self,templateName,templateColour,**kwargs):
 		self.name=templateName
 		self.templateColour=templateColour
-		if "colour" in kwargs:
-			self.colour=kwargs["colour"]
-		else:
-			self.colour=generateHexColour()
 
 		#Add to object array
 		privateTemplate.templates[templateName]=self
@@ -1463,7 +1466,7 @@ class privateTemplate:
 			privateTemplate.templateList.append(templateName)
 
 		#Add to colour dict
-		privateTemplate.templateColours[templateName]=self.colour
+		privateTemplate.templateColours[templateName]=self.templateColour
 		#Stores tabs
 		self.tabData={}
 		self.sectionTitles=[]
