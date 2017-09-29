@@ -2,7 +2,7 @@
 
 
 #Angus Goody
-#PyPassword 2.0
+#PyPassword 2.1
 #02/06/17
 
 #Main User Interface Module
