@@ -336,10 +336,14 @@ def recursiveChangeColour(parent,colour,fgColour):
 	parentClass=parent.winfo_class()
 	if type(parent) not in excludeArray:
 		if parentClass == "Frame":
-			parent.config(bg=colour)
-			children=parent.winfo_children()
-			for item in children:
-				recursiveChangeColour(item,colour,fgColour)
+			try:
+				if parent.excludeColour == False:
+					parent.config(bg=colour)
+					children=parent.winfo_children()
+					for item in children:
+						recursiveChangeColour(item,colour,fgColour)
+			except:
+				log.report("Error with checking parent exclude colour",tag="Error")
 		else:
 			try:
 				#Certain widgets need diffrent attention
@@ -515,8 +519,11 @@ class mainFrame(Frame):
 	"""
 	def __init__(self,parent,**kwargs):
 		Frame.__init__(self,parent)
+		self.excludeColour=False
 		if "colour" in kwargs:
 			self.colour(kwargs["colour"])
+		if "excludeColour" in kwargs:
+			self.excludeColour=kwargs["excludeColour"]
 		self.colourVar=None
 
 	def addBinding(self,bindButton,bindFunction):
@@ -1439,6 +1446,148 @@ class labelEntry(mainFrame):
 	def changeColour(self,colour):
 		#Change entry colour
 		self.entry.config(bg=colour)
+
+class advancedButton(mainFrame):
+	"""
+	The advanced button class is a custom
+	button that is constructed from a
+	label and has custom hover animations etc.
+	"""
+	def __init__(self,parent,text,**kwargs):
+		mainFrame.__init__(self,parent,excludeColour=True,**kwargs)
+		self.command=None
+		self.activeColour="#6DAA10"
+		self.inActiveColour="#989BA1"
+		self.hoverColour="#C6CAD2"
+		self.width=15
+
+		self.currentState="Active"
+		self.isActive=True
+
+		#Collect extra info
+		if "command" in kwargs:
+			self.addCommand(kwargs["command"])
+		if "activeColour" in kwargs:
+			self.activeColour=kwargs["activeColour"]
+		if "inActiveColour" in kwargs:
+			self.inActiveColour=kwargs["inActiveColour"]
+		if "hoverColour" in kwargs:
+			self.hoverColour=kwargs["hoverColour"]
+		if "width" in kwargs:
+			self.width=kwargs["width"]
+
+		#Adjust self
+		self.label=mainLabel(self)
+		self.label.pack(expand=True)
+		self.label.config(text=text)
+		self.label.config(width=self.width)
+		self.colour(self.activeColour)
+
+		#Add commands/bindings
+		self.addBinding("<Enter>",lambda event: self.runHover("in"))
+		self.addBinding("<Leave>",lambda event: self.runHover("out"))
+		self.addBinding("<Button-1>",lambda event: self.runCommand())
+
+	def addCommand(self,command):
+		pass
+
+	def runHover(self,inOrOut):
+		"""
+		Hover commands
+		"""
+		if inOrOut == "in":
+			if self.activeColour != "active":
+				self.colour(self.hoverColour)
+		else:
+			if self.isActive:
+				self.colour(self.activeColour)
+
+	def runCommand(self):
+		"""
+		This method is called when the command for the button is run
+		"""
+		if self.currentState != "disabled":
+			try:
+				self.command()
+			except:
+				log.report("Error running command for label button",tag="Error")
+
+	def makeInActive(self,**kwargs):
+		"""
+		This method will make the button appear inactive
+		if the user specifies it will also disable it
+		"""
+		self.isActive=False
+		self.currentState="notActive"
+
+		self.colour(self.inActiveColour)
+
+		#Make disabled if needed
+		if "disabled" in kwargs:
+			if kwargs["disabled"]:
+				self.currentState="disabled"
+
+class buttonBar(mainFrame):
+	"""
+	The button bar class is a class
+	which genertaes a frame to fill the screen
+	and have buttons with animations and execute commands
+	"""
+	def __init__(self,parent,**kwargs):
+		mainFrame.__init__(self,parent)
+		self.backgroundColour="C5CDCD"
+
+		#Master button controls
+		self.masterButtonIdle="98A5AA"
+		self.masterButtonHover="AFBCC2"
+		self.masterButtonSelected="#5467AA"
+		self.buttonWidth=15
+		#Get kew words
+		if "bg" in kwargs:
+			self.backgroundColour=kwargs["bg"]
+		if "MasterSelected" in kwargs:
+			self.masterButtonSelected=kwargs["MasterSelected"]
+		if "masterIdle" in kwargs:
+			self.masterButtonIdle=kwargs["masterIdle"]
+		if "masterHover" in kwargs:
+			self.masterButtonHover=kwargs["masterHover"]
+
+		#Setup Dictionarys and arrays
+
+		#Will store the button and object
+		self.buttonDict={}
+		self.buttonList=[]
+
+		#Setup Frame
+		self.buttonFrame=mainFrame(self)
+		self.buttonFrame.pack(expand=True)
+
+	def addButton(self,displayName,command,**kwargs):
+		#Gather extra info if needed
+		buttonSelected=self.masterButtonSelected
+		buttonHover=self.masterButtonHover
+		buttonIdle=self.masterButtonIdle
+
+		if "selected" in kwargs:
+			buttonSelected=kwargs["selected"]
+		if "hover" in kwargs:
+			buttonHover=kwargs["hover"]
+		if "idle" in kwargs:
+			buttonIdle=kwargs["idle"]
+
+		#Create Actual Button
+		newButton=advancedButton(self.buttonFrame,displayName,command=command,activeColour=buttonSelected,
+		                         inActiveColour=buttonIdle,hoverColour=buttonHover,width=self.buttonWidth)
+		self.buttonDict[displayName]=newButton
+		self.buttonList.append(newButton)
+
+
+
+
+
+
+
+
 
 #==============Password Widget Classes==============
 

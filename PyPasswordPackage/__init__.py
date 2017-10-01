@@ -224,7 +224,14 @@ homeSearchLabel.pack(padx=2)
 homeMainFrame=mainFrame(homeScreen)
 homeMainFrame.pack(expand=True,fill=BOTH)
 
-#todo add right clicks and multiple delete
+#Fake Notebook View
+#todo fake notebook
+
+homeTemp=advancedButton(homeMainFrame,"All")
+homeTemp.pack()
+homeSecond=advancedButton(homeMainFrame,"Second")
+homeSecond.makeInActive()
+homeSecond.pack()
 homePodListbox=searchListbox(homeMainFrame)
 homePodListbox.addSearchWidget(homeSearchEntry,resultVar=homeSearchVar)
 homePodListbox.pack(expand=True,fill=BOTH)
