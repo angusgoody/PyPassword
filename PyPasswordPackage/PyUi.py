@@ -1560,23 +1560,26 @@ class buttonBar(mainFrame):
 	and have buttons with animations and execute commands
 	"""
 	def __init__(self,parent,**kwargs):
-		mainFrame.__init__(self,parent)
+		mainFrame.__init__(self,parent,excludeColour=True,oveRideColour=True,**kwargs)
 		self.backgroundColour="C5CDCD"
 
 		#Master button controls
 		self.masterButtonIdle="98A5AA"
 		self.masterButtonHover="AFBCC2"
 		self.masterButtonSelected="#5467AA"
+		self.masterButtonPressed="#667ED0"
 		self.buttonWidth=15
 		#Get kew words
 		if "bg" in kwargs:
 			self.backgroundColour=kwargs["bg"]
-		if "MasterSelected" in kwargs:
+		if "masterSelected" in kwargs:
 			self.masterButtonSelected=kwargs["MasterSelected"]
 		if "masterIdle" in kwargs:
 			self.masterButtonIdle=kwargs["masterIdle"]
 		if "masterHover" in kwargs:
 			self.masterButtonHover=kwargs["masterHover"]
+		if "masterPressed" in kwargs:
+			self.masterButtonPressed=kwargs["masterPressed"]
 
 		#Setup Dictionarys and arrays
 
@@ -1585,6 +1588,7 @@ class buttonBar(mainFrame):
 		self.buttonList=[]
 
 		#Setup Frame
+		self.colour(self.backgroundColour)
 		self.buttonFrame=mainFrame(self)
 		self.buttonFrame.pack(expand=True)
 
@@ -1593,6 +1597,7 @@ class buttonBar(mainFrame):
 		buttonSelected=self.masterButtonSelected
 		buttonHover=self.masterButtonHover
 		buttonIdle=self.masterButtonIdle
+		buttonPressed=self.masterButtonPressed
 
 		if "selected" in kwargs:
 			buttonSelected=kwargs["selected"]
@@ -1600,14 +1605,31 @@ class buttonBar(mainFrame):
 			buttonHover=kwargs["hover"]
 		if "idle" in kwargs:
 			buttonIdle=kwargs["idle"]
-
+		if "pressed" in kwargs:
+			buttonPressed=kwargs["pressed"]
 		#Create Actual Button
 		newButton=advancedButton(self.buttonFrame,displayName,command=command,activeColour=buttonSelected,
-		                         inActiveColour=buttonIdle,hoverColour=buttonHover,width=self.buttonWidth)
+		                         inActiveColour=buttonIdle,hoverColour=buttonHover,width=self.buttonWidth,
+		                         activePressedColour=buttonPressed)
 		self.buttonDict[displayName]=newButton
 		self.buttonList.append(newButton)
 
+		#Display Button
+		newButton.pack(side=LEFT)
 
+
+class fixedButtonBar(buttonBar):
+	"""
+	The fixed button bar is the same
+	as a button bar but only one
+	button can be selected at a time
+	this can be used as tabs.
+	"""
+	def __init__(self,parent,**kwargs):
+		buttonBar.__init__(self,parent,**kwargs)
+		currentSelection=None
+
+	
 
 
 
