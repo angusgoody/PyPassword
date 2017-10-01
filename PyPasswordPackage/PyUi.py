@@ -2025,7 +2025,7 @@ Some examples of templates include...
 *Bank details
 """
 #===Normal Login===
-privateLoginTemplate=privateTemplate("Login","#13DCE0")
+privateLoginTemplate=privateTemplate("Login","#00DACF")
 privateLoginTemplate.addTab("Advanced")
 privateLoginTemplate.colourSection("Basic","Title","#67A1FF")
 privateLoginTemplate.addTemplateSection("Basic","Username",Entry,colour="#5C90E3")
@@ -2035,13 +2035,13 @@ privateLoginTemplate.addTemplateSection("Advanced","Website",Entry,colour="#55CE
 privateLoginTemplate.addTemplateSection("Advanced","Notes",Text,colour="#4DBCB2")
 
 #===Secure Note===
-privateSecureNote=privateTemplate("Secure Note","#1CE029")
+privateSecureNote=privateTemplate("Secure Note","#7FC527")
 privateSecureNote.colourSection("Basic","Title","#6ECA3F")
 privateSecureNote.addTab("Advanced")
 privateSecureNote.addTemplateSection("Advanced","Notes",Text,colour="#55CA88")
 
 #===Email Account===
-privateEmailAccount=privateTemplate("Email Account","#E016B1")
+privateEmailAccount=privateTemplate("Email Account","#DA567F")
 privateEmailAccount.colourSection("Basic","Title","#C463AE")
 privateEmailAccount.addTemplateSection("Basic","Email",Entry,colour="#D36ABA")
 privateEmailAccount.addTemplateSection("Basic","Password",Entry,colour="#E071C6")
