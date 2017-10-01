@@ -326,18 +326,22 @@ def generateHexColour():
 
 #==============OTHER FUNCTIONS================
 
-def recursiveChangeColour(parent,colour,fgColour):
+def recursiveChangeColour(parent,colour,fgColour,**kwargs):
 	"""
 	This function will recursivly search all children
 	of an element and change their colour
 	"""
+	oveRide=False
+	if "oveRide" in kwargs:
+		oveRide=kwargs["oveRide"]
+
 	widgetArray =["Entry", "Button", "Text", "Listbox", "OptionMenu", "Menu"]
 	excludeArray=[advancedNotebook, privateNotebook]
 	parentClass=parent.winfo_class()
 	if type(parent) not in excludeArray:
 		if parentClass == "Frame":
 			try:
-				if parent.excludeColour == False:
+				if parent.excludeColour == False or oveRide == True:
 					parent.config(bg=colour)
 					children=parent.winfo_children()
 					for item in children:
@@ -519,11 +523,17 @@ class mainFrame(Frame):
 	"""
 	def __init__(self,parent,**kwargs):
 		Frame.__init__(self,parent)
-		self.excludeColour=False
+
+		#Variables for recursive colour chage
+		self.excludeColour=False #Means if its a child it wont be changed
+		self.oveRideColour=False #Means if its excluded it can still be changed
 		if "colour" in kwargs:
 			self.colour(kwargs["colour"])
 		if "excludeColour" in kwargs:
 			self.excludeColour=kwargs["excludeColour"]
+		if "oveRideColour" in kwargs:
+			self.oveRideColour=kwargs["oveRideColour"]
+
 		self.colourVar=None
 
 	def addBinding(self,bindButton,bindFunction):
@@ -533,7 +543,7 @@ class mainFrame(Frame):
 		"""
 		recursiveBind(self,bindButton,bindFunction)
 
-	def colour(self,chosenColour):
+	def colour(self,chosenColour,**kwargs):
 		"""
 		The colour method will update
 		the colour of the frame
@@ -544,7 +554,7 @@ class mainFrame(Frame):
 		self.colourVar=chosenColour
 
 		#Recursivley search through all children and change colour
-		recursiveChangeColour(self,chosenColour,fgColour)
+		recursiveChangeColour(self,chosenColour,fgColour,oveRide=self.oveRideColour)
 
 class mainLabel(Label):
 	"""
@@ -1454,14 +1464,16 @@ class advancedButton(mainFrame):
 	label and has custom hover animations etc.
 	"""
 	def __init__(self,parent,text,**kwargs):
-		mainFrame.__init__(self,parent,excludeColour=True,**kwargs)
+		mainFrame.__init__(self,parent,excludeColour=True,oveRideColour=True,**kwargs)
+
 		self.command=None
 		self.activeColour="#6DAA10"
 		self.inActiveColour="#989BA1"
 		self.hoverColour="#C6CAD2"
+		self.activePressed="#7AC012"
 		self.width=15
 
-		self.currentState="Active"
+		self.currentState="active"
 		self.isActive=True
 
 		#Collect extra info
@@ -1475,6 +1487,8 @@ class advancedButton(mainFrame):
 			self.hoverColour=kwargs["hoverColour"]
 		if "width" in kwargs:
 			self.width=kwargs["width"]
+		if "activePressedColour" in kwargs:
+			self.activePressed=kwargs["activePressedColour"]
 
 		#Adjust self
 		self.label=mainLabel(self)
@@ -1486,31 +1500,43 @@ class advancedButton(mainFrame):
 		#Add commands/bindings
 		self.addBinding("<Enter>",lambda event: self.runHover("in"))
 		self.addBinding("<Leave>",lambda event: self.runHover("out"))
+		self.addBinding("<ButtonRelease-1>",lambda event: self.runHover("out"))
+
 		self.addBinding("<Button-1>",lambda event: self.runCommand())
 
 	def addCommand(self,command):
-		pass
+		self.command=command
+		self.addBinding("<Button-1>",lambda event: self.runCommand())
 
 	def runHover(self,inOrOut):
 		"""
 		Hover commands
 		"""
+		#In
 		if inOrOut == "in":
-			if self.activeColour != "active":
+			if self.currentState != "active":
 				self.colour(self.hoverColour)
+		#Out
 		else:
 			if self.isActive:
 				self.colour(self.activeColour)
+			else:
+				self.colour(self.inActiveColour)
 
 	def runCommand(self):
 		"""
 		This method is called when the command for the button is run
 		"""
+		#Wont run if button is disabled
 		if self.currentState != "disabled":
 			try:
+				#Adjust colour
+				self.colour(self.activePressed)
 				self.command()
 			except:
 				log.report("Error running command for label button",tag="Error")
+
+
 
 	def makeInActive(self,**kwargs):
 		"""

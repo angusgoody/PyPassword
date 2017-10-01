@@ -177,9 +177,13 @@ openHintLabel.pack()
 #--Bottom Section--
 openMasterBottomFrame=centerFrame(openMasterDisplay)
 openMasterBottomSub=openMasterBottomFrame.miniFrame
-
+"""
 openMasterUnlockButton=mainButton(openMasterBottomSub,text="Unlock",width=12)
 openMasterUnlockButton.pack(pady=5)
+"""
+openMasterUnlockButton=mainButton(openMasterBottomSub,text="Unlock",width=12)
+openMasterUnlockButton.pack(pady=5)
+
 openMasterCancelButton=mainButton(openMasterBottomSub,text="Cancel",width=12)
 openMasterCancelButton.pack()
 
