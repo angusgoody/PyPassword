@@ -1536,8 +1536,6 @@ class advancedButton(mainFrame):
 			except:
 				log.report("Error running command for label button",tag="Error")
 
-
-
 	def makeInActive(self,**kwargs):
 		"""
 		This method will make the button appear inactive
@@ -1627,7 +1625,11 @@ class fixedButtonBar(buttonBar):
 	"""
 	def __init__(self,parent,**kwargs):
 		buttonBar.__init__(self,parent,**kwargs)
-		currentSelection=None
+		currentSelection=""
+
+	def setCurrent(self,buttonName):
+		self.currentSelection=buttonName
+
 
 	
 

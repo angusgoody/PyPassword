@@ -8,6 +8,8 @@
 #Password Encryption Module (PEM)
 
 """
+PEM (Password Encryption Module)
+
 This file is the Encryption module
 this is where all the encryption and
 decryption of the data will happen
@@ -24,7 +26,7 @@ import os
 import random
 import string
 from PyUi import *
-
+import re
 #==========VARIABLES=========
 mainWindow=None
 log=logClass("Encryption")
@@ -162,15 +164,68 @@ def unlockMasterPod(masterPodInstance,attempt):
 			except:
 				log.report("An error occurred decrypting data (Invlaid pod)")
 	return False
+
+def calculatePasswordStrength(password):
+	"""
+	Verify the strength of 'password'
+	Returns a dict indicating the wrong criteria
+	A password is considered strong if:
+		12 characters length or more
+		1 digit or more
+		1 symbol or more
+		1 uppercase letter or more
+		1 lowercase letter or more
+	a false result means it passed
+	"""
+
+	# calculating the length
+	length_error = len(password) < 11
+
+	# searching for digits
+	digit_error = re.search(r"\d", password) is None
+
+	# searching for uppercase
+	uppercase_error = re.search(r"[A-Z]", password) is None
+
+	# searching for lowercase
+	lowercase_error = re.search(r"[a-z]", password) is None
+
+	# searching for symbols
+	symbol_error = re.search(r"[ !#$%&'(@)*+,-./[\\\]^_`{|}~"+r'"]', password) is None
+
+	# overall result
+	overall = not ( length_error or digit_error or uppercase_error or lowercase_error or symbol_error )
+
+	results={
+		'At least 12 characters' : length_error,
+		'At least 1 digit' : digit_error,
+		'At least 1 Uppercase' : uppercase_error,
+		'At least 1 lowercase' : lowercase_error,
+		'At least 1 symbol' : symbol_error,
+	}
+
+	#Track number of fails and pass
+	fails=0
+	success=0
+	fields=len(results)
+	for item in results:
+		if results[item]:
+			fails+=1
+		else:
+			success+=1
+	#Return results
+
+	return success,fails,fields,results
+
 #==================================(Classes)=============================
 
 class dataPod:
+
 	"""
 	The data pod class is a pod
 	that stores all the information
 	about a account
 	"""
-
 	def __init__(self,master,podTitle):
 		#Master pod var
 		self.master=master
@@ -184,7 +239,6 @@ class dataPod:
 		self.templateType="Login"
 		#Store what state the vault is
 		self.vaultState="Open"
-
 
 	def addData(self,name,info):
 		self.podVault[name]=info
