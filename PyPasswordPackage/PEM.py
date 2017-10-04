@@ -86,6 +86,7 @@ def openPickle(fileName):
 	try:
 		content=pickle.load( open( fileName, "rb" ) )
 	except:
+		print("Error reading file")
 		return None
 	else:
 		return content
