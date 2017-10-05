@@ -231,15 +231,6 @@ homeMainFrame.pack(expand=True,fill=BOTH)
 #Fake Notebook View
 #todo fake notebook
 
-homeListboxBar=fixedButtonBar(homeMainFrame,bg="#43538A")
-homeListboxBar.pack(fill=X)
-
-def temp():
-	print("Hi")
-homeListboxBar.addButton("All",temp)
-homeListboxBar.addButton("Login",temp)
-homeListboxBar.addButton("Notes",temp)
-
 homePodListbox=searchListbox(homeMainFrame)
 homePodListbox.addSearchWidget(homeSearchEntry,resultVar=homeSearchVar)
 homePodListbox.pack(expand=True,fill=BOTH)
