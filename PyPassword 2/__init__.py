@@ -177,9 +177,13 @@ openHintLabel.pack()
 #--Bottom Section--
 openMasterBottomFrame=centerFrame(openMasterDisplay)
 openMasterBottomSub=openMasterBottomFrame.miniFrame
-
+"""
 openMasterUnlockButton=mainButton(openMasterBottomSub,text="Unlock",width=12)
 openMasterUnlockButton.pack(pady=5)
+"""
+openMasterUnlockButton=mainButton(openMasterBottomSub,text="Unlock",width=12)
+openMasterUnlockButton.pack(pady=5)
+
 openMasterCancelButton=mainButton(openMasterBottomSub,text="Cancel",width=12)
 openMasterCancelButton.pack()
 
@@ -224,7 +228,9 @@ homeSearchLabel.pack(padx=2)
 homeMainFrame=mainFrame(homeScreen)
 homeMainFrame.pack(expand=True,fill=BOTH)
 
-#todo add right clicks and multiple delete
+#Fake Notebook View
+#todo fake notebook
+
 homePodListbox=searchListbox(homeMainFrame)
 homePodListbox.addSearchWidget(homeSearchEntry,resultVar=homeSearchVar)
 homePodListbox.pack(expand=True,fill=BOTH)
@@ -699,58 +705,6 @@ def createNewPodPopup():
 		log.report("New popup launched","(POPUP)",tag="UI")
 
 #=====GENERATE PASSWORD=======
-
-def calculatePasswordStrength(password):
-	"""
-	Verify the strength of 'password'
-	Returns a dict indicating the wrong criteria
-	A password is considered strong if:
-		12 characters length or more
-		1 digit or more
-		1 symbol or more
-		1 uppercase letter or more
-		1 lowercase letter or more
-	a false result means it passed
-	"""
-
-	# calculating the length
-	length_error = len(password) < 11
-
-	# searching for digits
-	digit_error = re.search(r"\d", password) is None
-
-	# searching for uppercase
-	uppercase_error = re.search(r"[A-Z]", password) is None
-
-	# searching for lowercase
-	lowercase_error = re.search(r"[a-z]", password) is None
-
-	# searching for symbols
-	symbol_error = re.search(r"[ !#$%&'(@)*+,-./[\\\]^_`{|}~"+r'"]', password) is None
-
-	# overall result
-	overall = not ( length_error or digit_error or uppercase_error or lowercase_error or symbol_error )
-
-	results={
-		'At least 12 characters' : length_error,
-		'At least 1 digit' : digit_error,
-		'At least 1 Uppercase' : uppercase_error,
-		'At least 1 lowercase' : lowercase_error,
-		'At least 1 symbol' : symbol_error,
-	}
-
-	#Track number of fails and pass
-	fails=0
-	success=0
-	fields=len(results)
-	for item in results:
-		if results[item]:
-			fails+=1
-		else:
-			success+=1
-	#Return results
-
-	return success,fails,fields,results
 
 def genPassword():
 	"""

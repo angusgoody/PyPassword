@@ -2,7 +2,7 @@
 
 
 #Angus Goody
-#PyPassword 2.0
+#PyPassword 2.1
 #02/06/17
 
 #Main User Interface Module
@@ -326,20 +326,28 @@ def generateHexColour():
 
 #==============OTHER FUNCTIONS================
 
-def recursiveChangeColour(parent,colour,fgColour):
+def recursiveChangeColour(parent,colour,fgColour,**kwargs):
 	"""
 	This function will recursivly search all children
 	of an element and change their colour
 	"""
+	oveRide=False
+	if "oveRide" in kwargs:
+		oveRide=kwargs["oveRide"]
+
 	widgetArray =["Entry", "Button", "Text", "Listbox", "OptionMenu", "Menu"]
 	excludeArray=[advancedNotebook, privateNotebook]
 	parentClass=parent.winfo_class()
 	if type(parent) not in excludeArray:
 		if parentClass == "Frame":
-			parent.config(bg=colour)
-			children=parent.winfo_children()
-			for item in children:
-				recursiveChangeColour(item,colour,fgColour)
+			try:
+				if parent.excludeColour == False or oveRide == True:
+					parent.config(bg=colour)
+					children=parent.winfo_children()
+					for item in children:
+						recursiveChangeColour(item,colour,fgColour)
+			except:
+				log.report("Error with checking parent exclude colour",tag="Error")
 		else:
 			try:
 				#Certain widgets need diffrent attention
@@ -515,8 +523,17 @@ class mainFrame(Frame):
 	"""
 	def __init__(self,parent,**kwargs):
 		Frame.__init__(self,parent)
+
+		#Variables for recursive colour chage
+		self.excludeColour=False #Means if its a child it wont be changed
+		self.oveRideColour=False #Means if its excluded it can still be changed
 		if "colour" in kwargs:
 			self.colour(kwargs["colour"])
+		if "excludeColour" in kwargs:
+			self.excludeColour=kwargs["excludeColour"]
+		if "oveRideColour" in kwargs:
+			self.oveRideColour=kwargs["oveRideColour"]
+
 		self.colourVar=None
 
 	def addBinding(self,bindButton,bindFunction):
@@ -526,7 +543,7 @@ class mainFrame(Frame):
 		"""
 		recursiveBind(self,bindButton,bindFunction)
 
-	def colour(self,chosenColour):
+	def colour(self,chosenColour,**kwargs):
 		"""
 		The colour method will update
 		the colour of the frame
@@ -537,7 +554,7 @@ class mainFrame(Frame):
 		self.colourVar=chosenColour
 
 		#Recursivley search through all children and change colour
-		recursiveChangeColour(self,chosenColour,fgColour)
+		recursiveChangeColour(self,chosenColour,fgColour,oveRide=self.oveRideColour)
 
 class mainLabel(Label):
 	"""
@@ -729,8 +746,15 @@ class advancedListbox(Listbox):
 		to be added to the listbox and display plain
 		text
 		"""
+
+		#Get correct colour for template
+		if type(objectInstance) == PEM.dataPod:
+			templateType=objectInstance.templateType
+			colour=privateTemplate.templateColours[templateType]
+		else:
+			colour=generateHexColour()
 		self.listData[textToDisplay]=objectInstance
-		self.addItem(textToDisplay,**kwargs)
+		self.addItem(textToDisplay,colour=colour,**kwargs)
 
 	def addItem(self,text,**kwargs):
 		"""
@@ -1433,6 +1457,17 @@ class labelEntry(mainFrame):
 		#Change entry colour
 		self.entry.config(bg=colour)
 
+
+
+
+	
+
+
+
+
+
+
+
 #==============Password Widget Classes==============
 
 class privateTemplate:
@@ -1452,10 +1487,6 @@ class privateTemplate:
 	def __init__(self,templateName,templateColour,**kwargs):
 		self.name=templateName
 		self.templateColour=templateColour
-		if "colour" in kwargs:
-			self.colour=kwargs["colour"]
-		else:
-			self.colour=generateHexColour()
 
 		#Add to object array
 		privateTemplate.templates[templateName]=self
@@ -1463,7 +1494,7 @@ class privateTemplate:
 			privateTemplate.templateList.append(templateName)
 
 		#Add to colour dict
-		privateTemplate.templateColours[templateName]=self.colour
+		privateTemplate.templateColours[templateName]=self.templateColour
 		#Stores tabs
 		self.tabData={}
 		self.sectionTitles=[]
@@ -2022,7 +2053,7 @@ Some examples of templates include...
 *Bank details
 """
 #===Normal Login===
-privateLoginTemplate=privateTemplate("Login","#13DCE0")
+privateLoginTemplate=privateTemplate("Login","#00DACF")
 privateLoginTemplate.addTab("Advanced")
 privateLoginTemplate.colourSection("Basic","Title","#67A1FF")
 privateLoginTemplate.addTemplateSection("Basic","Username",Entry,colour="#5C90E3")
@@ -2032,13 +2063,13 @@ privateLoginTemplate.addTemplateSection("Advanced","Website",Entry,colour="#55CE
 privateLoginTemplate.addTemplateSection("Advanced","Notes",Text,colour="#4DBCB2")
 
 #===Secure Note===
-privateSecureNote=privateTemplate("Secure Note","#1CE029")
+privateSecureNote=privateTemplate("Secure Note","#7FC527")
 privateSecureNote.colourSection("Basic","Title","#6ECA3F")
 privateSecureNote.addTab("Advanced")
 privateSecureNote.addTemplateSection("Advanced","Notes",Text,colour="#55CA88")
 
 #===Email Account===
-privateEmailAccount=privateTemplate("Email Account","#E016B1")
+privateEmailAccount=privateTemplate("Email Account","#DA567F")
 privateEmailAccount.colourSection("Basic","Title","#C463AE")
 privateEmailAccount.addTemplateSection("Basic","Email",Entry,colour="#D36ABA")
 privateEmailAccount.addTemplateSection("Basic","Password",Entry,colour="#E071C6")
