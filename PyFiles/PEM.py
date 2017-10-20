@@ -25,7 +25,7 @@ import pickle
 import os
 import random
 import string
-from PyUi import *
+from PyFiles.PyUi import *
 import re
 #==========VARIABLES=========
 mainWindow=None
