@@ -25,18 +25,102 @@ import pickle
 import os
 import random
 import string
-from PyFiles.PyUi import *
 import re
+from datetime import datetime
+
 #==========VARIABLES=========
 mainWindow=None
-log=logClass("Encryption")
 letters=string.ascii_letters
 symbols=['!', '"', '#', '$', '%', '&', "'", '()',
          '*', '+', ',', '-', '.', '/', ':', ';',
          '<', '=', '>', '?', '@', '[', ']', '^', '_',
          '`', '{', '|', '}', '~', "'"]
 
+#==============LOG CLASS==============
+class logClass():
+	"""
+	The log class will store a log
+	for everything and record
+	errors etc
+	"""
+	allLogs={}
+	def __init__(self,logName):
+		self.logName=logName
+		#Where the data is stored
+		self.dataDict={}
+		self.systemDict={}
+		#Add the log to log dict
+		logClass.allLogs[self.logName]=self
+		#Store the tree view the data is stored in
+		self.defaultTree=None
+		self.systemTree=None
 
+	def report(self,message,*extra,**kwargs):
+
+		"""
+		The report method is the main
+		method that is called to report
+		something to the log and the current
+		time is recorded and tags can be used
+		to group errors
+		"""
+		#Gether message
+		message=message+" "
+		system=False
+		if len(extra) > 0:
+			for item in extra:
+				message+=" "
+				message+=str(item)
+		#Gather Tag
+		tag="Default"
+		if "tag" in kwargs:
+			tag=kwargs["tag"]
+		#Get time
+		currentTime=datetime.now().time()
+
+		defaultDict=self.dataDict
+		#Check if system or not
+		if "system" in kwargs:
+			if kwargs["system"]:
+				defaultDict=self.systemDict
+				system=True
+
+		#Create dictionary and add data
+		if tag not in defaultDict:
+			defaultDict[tag]=[]
+		defaultDict[tag].append({"Time":currentTime,"Tag":tag,"Message":message})
+
+		#Add to listbox if there is one
+
+		if system:
+			self.addDataToTree(message,currentTime,True)
+		else:
+			self.addDataToTree(message,currentTime,False)
+
+	def addTree(self,indicator,tree):
+		"""
+		Assign a tree to export to for
+		each option. System info and default info
+		"""
+		if indicator == "System":
+			self.systemTree=tree
+		elif indicator == "Default":
+			self.defaultTree=tree
+
+	def addDataToTree(self,data,time,system):
+		"""
+		This method will take the time and data
+		provided and insert it into the tree
+		"""
+		if system:
+			#Add to system tree
+				if self.systemTree != None:
+					self.systemTree.insert("" , 0,values=(data,time))
+		else:
+			if self.defaultTree != None:
+				self.defaultTree.insert("" , 0,values=(data,time))
+
+log=logClass("Encryption")
 #==================================(FUNCTIONS)=============================
 def addPEMWindow(window):
 	global mainWindow
@@ -88,7 +172,7 @@ def openPickle(fileName):
 	try:
 		content=pickle.load( open( fileName, "rb" ) )
 	except:
-		print("Error reading file")
+		log.report("Pickle encountered a problem opening a file",fileName)
 		return None
 	else:
 		return content
@@ -149,7 +233,7 @@ def unlockMasterPod(masterPodInstance,attempt):
 	an attempt. Will return True or False
 	"""
 	if masterPodInstance != None:
-		if type(masterPodInstance) == masterPod:
+		if type(masterPodInstance):
 			try:
 				if masterPodInstance.state == "Locked":
 					#Attempts to decrypt key

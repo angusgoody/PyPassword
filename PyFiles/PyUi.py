@@ -19,106 +19,19 @@ main __init__ file.
 from tkinter import *
 from tkinter import ttk
 import random
-import datetime
 from tkinter import messagebox
 from tkinter import filedialog
 import webbrowser
-import os
-
+from PyFiles.PEM import *
 #Variable for TK windows
 mainWindow=None
 
 #==============Styles==============
 mainFont="Avenir"
 
-#==============LOG CLASS==============
+#==============Log==============
 
-class logClass():
-	"""
-	The log class will store a log
-	for everything and record
-	errors etc
-	"""
-	allLogs={}
-	def __init__(self,logName):
-		self.logName=logName
-		#Where the data is stored
-		self.dataDict={}
-		self.systemDict={}
-		#Add the log to log dict
-		logClass.allLogs[self.logName]=self
-		#Store the tree view the data is stored in
-		self.defaultTree=None
-		self.systemTree=None
-
-	def report(self,message,*extra,**kwargs):
-
-		"""
-		The report method is the main
-		method that is called to report
-		something to the log and the current
-		time is recorded and tags can be used
-		to group errors
-		"""
-		#Gether message
-		message=message+" "
-		system=False
-		if len(extra) > 0:
-			for item in extra:
-				message+=" "
-				message+=str(item)
-		#Gather Tag
-		tag="Default"
-		if "tag" in kwargs:
-			tag=kwargs["tag"]
-		#Get time
-		currentTime=datetime.datetime.now().time()
-
-		defaultDict=self.dataDict
-		#Check if system or not
-		if "system" in kwargs:
-			if kwargs["system"]:
-				defaultDict=self.systemDict
-				system=True
-
-		#Create dictionary and add data
-		if tag not in defaultDict:
-			defaultDict[tag]=[]
-		defaultDict[tag].append({"Time":currentTime,"Tag":tag,"Message":message})
-
-		#Add to listbox if there is one
-
-		if system:
-			self.addDataToTree(message,currentTime,True)
-		else:
-			self.addDataToTree(message,currentTime,False)
-
-	def addTree(self,indicator,tree):
-		"""
-		Assign a tree to export to for
-		each option. System info and default info
-		"""
-		if indicator == "System":
-			self.systemTree=tree
-		elif indicator == "Default":
-			self.defaultTree=tree
-
-	def addDataToTree(self,data,time,system):
-		"""
-		This method will take the time and data
-		provided and insert it into the tree
-		"""
-		if system:
-			#Add to system tree
-				if self.systemTree != None:
-					self.systemTree.insert("" , 0,values=(data,time))
-		else:
-			if self.defaultTree != None:
-				self.defaultTree.insert("" , 0,values=(data,time))
-
-log=logClass("UI")
-
-import PEM
+log=logClass("User Interface")
 
 #==================================(FUNCTIONS)=============================
 
@@ -464,7 +377,7 @@ def advancedSearch(target, dataToSearch):
 					if advancedSearch(target, [dataInSection]):
 						return True
 			#If data is a student class
-			elif dataType == PEM.dataPod:
+			elif dataType == dataPod:
 				data=item.getInfo()
 				if advancedSearch(target, data):
 					return True
@@ -491,13 +404,14 @@ def getBaseOfDirectory(value,fileNameOrBaseName):
 			return ""
 
 def postMenu(event,listbox,menu):
-    try:
-        current=listbox.curselection()
-    except:
-        print("Listbox error")
-    else:
-        if len(current) > 0:
-            menu.post(event.x_root, event.y_root)
+	try:
+		current=listbox.curselection()
+	except:
+		log.report("Listbox error","")
+
+	else:
+		if len(current) > 0:
+			menu.post(event.x_root,event.y_root)
 #==================================(CLASSES)=============================
 
 
@@ -699,8 +613,6 @@ class mainScreen(mainFrame):
 					except:
 						pass
 
-
-
 	def addCommand(self,command):
 		self.commands.append(command)
 
@@ -748,7 +660,7 @@ class advancedListbox(Listbox):
 		"""
 
 		#Get correct colour for template
-		if type(objectInstance) == PEM.dataPod:
+		if type(objectInstance) == dataPod:
 			templateType=objectInstance.templateType
 			colour=privateTemplate.templateColours[templateType]
 		else:
@@ -1908,7 +1820,7 @@ class privateNotebook(advancedNotebook):
 		onto the notebook. It will take the pod 
 		vault and display it on screen
 		"""
-		if type(dataPodInstance) == PEM.dataPod:
+		if type(dataPodInstance) == dataPod:
 
 			#Get the type of pod
 			templateType=dataPodInstance.templateType
@@ -1993,14 +1905,13 @@ class privateNotebook(advancedNotebook):
 		"""
 		This method is used to save the new data
 		entered in the data sources for the notebook
-		:param multiViewInstance:
-		:return:
+
 		"""
 		#Updates the pod vault
-		currentMasterPod=PEM.masterPod.currentMasterPod
+		currentMasterPod=masterPod.currentMasterPod
 		if currentMasterPod:
 			#Get the data pod that is currently loaded
-			currentPod=PEM.masterPod.currentMasterPod.currentPod
+			currentPod=masterPod.currentMasterPod.currentPod
 			if currentPod:
 				#Find changed data
 				for display in self.tabDict:

@@ -13,10 +13,8 @@ from tkinter import messagebox
 import random
 import os
 
-from PyFiles.PyUi import *
 from PyFiles.PEM import *
-
-
+from PyFiles.PyUi import *
 
 
 #===============================(WINDOW SETUP)===============================
@@ -25,6 +23,7 @@ window.title("PyPassword 2")
 window.geometry("500x400")
 addUIWindow(window)
 addPEMWindow(window)
+
 
 #---Main Menu---
 mainMenu=Menu(window)
@@ -585,7 +584,12 @@ def attemptUnlockMasterPod():
 	attempt=openMasterEntry.get()
 	if len(attempt.split()) > 0:
 		content=openPickle(masterPod.currentOpenFileName)
-		if content != None and type(content) == masterPod:
+		if type(content) == PEM.masterPod:
+			log.report("Valid pod loaded")
+		else:
+			log.report("Attempted to load invalid pod type")
+		if content != None:
+			#Attempt to open older master
 			if unlockMasterPod(content,attempt):
 				currentMasterPod=content
 				#Update the key
