@@ -13,9 +13,8 @@ from tkinter import messagebox
 import random
 import os
 
-from PyFiles.PEM import *
-from PyFiles.PyUi import *
-
+from PEM import *
+from PyUi import *
 
 #===============================(WINDOW SETUP)===============================
 window=Tk()
@@ -584,7 +583,7 @@ def attemptUnlockMasterPod():
 	attempt=openMasterEntry.get()
 	if len(attempt.split()) > 0:
 		content=openPickle(masterPod.currentOpenFileName)
-		if type(content) == PEM.masterPod:
+		if type(content) == masterPod:
 			log.report("Valid pod loaded")
 		else:
 			log.report("Attempted to load invalid pod type")

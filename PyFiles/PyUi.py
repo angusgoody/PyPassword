@@ -22,7 +22,7 @@ import random
 from tkinter import messagebox
 from tkinter import filedialog
 import webbrowser
-from PyFiles.PEM import *
+from PEM import *
 #Variable for TK windows
 mainWindow=None
 
