@@ -1,8 +1,8 @@
 
-from tkinter import *
+from Tkinter import *
 import pickle
 from Crypto.Cipher import AES
-from tkinter import filedialog
+from Tkinter import filedialog
 import PEM
 
 window=Tk()

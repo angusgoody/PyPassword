@@ -12,10 +12,12 @@ from tkinter import *
 from tkinter import messagebox
 import random
 import os
-import re
 
-from PyUi import *
-from PEM import *
+from PyFiles.PyUi import *
+from PyFiles.PEM import *
+
+
+
 
 #===============================(WINDOW SETUP)===============================
 window=Tk()
