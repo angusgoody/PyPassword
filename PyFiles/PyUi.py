@@ -43,6 +43,17 @@ functions that help reduce the amount
 of code needed.
 """
 
+def checkEntry(entry):
+	"""
+	Function to check valid
+	entry data
+	"""
+	data=entry.get()
+	if len(data.split()) > 0:
+		return True
+	else:
+		return False
+
 def launchWebsite(url):
 	"""
 	This function will launch the website in the default

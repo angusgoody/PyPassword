@@ -857,6 +857,12 @@ def checkMasterPodDataValid(entryList,dataSource,popupInstance):
 
 def addNewPod(location):
 	openMainListbox.addObject(getBaseOfDirectory(location,"base"),location)
+
+def loadReview():
+	genPasswordScreen.show()
+	#Show review tab
+	genPasswordNotebook.showView("Review")
+
 #endregion
 
 
@@ -916,6 +922,8 @@ lockScreenMenu.add_cascade(label="File",menu=lockFileMenu)
 #==File==
 fileMenu.add_command(label="Home",command=homeScreen.show)
 fileMenu.add_command(label="Generate Password",command=genPasswordScreen.show)
+fileMenu.add_command(label="Review Password",command=loadReview)
+
 
 fileMenu.add_separator()
 fileMenu.add_command(label="Save Data", command=lambda: masterPod.currentMasterPod.save())

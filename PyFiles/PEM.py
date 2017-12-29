@@ -386,6 +386,7 @@ class masterPod:
 	"""
 	currentMasterPod=None
 	currentOpenFileName=""
+	#Key = directory
 	masterPodDict={}
 	masterPodNames=[]
 	def __init__(self,fileName):
